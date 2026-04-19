@@ -1447,7 +1447,7 @@ button:focus-visible, .input:focus-visible{
       <div class="form">
         <div class="field">
           <div class="field-label">Name</div>
-          <input class="input" id="create-name" placeholder="e.g. Harshit" maxlength="20" autocomplete="off">
+          <input class="input" id="create-name" placeholder="Your name" maxlength="20" autocomplete="off">
         </div>
       </div>
     </div>
@@ -1479,7 +1479,7 @@ button:focus-visible, .input:focus-visible{
         </div>
         <div class="field">
           <div class="field-label">Your name</div>
-          <input class="input" id="join-name" placeholder="e.g. Aisha" maxlength="20" autocomplete="off">
+          <input class="input" id="join-name" placeholder="Your name" maxlength="20" autocomplete="off">
         </div>
       </div>
     </div>
@@ -1745,7 +1745,7 @@ button:focus-visible, .input:focus-visible{
           Truth
         </button>
         <button class="tnd-choice" onclick="tndPick('dare')">
-          <span class="tnd-choice-kicker">No chickening</span>
+          <span class="tnd-choice-kicker">No skipping</span>
           Dare
         </button>
       </div>
@@ -1766,7 +1766,7 @@ button:focus-visible, .input:focus-visible{
       </div>
       <div class="tnd-actions" id="tnd-actions">
         <button class="btn btn-primary btn-full" onclick="tndSubmit('done')">I did it / answered honestly</button>
-        <button class="btn btn-full" onclick="tndSubmit('skip')">Chicken out (pass)</button>
+        <button class="btn btn-full" onclick="tndSubmit('skip')">Skip (pass)</button>
       </div>
       <div class="tnd-watching" id="tnd-prompt-watch" style="display:none">
         <div style="padding:20px 0">
@@ -1791,7 +1791,7 @@ button:focus-visible, .input:focus-visible{
       <div class="tnd-verdict-row">
         <button class="btn" onclick="tndJudge('yes')">✓ Did it</button>
         <button class="btn" onclick="tndJudge('mid')">⧗ Half-way</button>
-        <button class="btn" onclick="tndJudge('no')">✗ Chickened</button>
+        <button class="btn" onclick="tndJudge('no')">✗ Skipped</button>
       </div>
     </div>
 
@@ -2800,7 +2800,7 @@ function startGame(){
       target,
       round: 0,
       phase: 'play',
-      board: [null,null,null,null,null,null,null,null,null],
+      board: tttNewBoard(),
       turn: 0, // who plays first — alternates
       scores: [0, 0],
       winner: null,
@@ -3019,7 +3019,7 @@ function handleGameUpdate(game){
       S._lastRxnKey = lastKey;
       const r = game.rxn[lastKey];
       if(r && r.from !== undefined && r.from !== S.role){
-        const p = S.room.players[r.from];
+        const p = (S.room && S.room.players) ? S.room.players[r.from] : null;
         rxnToast(r.e, (p && p.name) || 'them');
       }
     }
@@ -3127,7 +3127,7 @@ function playWin(){
 }
 
 // ── REACTIONS ──
-const REACTIONS = ['🔥','😂','💀','👀','🤝','😳'];
+const REACTIONS = ['👏','😂','😮','👀','🤝','❤️'];
 
 function renderRxn(containerId){
   const c = $(containerId);
@@ -3340,24 +3340,24 @@ function renderWYR(g){
       card.classList.add('match');
       verdict.classList.add('match');
       verdict.textContent = rnd([
-        'Literally the same brain',
-        'Aligned. Suspicious.',
-        'The nation agrees',
-        'Same page.',
-        'Mind meld.'
+        'Same answer',
+        'Matched',
+        'Aligned',
+        'On the same page',
+        'You agree'
       ]);
       $('wyr-reveal-sub').textContent = 'Both picked the same thing.';
     } else {
       card.classList.add('clash');
       verdict.classList.add('clash');
       verdict.textContent = rnd([
-        'Nation divided',
-        'Completely different wavelengths',
-        'Red flag or a green flag?',
-        'Irreconcilable differences',
-        'Agree to disagree'
+        'Different picks',
+        'No match',
+        'Different answers',
+        'You disagree',
+        'Split decision'
       ]);
-      $('wyr-reveal-sub').textContent = 'No match. Unpack that.';
+      $('wyr-reveal-sub').textContent = 'Different picks this round.';
     }
 
     $('wyr-you-pick').textContent = myPick === 'a' ? cur.v[0] : cur.v[1];
@@ -3428,11 +3428,44 @@ const TTT_WINS = [
   [0,4,8],[2,4,6]          // diags
 ];
 
+// Firebase strips null values from arrays and converts sparse arrays to
+// objects. We store the board as a plain object {0:null,...,8:null} so
+// every cell is always present in the DB, then normalize to a 9-element
+// array for all game logic. Empty cells are `null`, 0 = host, 1 = guest.
+function tttNewBoard(){
+  const b = {};
+  for(let i = 0; i < 9; i++) b[i] = null;
+  return b;
+}
+function tttBoardArr(board){
+  const out = new Array(9).fill(null);
+  if(!board) return out;
+  if(Array.isArray(board)){
+    for(let i = 0; i < 9; i++) out[i] = (board[i] !== undefined ? board[i] : null);
+    return out;
+  }
+  for(let i = 0; i < 9; i++){
+    const v = board[i];
+    out[i] = (v === undefined) ? null : v;
+  }
+  return out;
+}
+function tttBoardFromArr(arr){
+  const b = {};
+  for(let i = 0; i < 9; i++) b[i] = (arr[i] === undefined ? null : arr[i]);
+  return b;
+}
+function tttIsFull(arr){
+  for(let i = 0; i < 9; i++) if(arr[i] === null) return false;
+  return true;
+}
+
 function tttCheckWinner(board){
+  const arr = tttBoardArr(board);
   for(let i = 0; i < TTT_WINS.length; i++){
     const [a,b,c] = TTT_WINS[i];
-    if(board[a] !== null && board[a] === board[b] && board[a] === board[c]){
-      return { winner: board[a], line: TTT_WINS[i] };
+    if(arr[a] !== null && arr[a] === arr[b] && arr[a] === arr[c]){
+      return { winner: arr[a], line: TTT_WINS[i] };
     }
   }
   return null;
@@ -3447,8 +3480,9 @@ function renderTTT(g){
   const p1Name = S.room.players[1].name;
 
   // Score display — always in MY perspective (me on left)
-  const myScore = g.scores[S.role];
-  const themScore = g.scores[1 - S.role];
+  const scores = g.scores || [0, 0];
+  const myScore = scores[S.role] || 0;
+  const themScore = scores[1 - S.role] || 0;
   const myName = (S.role === 0 ? p0Name : p1Name);
   const themName = (S.role === 0 ? p1Name : p0Name);
 
@@ -3458,10 +3492,10 @@ function renderTTT(g){
   $('ttt-score-1').textContent = themScore;
 
   const phase = g.phase || 'play';
+  const boardArr = tttBoardArr(g.board);
 
   if(phase === 'play'){
-    const board = g.board || [null,null,null,null,null,null,null,null,null];
-    const turn = g.turn || 0; // absolute role whose turn it is
+    const turn = (g.turn === undefined || g.turn === null) ? 0 : g.turn;
     const isMyTurn = turn === S.role;
 
     // Scoreboard active indicator
@@ -3478,13 +3512,12 @@ function renderTTT(g){
       st.textContent = themName + ' is thinking...';
     }
 
-    renderTTTBoard(board, isMyTurn, null);
+    renderTTTBoard(boardArr, isMyTurn, null);
     $('ttt-footer').style.display = 'none';
   }
   else if(phase === 'reveal'){
     // Round complete, show result
-    const board = g.board;
-    const w = tttCheckWinner(board);
+    const w = tttCheckWinner(boardArr);
     const st = $('ttt-status');
 
     if(w){
@@ -3504,22 +3537,27 @@ function renderTTT(g){
     $('ttt-sbox-0').classList.remove('active');
     $('ttt-sbox-1').classList.remove('active');
 
-    renderTTTBoard(board, false, w ? w.line : null);
+    renderTTTBoard(boardArr, false, w ? w.line : null);
 
     $('ttt-footer').style.display = 'block';
     renderRxn('ttt-rxn');
 
     // Next button — check if match is over
-    const matchOver = g.scores[0] >= g.target || g.scores[1] >= g.target || (g.round + 1) >= g.bestOf;
-    $('ttt-next-btn').textContent = matchOver ? 'See final →' : 'Next round →';
-    $('ttt-next-btn').disabled = false;
+    const target = g.target || Math.ceil((g.bestOf || 3) / 2);
+    const matchOver = scores[0] >= target || scores[1] >= target || (g.round + 1) >= g.bestOf;
+    const nextBtn = $('ttt-next-btn');
+    nextBtn.textContent = matchOver ? 'See final →' : 'Next round →';
+    nextBtn.disabled = false;
+    // Reset guest waiting label if it was set previously
+    if(S.role === 1){ nextBtn.dataset.waiting = ''; }
   }
 }
 
-function renderTTTBoard(board, interactive, highlightLine){
+function renderTTTBoard(boardArr, interactive, highlightLine){
   const el = $('ttt-board');
   el.innerHTML = '';
-  board.forEach((cell, i) => {
+  for(let i = 0; i < 9; i++){
+    const cell = boardArr[i];
     const div = document.createElement('div');
     div.className = 'ttt-cell';
     if(cell === 0){ div.classList.add('mark-x', 'taken'); div.textContent = '×'; }
@@ -3530,49 +3568,46 @@ function renderTTTBoard(board, interactive, highlightLine){
     } else {
       div.classList.add('waiting');
     }
-    if(highlightLine && highlightLine.includes(i)){
+    if(highlightLine && highlightLine.indexOf(i) >= 0){
       div.classList.add('highlight');
     }
     el.appendChild(div);
-  });
+  }
 }
 
 function tttMove(i){
   const g = S.room && S.room.game;
   if(!g || g.kind !== 'ttt') return;
   if(g.phase !== 'play') return;
-  if(g.turn !== S.role) return;
-  const board = (g.board || []).slice();
-  if(board[i] !== null) return;
-  board[i] = S.role;
+  const turn = (g.turn === undefined || g.turn === null) ? 0 : g.turn;
+  if(turn !== S.role) return;
 
-  // Check if this move wins
-  const w = tttCheckWinner(board);
-  const full = board.indexOf(null) < 0;
+  const arr = tttBoardArr(g.board);
+  if(arr[i] !== null) return;
+  arr[i] = S.role;
+
+  // Check if this move wins or draws the round
+  const w = tttCheckWinner(arr);
+  const full = tttIsFull(arr);
 
   const updates = {
-    board,
+    board: tttBoardFromArr(arr),
     turn: 1 - S.role
   };
 
   if(w || full){
-    // Round ends — both players will handle this, but host authoritatively updates scores
-    // To avoid races, only host writes scores
     if(S.role === 0){
-      const scores = g.scores.slice();
-      if(w) scores[w.winner]++;
-      updates.scores = scores;
+      // Host writes scores + phase change authoritatively
+      const scoresArr = (g.scores || [0, 0]).slice();
+      if(w) scoresArr[w.winner] = (scoresArr[w.winner] || 0) + 1;
+      updates.scores = scoresArr;
       updates.phase = 'reveal';
       updates.winner = w ? w.winner : null;
     }
+    // If guest made the ending move, host will detect via listener and finalize.
   }
 
   S.rref.child('game').update(updates);
-
-  // If guest moved and it's game-ending, host listener will handle it
-  if((w || full) && S.role === 1){
-    // Host will score when they receive the update
-  }
 }
 
 function tttNext(){
@@ -3584,7 +3619,9 @@ function tttNext(){
     return;
   }
   const g = S.room.game;
-  const matchOver = g.scores[0] >= g.target || g.scores[1] >= g.target || (g.round + 1) >= g.bestOf;
+  const scores = g.scores || [0, 0];
+  const target = g.target || Math.ceil((g.bestOf || 3) / 2);
+  const matchOver = scores[0] >= target || scores[1] >= target || (g.round + 1) >= g.bestOf;
   if(matchOver){
     S.rref.update({ state: 'done' });
     return;
@@ -3593,7 +3630,7 @@ function tttNext(){
   S.rref.child('game').update({
     round: nextRound,
     phase: 'play',
-    board: [null,null,null,null,null,null,null,null,null],
+    board: tttNewBoard(),
     turn: nextRound % 2, // alternate who starts
     winner: null,
     guestReady: null
@@ -3603,16 +3640,18 @@ function tttNext(){
 // Host: also process guest's game-ending move when we see it
 function tttHostCheckEnd(g){
   if(S.role !== 0) return;
+  if(!g || g.kind !== 'ttt') return;
   if(g.phase !== 'play') return;
-  if(!g.board) return;
-  const w = tttCheckWinner(g.board);
-  const full = g.board.indexOf(null) < 0;
+  if(g.board === undefined || g.board === null) return;
+  const arr = tttBoardArr(g.board);
+  const w = tttCheckWinner(arr);
+  const full = tttIsFull(arr);
   if(w || full){
-    const scores = g.scores.slice();
-    if(w) scores[w.winner]++;
+    const scoresArr = (g.scores || [0, 0]).slice();
+    if(w) scoresArr[w.winner] = (scoresArr[w.winner] || 0) + 1;
     S.rref.child('game').update({
       phase: 'reveal',
-      scores,
+      scores: scoresArr,
       winner: w ? w.winner : null
     });
   }
@@ -3664,8 +3703,17 @@ function renderTND(g){
   }
   else if(phase === 'prompt'){
     $('tnd-prompt-phase').style.display = 'block';
-    const prompt = (g.pool && g.pool[g.promptIdx]) || null;
-    if(!prompt){ return; }
+    const prompt = (g.pool && (g.promptIdx !== undefined && g.promptIdx !== null)) ? g.pool[g.promptIdx] : null;
+    if(!prompt || !prompt.v){
+      // Defensive: if prompt missing, show neutral state
+      $('tnd-prompt-for').textContent = 'Loading prompt...';
+      $('tnd-prompt-type-big').textContent = '';
+      $('tnd-prompt-type-lbl').textContent = '';
+      $('tnd-prompt-text').textContent = '';
+      $('tnd-actions').style.display = 'none';
+      $('tnd-prompt-watch').style.display = 'none';
+      return;
+    }
 
     const typeLabel = prompt.v.t === 'truth' ? 'Truth' : 'Dare';
     const typeUpper = typeLabel.toUpperCase();
@@ -3684,42 +3732,84 @@ function renderTND(g){
       $('tnd-prompt-watch').style.display = 'block';
       $('tnd-watch-type-lbl').textContent = typeUpper;
       $('tnd-watch-text').textContent = prompt.v.x;
+      // Reset the trailing waiting text (in case it was overwritten by judge-phase
+      // active-player waiting state in a previous round). We rebuild it safely.
+      const watchEl = $('tnd-prompt-watch');
+      let waitFoot = watchEl.querySelector('.tnd-watch-foot');
+      if(!waitFoot){
+        // If the original trailing `.mute` div was destroyed, rebuild it
+        const m = watchEl.querySelector('.mute');
+        if(!m){
+          const f = document.createElement('div');
+          f.className = 'tnd-watch-foot mute';
+          f.style.paddingTop = '10px';
+          f.textContent = 'Waiting for them to answer...';
+          watchEl.appendChild(f);
+        } else {
+          m.classList.add('tnd-watch-foot');
+          m.textContent = 'Waiting for them to answer...';
+        }
+      } else {
+        waitFoot.textContent = 'Waiting for them to answer...';
+      }
     }
   }
   else if(phase === 'judge'){
-    // The one who was active just declared done/skipped — other judges
-    $('tnd-judge-phase').style.display = 'block';
-    const prompt = (g.pool && g.pool[g.promptIdx]) || null;
-    if(!prompt) return;
+    // The one who was active just declared done — other judges
+    const prompt = (g.pool && (g.promptIdx !== undefined && g.promptIdx !== null)) ? g.pool[g.promptIdx] : null;
 
     if(isMyTurn){
-      // Active player is waiting for judge
-      $('tnd-judge-phase').style.display = 'none';
+      // Active player is waiting for judge — show prompt card with a "waiting for verdict" line,
+      // WITHOUT destroying the watcher DOM nodes. We use the prompt phase's watcher view
+      // and just tweak the trailing text.
       $('tnd-prompt-phase').style.display = 'block';
       $('tnd-actions').style.display = 'none';
       $('tnd-prompt-watch').style.display = 'block';
-      $('tnd-prompt-watch').innerHTML = '<div style="padding:20px 0;text-align:center" class="mute italic serif">Waiting for ' + watcherName + ' to judge...</div>';
+
+      if(prompt && prompt.v){
+        const typeLabel = prompt.v.t === 'truth' ? 'Truth' : 'Dare';
+        $('tnd-prompt-for').textContent = 'Your ' + typeLabel.toLowerCase();
+        $('tnd-prompt-type-big').textContent = typeLabel;
+        $('tnd-watch-type-lbl').textContent = typeLabel.toUpperCase();
+        $('tnd-watch-text').textContent = prompt.v.x;
+      }
+      // Reuse / ensure the trailing footer exists and update its text
+      const watchEl = $('tnd-prompt-watch');
+      let waitFoot = watchEl.querySelector('.tnd-watch-foot') || watchEl.querySelector('.mute');
+      if(!waitFoot){
+        waitFoot = document.createElement('div');
+        waitFoot.className = 'tnd-watch-foot mute';
+        waitFoot.style.paddingTop = '10px';
+        watchEl.appendChild(waitFoot);
+      } else {
+        waitFoot.classList.add('tnd-watch-foot');
+      }
+      waitFoot.textContent = 'Waiting for ' + watcherName + ' to judge...';
     } else {
-      $('tnd-judge-name').textContent = activeName;
-      $('tnd-judge-type').textContent = prompt.v.t === 'truth' ? 'TRUTH' : 'DARE';
-      $('tnd-judge-text').textContent = prompt.v.x;
+      $('tnd-judge-phase').style.display = 'block';
+      if(prompt && prompt.v){
+        $('tnd-judge-name').textContent = activeName;
+        $('tnd-judge-type').textContent = prompt.v.t === 'truth' ? 'TRUTH' : 'DARE';
+        $('tnd-judge-text').textContent = prompt.v.x;
+      }
+      // Re-enable judge buttons in case this is a new round
+      document.querySelectorAll('#tnd-judge-phase .btn').forEach(b => b.disabled = false);
     }
   }
   else if(phase === 'reveal'){
     $('tnd-reveal-phase').style.display = 'block';
     const verdict = g.verdict;
-    const prompt = (g.pool && g.pool[g.promptIdx]) || null;
 
     let verdictText = '';
     let verdictSub = '';
     if(verdict === 'yes'){
-      verdictText = rnd(['Respect.', 'They did the thing.', 'No chickening.', 'Fair play.']);
-      verdictSub = 'Point for honesty';
+      verdictText = rnd(['Respect.', 'They did it.', 'Well done.', 'Fair play.']);
+      verdictSub = 'Credit for honesty';
     } else if(verdict === 'mid'){
       verdictText = rnd(['Halfway there.', 'Partial credit.', 'A for effort.', 'Middle ground.']);
       verdictSub = 'Half the glory';
     } else {
-      verdictText = rnd(['Chickened.', 'Disappointing.', 'No dice.', 'Skipped — noted.']);
+      verdictText = rnd(['Skipped.', 'Passed.', 'No dice.', 'Noted.']);
       verdictSub = 'Passed this one';
     }
 
@@ -3728,8 +3818,9 @@ function renderTND(g){
     renderRxn('tnd-rxn');
 
     const isLast = round + 1 >= total;
-    $('tnd-next-btn').textContent = isLast ? 'See results →' : 'Next round →';
-    $('tnd-next-btn').disabled = false;
+    const nextBtn = $('tnd-next-btn');
+    nextBtn.textContent = isLast ? 'See results →' : 'Next round →';
+    nextBtn.disabled = false;
   }
 }
 
@@ -3739,17 +3830,47 @@ function tndPick(type){
   if(g.phase !== 'pick') return;
   if(g.activePlayer !== S.role) return;
 
-  // Pick a random unseen prompt of this type from pool
   const pool = g.pool || [];
-  // Filter indexes where type matches
+  // Filter pool entries matching the chosen type
   const candidateIdx = [];
   for(let i = 0; i < pool.length; i++){
-    if(pool[i].v.t === type) candidateIdx.push(i);
+    if(pool[i] && pool[i].v && pool[i].v.t === type) candidateIdx.push(i);
   }
+
   // Prefer not-yet-used in this game
   const usedIdx = new Set((g.results || []).map(r => r.promptIdx));
   const fresh = candidateIdx.filter(i => !usedIdx.has(i));
-  const chosen = fresh.length > 0 ? fresh[Math.floor(Math.random() * fresh.length)] : candidateIdx[Math.floor(Math.random() * candidateIdx.length)];
+
+  let chosen;
+  let chosenPrompt = null;
+
+  if(fresh.length > 0){
+    chosen = fresh[Math.floor(Math.random() * fresh.length)];
+    chosenPrompt = pool[chosen];
+  } else if(candidateIdx.length > 0){
+    chosen = candidateIdx[Math.floor(Math.random() * candidateIdx.length)];
+    chosenPrompt = pool[chosen];
+  } else {
+    // Fallback: pool didn't contain any prompts of this type.
+    // Draw from the full spice bank directly, append to pool as a new entry.
+    const spice = g.spice || 'mild';
+    const bank = (window.PROMPTS && window.PROMPTS.tnd && window.PROMPTS.tnd[spice]) || [];
+    const typeBank = bank.filter(p => p.t === type);
+    if(!typeBank.length){
+      toast('No prompts available');
+      return;
+    }
+    const picked = typeBank[Math.floor(Math.random() * typeBank.length)];
+    // Find its original index in the spice bank
+    const bankIdx = bank.indexOf(picked);
+    const newEntry = { i: bankIdx, v: picked };
+    const newPool = pool.slice();
+    newPool.push(newEntry);
+    chosen = newPool.length - 1;
+    chosenPrompt = newEntry;
+    // Persist the expanded pool
+    S.rref.child('game/pool').set(newPool);
+  }
 
   S.rref.child('game').update({
     phase: 'prompt',
@@ -3802,21 +3923,22 @@ function tndNext(){
     return;
   }
   const g = S.room.game;
+  if(!g) return;
 
   // Save result
-  const prompt = g.pool[g.promptIdx];
+  const prompt = (g.pool && (g.promptIdx !== undefined && g.promptIdx !== null)) ? g.pool[g.promptIdx] : null;
   const results = (g.results || []).slice();
   results.push({
-    promptIdx: g.promptIdx,
-    player: g.activePlayer,
-    type: g.pickedType,
-    text: prompt && prompt.v.x,
-    verdict: g.verdict
+    promptIdx: g.promptIdx === undefined ? null : g.promptIdx,
+    player: g.activePlayer === undefined ? 0 : g.activePlayer,
+    type: g.pickedType || (prompt && prompt.v ? prompt.v.t : 'truth'),
+    text: (prompt && prompt.v) ? prompt.v.x : '',
+    verdict: g.verdict || 'no'
   });
   // Mark seen
-  if(prompt) markSeen('tnd_' + (g.spice || 'mild'), [prompt.i]);
+  if(prompt && prompt.i !== undefined) markSeen('tnd_' + (g.spice || 'mild'), [prompt.i]);
 
-  const nextRound = g.round + 1;
+  const nextRound = (g.round || 0) + 1;
   if(nextRound >= g.rounds){
     S.rref.child('game').update({ results });
     setTimeout(() => S.rref.update({ state: 'done' }), 50);
@@ -3921,11 +4043,11 @@ function renderGuess(g){
     verdict.classList.remove('win', 'lose', 'tie');
     if(right){
       verdict.classList.add('win');
-      verdict.textContent = iAmAnswerer ? 'They got it' : rnd(['You know them.', 'Nailed it.', 'Read them perfectly.', 'Spot on.']);
+      verdict.textContent = iAmAnswerer ? 'They got it' : rnd(['Correct.', 'Got it right.', 'You knew that one.', 'Right answer.']);
       $('guess-verdict-sub').textContent = '+1 for ' + guesserName;
     } else {
       verdict.classList.add('lose');
-      verdict.textContent = iAmAnswerer ? 'They missed it' : rnd(["That's not them.", 'Swing and a miss.', 'Back to school.', 'Wrong call.']);
+      verdict.textContent = iAmAnswerer ? 'They missed it' : rnd(['Wrong answer.', 'Not this time.', "That's not it.", 'Missed.']);
       $('guess-verdict-sub').textContent = 'No point this round';
     }
 
@@ -3986,9 +4108,14 @@ function guessNext(){
     return;
   }
   const g = S.room.game;
+  if(!g || !g.pool) return;
   const cur = g.pool[g.round];
-  const right = g.answer && g.guess && g.answer.idx === g.guess.idx;
-  const scores = g.scores.slice();
+  if(!cur) return;
+
+  const answerIdx = (g.answer && g.answer.idx !== undefined) ? g.answer.idx : null;
+  const guessIdx = (g.guess && g.guess.idx !== undefined) ? g.guess.idx : null;
+  const right = (answerIdx !== null && guessIdx !== null && answerIdx === guessIdx);
+  const scores = (g.scores || [0, 0]).slice();
   if(right) scores[1 - g.answerer]++; // guesser gets point
 
   const results = (g.results || []).slice();
@@ -3996,8 +4123,8 @@ function guessNext(){
     q: cur.v.q,
     options: cur.v.o,
     answererIdx: g.answerer,
-    answerIdx: g.answer.idx,
-    guessIdx: g.guess.idx,
+    answerIdx: answerIdx === null ? -1 : answerIdx,
+    guessIdx: guessIdx === null ? -1 : guessIdx,
     right
   });
 
@@ -4046,15 +4173,15 @@ function renderFinal(game){
     const matched = (game.results || []).filter(r => r.match).length;
     const pct = Math.round((matched / total) * 100);
 
-    emoji.textContent = matched >= total * 0.7 ? '💫' : matched >= total * 0.4 ? '✨' : '🌪️';
+    emoji.textContent = matched >= total * 0.7 ? '🎯' : matched >= total * 0.4 ? '👏' : '🔀';
     if(matched >= total * 0.7){
-      title.textContent = 'Two brains, one wavelength';
+      title.textContent = 'Highly aligned';
       sub.textContent = 'Matched on ' + matched + ' of ' + total;
     } else if(matched >= total * 0.4){
       title.textContent = 'Solid overlap, real differences';
       sub.textContent = 'Matched on ' + matched + ' of ' + total;
     } else {
-      title.textContent = "Opposites. That's fun though.";
+      title.textContent = 'Opposites — interesting.';
       sub.textContent = 'Matched on ' + matched + ' of ' + total;
     }
 
@@ -4087,17 +4214,17 @@ function renderFinal(game){
 
     if(iWon){
       emoji.textContent = '🏆';
-      title.textContent = rnd(['You win.', 'Domination.', 'Too clean.']);
+      title.textContent = rnd(['You win.', 'Victory.', 'Nicely done.']);
       sub.textContent = 'Best of ' + game.bestOf;
       confetti();
       playWin();
     } else if(tied){
       emoji.textContent = '🤝';
-      title.textContent = 'Dead even.';
+      title.textContent = 'Tied.';
       sub.textContent = 'No one walks away with it';
     } else {
-      emoji.textContent = '💀';
-      title.textContent = rnd(['You lose.', 'Outplayed.', 'Back to the books.']);
+      emoji.textContent = '🎯';
+      title.textContent = rnd(['You lose.', 'Good game.', 'Close one.']);
       sub.textContent = themName + ' took it';
     }
 
@@ -4119,15 +4246,15 @@ function renderFinal(game){
     const skipCount = results.filter(r => r.verdict === 'no').length;
     const midCount = results.filter(r => r.verdict === 'mid').length;
 
-    emoji.textContent = yesCount >= results.length * 0.7 ? '🔥' : yesCount >= results.length * 0.4 ? '⚡' : '🐔';
+    emoji.textContent = yesCount >= results.length * 0.7 ? '🎯' : yesCount >= results.length * 0.4 ? '👏' : '🙂';
     if(yesCount >= results.length * 0.7){
-      title.textContent = 'Unstoppable energy';
+      title.textContent = 'Strong round';
       sub.textContent = yesCount + ' of ' + results.length + ' completed';
     } else if(yesCount >= results.length * 0.4){
-      title.textContent = 'Decent chaos';
+      title.textContent = 'Mixed round';
       sub.textContent = yesCount + ' completed · ' + skipCount + ' skipped';
     } else {
-      title.textContent = 'Mostly chickened out.';
+      title.textContent = 'Mostly skipped.';
       sub.textContent = yesCount + ' / ' + results.length + ' completed';
     }
 
@@ -4173,9 +4300,9 @@ function renderFinal(game){
     const total = game.rounds;
     const totalRight = game.scores[0] + game.scores[1];
 
-    emoji.textContent = totalRight >= total ? '💘' : totalRight >= total * 0.6 ? '💫' : '🌀';
+    emoji.textContent = totalRight >= total ? '🎯' : totalRight >= total * 0.6 ? '👏' : '🙂';
     if(totalRight >= total){
-      title.textContent = 'You actually know each other';
+      title.textContent = 'You know each other well';
       sub.textContent = totalRight + ' correct guesses of ' + total;
       confetti();
       playWin();
@@ -4183,7 +4310,7 @@ function renderFinal(game){
       title.textContent = 'Paying attention, mostly';
       sub.textContent = totalRight + ' of ' + total;
     } else {
-      title.textContent = 'You need to talk more';
+      title.textContent = 'Room to learn each other';
       sub.textContent = totalRight + ' of ' + total;
     }
 
