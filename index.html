@@ -1,0 +1,4252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0908">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Between &amp; Together</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BETWEEN & TOGETHER — full stylesheet
+   Aesthetic: soft + cinematic. Near-black bg, warm cream ink,
+   amber accent, serif display + Geist sans. Minimal, intentional.
+   ============================================================ */
+
+:root{
+  --bg: #0a0908;
+  --bg-soft: #13110f;
+  --bg-card: #1a1714;
+  --bg-raise: #1f1b17;
+  --line: #2a2622;
+  --line-strong: #3d3832;
+  --ink: #f5ebdc;
+  --ink-dim: #b8ad9c;
+  --ink-mute: #7d7368;
+  --ink-faint: #504a42;
+  --amber: #d99a3e;
+  --amber-soft: rgba(217,154,62,0.14);
+  --amber-border: rgba(217,154,62,0.35);
+  --amber-glow: rgba(217,154,62,0.08);
+  --rose: #c07d6a;
+  --sage: #8fa67a;
+  --red: #c4624a;
+  --gr: #8fa67a;
+  --serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --sans: 'Geist', -apple-system, system-ui, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, monospace;
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow: 0 4px 20px rgba(0,0,0,0.4);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+*{
+  box-sizing: border-box;
+  margin: 0; padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body{ height: 100%; overflow-x: hidden; }
+body{
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+}
+
+body::before{
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(217,154,62,0.045) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 90% 100%, rgba(192,125,106,0.035) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#app{ position: relative; z-index: 1; min-height: 100dvh; }
+
+/* ============================================================
+   TYPOGRAPHY PRIMITIVES
+   ============================================================ */
+.serif{ font-family: var(--serif); font-weight: 500; letter-spacing: -0.01em; }
+.italic{ font-style: italic; }
+.dim{ color: var(--ink-dim); }
+.mute{ color: var(--ink-mute); }
+.faint{ color: var(--ink-faint); }
+.mono{ font-family: var(--mono); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.upper{
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ink-mute);
+}
+.amber{ color: var(--amber); }
+.rose{ color: var(--rose); }
+
+/* ============================================================
+   SCREEN SYSTEM
+   ============================================================ */
+.sc{
+  display: none;
+  min-height: 100dvh;
+  padding: 18px 20px 28px;
+}
+.sc.on{
+  display: flex;
+  flex-direction: column;
+  animation: scIn .45s cubic-bezier(.2,.7,.2,1);
+}
+@keyframes scIn{
+  from{ opacity: 0; transform: translateY(10px); }
+  to  { opacity: 1; transform: none; }
+}
+
+.wrap{
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   BRAND
+   ============================================================ */
+.brand{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 0 28px;
+  user-select: none;
+}
+.brand-mark{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 44px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.brand-mark .amp{ color: var(--amber); margin: 0 2px; }
+.brand-sub{
+  margin-top: 12px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.brand-small{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 0 16px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 20px;
+  color: var(--ink-dim);
+}
+.brand-small .amp{ color: var(--amber); }
+.brand-small::before, .brand-small::after{
+  content: '';
+  width: 20px; height: 1px;
+  background: var(--line-strong);
+}
+
+/* ============================================================
+   HOME SCREEN
+   ============================================================ */
+.home-tag{
+  text-align: center;
+  margin: 6px auto 40px;
+  max-width: 320px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--ink-dim);
+  line-height: 1.45;
+}
+
+.home-actions{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 4px;
+}
+.home-actions .btn{ width: 100%; }
+
+.home-tiny{
+  text-align: center;
+  margin-top: 32px;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+}
+
+/* History section */
+.history{
+  margin-top: auto;
+  padding: 20px 4px 0;
+}
+.history-title{
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+.history-list{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.history-item{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.history-item:hover{ border-color: var(--line-strong); background: var(--bg-card); }
+.history-item .hi-left{ display: flex; align-items: center; gap: 10px; min-width: 0; }
+.history-item .hi-code{ font-family: var(--mono); font-size: 12px; color: var(--amber); flex-shrink: 0; }
+.history-item .hi-name{ color: var(--ink-dim); truncate: ellipsis; overflow: hidden; white-space: nowrap; }
+.history-item .hi-time{ font-size: 11px; color: var(--ink-mute); flex-shrink: 0; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 22px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all .2s cubic-bezier(.2,.7,.2,1);
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.btn:hover:not(:disabled){ border-color: var(--ink-dim); background: var(--bg-card); }
+.btn:active:not(:disabled){ transform: scale(0.98); }
+.btn:disabled{ opacity: .4; cursor: not-allowed; }
+
+.btn-primary{
+  background: var(--amber);
+  color: #12100b;
+  border-color: var(--amber);
+  font-weight: 600;
+}
+.btn-primary:hover:not(:disabled){ background: #e4a74b; border-color: #e4a74b; }
+
+.btn-ghost{
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink-dim);
+  padding: 10px 14px;
+  font-size: 13px;
+}
+.btn-ghost:hover:not(:disabled){ color: var(--ink); background: var(--bg-soft); }
+
+.btn-tiny{
+  font-size: 12px; padding: 8px 12px; border-radius: 8px;
+}
+
+.btn-full{ width: 100%; }
+.btn-lg{ padding: 16px 24px; font-size: 15px; }
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+.input{
+  width: 100%;
+  padding: 14px 16px;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color .15s, background .15s;
+}
+.input:focus{ border-color: var(--amber-border); background: var(--bg-card); }
+.input::placeholder{ color: var(--ink-mute); }
+
+.input-code{
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 22px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  padding: 18px 16px;
+  padding-left: calc(16px + 0.4em); /* compensate for letter-spacing */
+}
+
+.field{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field-label{
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  padding: 0 2px;
+}
+
+.form{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card{
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+.card-pad{ padding: 24px; }
+
+/* ============================================================
+   BACK BUTTON / HEADER ROW
+   ============================================================ */
+.top-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  min-height: 32px;
+}
+.back-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-dim);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 0;
+  font-family: var(--sans);
+}
+.back-btn:hover{ color: var(--ink); }
+.back-btn::before{ content: '←'; font-size: 15px; }
+
+.top-title{
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.top-code{
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--amber);
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  transition: all .15s;
+}
+.top-code:hover{ border-color: var(--amber-border); }
+
+/* ============================================================
+   JOIN / CREATE SCREENS
+   ============================================================ */
+.screen-title{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.screen-sub{
+  color: var(--ink-dim);
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+/* ============================================================
+   LOBBY / WAITING
+   ============================================================ */
+.waiting-hero{
+  text-align: center;
+  padding: 20px 0 28px;
+}
+.waiting-code{
+  font-family: var(--mono);
+  font-size: 42px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--amber);
+  padding: 20px 0 4px;
+  padding-left: 0.3em; /* compensate letter-spacing */
+  cursor: pointer;
+  user-select: all;
+}
+.waiting-code-hint{
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.1em;
+}
+
+.slots{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 0;
+}
+.slot{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: border-color .3s;
+}
+.slot.ready{ border-color: var(--amber-border); background: var(--amber-glow); }
+.slot-name{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.slot-name.waiting{ color: var(--ink-mute); }
+.slot-status{
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  display: flex; align-items: center; gap: 6px;
+}
+.slot.ready .slot-status{ color: var(--amber); }
+.slot-dot{
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ink-mute);
+}
+.slot.ready .slot-dot{ background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+.slot-dot.pulse{ animation: slotPulse 1.6s ease infinite; }
+@keyframes slotPulse{ 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ============================================================
+   GAME PICKER (LOBBY)
+   ============================================================ */
+.lobby-hero{
+  text-align: center;
+  padding: 8px 0 24px;
+}
+.lobby-hero .serif{
+  font-size: 28px;
+  color: var(--ink);
+  line-height: 1.15;
+}
+.lobby-hero-sub{
+  font-size: 13px;
+  color: var(--ink-dim);
+  margin-top: 6px;
+}
+
+.game-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.game-card{
+  position: relative;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 20px 16px 18px;
+  cursor: pointer;
+  transition: all .2s cubic-bezier(.2,.7,.2,1);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 130px;
+  overflow: hidden;
+}
+.game-card::before{
+  content: '';
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 36px; height: 36px;
+  opacity: 0.1;
+  font-size: 32px;
+  display: flex; align-items: center; justify-content: center;
+}
+.game-card:hover{
+  border-color: var(--amber-border);
+  background: var(--bg-card);
+  transform: translateY(-1px);
+}
+.gc-kicker{
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--amber);
+  font-weight: 500;
+}
+.gc-title{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.1;
+  margin-top: auto;
+}
+.gc-desc{
+  font-size: 11px;
+  color: var(--ink-mute);
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+/* ============================================================
+   GAME SETUP (CONFIG BEFORE STARTING)
+   ============================================================ */
+.setup-title{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 34px;
+  font-weight: 500;
+  text-align: center;
+  margin: 16px 0 4px;
+  line-height: 1.1;
+}
+.setup-sub{
+  text-align: center;
+  color: var(--ink-dim);
+  font-size: 14px;
+  margin-bottom: 32px;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
+.setup-section{
+  margin-bottom: 24px;
+}
+.setup-section-label{
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+
+.chip-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip{
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--bg-soft);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all .15s;
+  font-family: var(--sans);
+}
+.chip:hover{ color: var(--ink); border-color: var(--line-strong); }
+.chip.on{
+  background: var(--amber);
+  color: #12100b;
+  border-color: var(--amber);
+}
+
+/* Rounds slider */
+.rounds-display{
+  text-align: center;
+  padding: 12px 0 16px;
+}
+.rounds-num{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 56px;
+  font-weight: 500;
+  color: var(--amber);
+  line-height: 1;
+}
+.rounds-lbl{
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 2px;
+}
+.slider{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  background: var(--line-strong);
+  border-radius: 3px;
+  outline: none;
+  margin-top: 10px;
+}
+.slider::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px; height: 20px;
+  background: var(--amber);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 0 6px rgba(217,154,62,0.12);
+}
+.slider::-moz-range-thumb{
+  width: 20px; height: 20px;
+  background: var(--amber);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.setup-footer-note{
+  text-align: center;
+  font-size: 11px;
+  color: var(--ink-mute);
+  margin: 24px 0 20px;
+}
+
+/* ============================================================
+   COUNTDOWN
+   ============================================================ */
+.cd-wrap{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.cd-num{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 140px;
+  font-weight: 500;
+  color: var(--amber);
+  line-height: 1;
+  animation: cdPulse .9s ease;
+}
+.cd-label{
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+@keyframes cdPulse{
+  0%{ transform: scale(1.2); opacity: 0; }
+  40%{ opacity: 1; }
+  100%{ transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   GAME HEADER (common across games)
+   ============================================================ */
+.game-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.game-head-left{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink);
+}
+.game-head-right{
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.12em;
+}
+.progress-bar{
+  height: 2px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.progress-fill{
+  height: 100%;
+  background: var(--amber);
+  transition: width .5s cubic-bezier(.2,.7,.2,1);
+}
+
+/* ============================================================
+   WYR STYLES
+   ============================================================ */
+.wyr-prompt{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink-dim);
+  text-align: center;
+  margin: 32px 0 20px;
+  letter-spacing: 0.02em;
+}
+.wyr-options{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0 2px;
+}
+.wyr-opt{
+  padding: 26px 22px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all .2s cubic-bezier(.2,.7,.2,1);
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: left;
+  color: var(--ink);
+  position: relative;
+}
+.wyr-opt:hover{ border-color: var(--amber-border); background: var(--bg-card); }
+.wyr-opt:active{ transform: scale(0.99); }
+.wyr-opt.picked{ border-color: var(--amber); background: var(--amber-glow); }
+.wyr-opt.disabled{ opacity: .5; pointer-events: none; }
+.wyr-opt-kicker{
+  display: inline-block;
+  font-family: var(--sans);
+  font-style: normal;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.wyr-or{
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-faint);
+  padding: 4px 0;
+}
+
+/* WYR reveal */
+.wyr-reveal-card{
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  margin: 16px 0;
+}
+.wyr-reveal-card.match{
+  background: rgba(143,166,122,0.08);
+  border: 1px solid rgba(143,166,122,0.3);
+}
+.wyr-reveal-card.clash{
+  background: rgba(192,125,106,0.08);
+  border: 1px solid rgba(192,125,106,0.3);
+}
+.wyr-reveal-verdict{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 26px;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+.wyr-reveal-verdict.match{ color: var(--sage); }
+.wyr-reveal-verdict.clash{ color: var(--rose); }
+.wyr-reveal-sub{
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-mute);
+  margin-bottom: 18px;
+}
+.wyr-reveal-picks{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.wyr-pick-card{
+  padding: 14px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.wyr-pick-who{
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 6px;
+}
+.wyr-pick-val{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.wyr-waiting{
+  text-align: center;
+  padding: 32px 0;
+  color: var(--ink-mute);
+  font-style: italic;
+  font-family: var(--serif);
+  font-size: 18px;
+}
+.wyr-waiting::before{
+  content: '';
+  display: block;
+  width: 24px; height: 24px;
+  border: 2px solid var(--line);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin{ to{ transform: rotate(360deg); } }
+
+/* ============================================================
+   TTT STYLES
+   ============================================================ */
+.ttt-scoreboard{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 0 24px;
+}
+.ttt-sbox{
+  flex: 1;
+  text-align: center;
+  padding: 12px 10px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: all .3s;
+}
+.ttt-sbox.active{ border-color: var(--amber); background: var(--amber-glow); }
+.ttt-sname{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ttt-sscore{
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--amber);
+}
+.ttt-vs{
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--ink-mute);
+  font-size: 18px;
+}
+
+.ttt-status{
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink-dim);
+  margin-bottom: 20px;
+  min-height: 24px;
+}
+.ttt-status.mine{ color: var(--amber); }
+.ttt-status.win{ color: var(--sage); }
+.ttt-status.lose{ color: var(--rose); }
+
+.ttt-board{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  padding: 6px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.ttt-cell{
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 56px;
+  font-weight: 500;
+  transition: all .15s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.ttt-cell:hover:not(.taken):not(.waiting){ background: var(--bg-card); }
+.ttt-cell.taken{ cursor: default; }
+.ttt-cell.waiting{ cursor: not-allowed; }
+.ttt-cell.mark-x{ color: var(--amber); }
+.ttt-cell.mark-o{ color: var(--rose); }
+.ttt-cell.highlight{
+  background: rgba(217,154,62,0.18);
+  animation: winPulse 1.5s ease infinite;
+}
+@keyframes winPulse{ 0%,100%{opacity:1} 50%{opacity:.6} }
+
+/* ============================================================
+   TRUTH OR DARE STYLES
+   ============================================================ */
+.tnd-turn{
+  text-align: center;
+  padding: 24px 0 20px;
+}
+.tnd-turn-label{
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 6px;
+}
+.tnd-turn-name{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 32px;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.tnd-turn-sub{
+  font-size: 13px;
+  color: var(--ink-dim);
+  margin-top: 6px;
+  font-style: italic;
+  font-family: var(--serif);
+}
+
+.tnd-picker{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0;
+}
+.tnd-choice{
+  padding: 40px 20px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: center;
+  transition: all .2s;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.tnd-choice:hover{ border-color: var(--amber-border); background: var(--bg-card); transform: translateY(-1px); }
+.tnd-choice-kicker{
+  display: block;
+  font-family: var(--sans);
+  font-style: normal;
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.tnd-prompt-card{
+  padding: 32px 24px;
+  background: var(--bg-soft);
+  border: 1px solid var(--amber-border);
+  border-radius: var(--radius-lg);
+  margin: 16px 0;
+  position: relative;
+}
+.tnd-prompt-type{
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--amber);
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+.tnd-prompt-text{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.35;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.tnd-actions{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tnd-verdict-row{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tnd-watching{
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--ink-dim);
+}
+
+/* ============================================================
+   GUESS ME STYLES
+   ============================================================ */
+.guess-stage{
+  text-align: center;
+  padding: 8px 0 20px;
+}
+.guess-stage-label{
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 6px;
+}
+.guess-stage-title{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 26px;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.guess-q{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--ink);
+  margin: 20px 0 24px;
+  padding: 0 8px;
+}
+
+.guess-opts{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.guess-opt{
+  padding: 16px 20px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--ink);
+  transition: all .15s;
+}
+.guess-opt:hover{ border-color: var(--amber-border); background: var(--bg-card); }
+.guess-opt.picked{ border-color: var(--amber); background: var(--amber-glow); }
+.guess-opt.correct{ border-color: var(--sage); background: rgba(143,166,122,0.1); color: var(--sage); }
+.guess-opt.wrong{ border-color: var(--rose); background: rgba(192,125,106,0.08); color: var(--rose); }
+.guess-opt.truth-tag::after{
+  content: '← their answer';
+  float: right;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--amber);
+  font-weight: 500;
+}
+
+/* ============================================================
+   GAME REVEAL / BETWEEN-ROUND UI
+   ============================================================ */
+.between{
+  padding: 24px 20px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  margin: 16px 0;
+  text-align: center;
+}
+.between-verdict{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 24px;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+.between-verdict.win{ color: var(--sage); }
+.between-verdict.lose{ color: var(--rose); }
+.between-verdict.tie{ color: var(--amber); }
+.between-sub{
+  font-size: 12px;
+  color: var(--ink-mute);
+  letter-spacing: 0.08em;
+}
+
+/* ============================================================
+   REACTIONS BAR
+   ============================================================ */
+.rxn-bar{
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 12px 0 8px;
+  flex-wrap: wrap;
+}
+.rxn-btn{
+  width: 40px; height: 40px;
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.rxn-btn:hover{ border-color: var(--amber-border); transform: scale(1.05); }
+.rxn-btn:active{ transform: scale(0.95); }
+
+.rxn-toast{
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--bg-card);
+  border: 1px solid var(--amber-border);
+  color: var(--ink);
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  opacity: 0;
+  transition: all .3s;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: var(--shadow);
+}
+.rxn-toast.on{ opacity: 1; transform: translateX(-50%) translateY(0); }
+.rxn-toast-emoji{ font-size: 16px; margin-right: 6px; }
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast{
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(40px);
+  background: var(--bg-card);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  opacity: 0;
+  transition: all .3s;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: var(--shadow);
+  max-width: 90%;
+  text-align: center;
+}
+.toast.on{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ============================================================
+   FINAL / RESULTS SCREEN
+   ============================================================ */
+.final-hero{
+  text-align: center;
+  padding: 30px 0 24px;
+}
+.final-emoji{
+  font-size: 52px;
+  margin-bottom: 14px;
+  display: block;
+}
+.final-title{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 38px;
+  color: var(--ink);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.final-sub{
+  font-size: 13px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+}
+
+.final-score-row{
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+}
+.final-score-col{
+  text-align: center;
+  padding: 16px 10px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.final-score-col.win{ border-color: var(--amber-border); background: var(--amber-glow); }
+.final-score-name{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.final-score-num{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 44px;
+  font-weight: 500;
+  color: var(--amber);
+  line-height: 1;
+}
+.final-vs{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink-mute);
+}
+
+.final-report{
+  margin: 20px 0;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.final-report-head{
+  padding: 12px 16px;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  border-bottom: 1px solid var(--line);
+}
+.final-report-item{
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+.final-report-item:last-child{ border-bottom: none; }
+.final-report-q{
+  color: var(--ink-dim);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.final-report-ans{
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--ink-mute);
+}
+.final-report-ans b{ color: var(--ink); font-weight: 500; }
+
+.final-actions{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* ============================================================
+   CONFETTI
+   ============================================================ */
+#confetti-canvas{
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+.sp-y-lg{ padding: 20px 0; }
+.mt-auto{ margin-top: auto; }
+.hidden{ display: none !important; }
+.center{ text-align: center; }
+.row{ display: flex; gap: 10px; align-items: center; }
+.row-between{ justify-content: space-between; }
+.flex-1{ flex: 1; }
+.gap-sm{ gap: 6px; }
+.gap-md{ gap: 12px; }
+.pad-lg{ padding: 20px; }
+
+/* Screen scrolling fix */
+.sc-scroll{ overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+/* Prevent text selection on buttons */
+button, .chip, .game-card, .tnd-choice, .wyr-opt, .guess-opt, .ttt-cell{
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Focus states */
+button:focus-visible, .input:focus-visible{
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+/* Mobile safety — keep stuff away from notches/home bars */
+@supports(padding: max(0px)){
+  .sc{
+    padding-top: max(18px, env(safe-area-inset-top));
+    padding-bottom: max(28px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Keep font looking right on weird zoom levels */
+@media (max-width: 360px){
+  .brand-mark{ font-size: 36px; }
+  .setup-title{ font-size: 28px; }
+  .waiting-code{ font-size: 34px; }
+  .cd-num{ font-size: 100px; }
+}
+
+</style>
+</head>
+<body>
+<!-- ===========================================================
+     BETWEEN & TOGETHER — HTML SCREENS
+     =========================================================== -->
+
+<div id="app">
+
+<!-- ================== HOME ================== -->
+<div class="sc on" id="sc-home">
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-mark">Between<span class="amp">&</span>Together</div>
+      <div class="brand-sub">a game for two</div>
+    </div>
+
+    <div class="home-tag">
+      Enter a code. Pick a game. Find out what they'd actually say.
+    </div>
+
+    <div class="home-actions">
+      <button class="btn btn-primary btn-lg btn-full" onclick="goCreate()">Start a room</button>
+      <button class="btn btn-lg btn-full" onclick="goJoin()">Join with code</button>
+    </div>
+
+    <div class="history mt-auto" id="history-wrap" style="display:none">
+      <div class="history-title">Return to</div>
+      <div class="history-list" id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== CREATE ================== -->
+<div class="sc" id="sc-create">
+  <div class="wrap">
+    <div class="top-row">
+      <button class="back-btn" onclick="goHome()">Back</button>
+      <span class="top-title">New Room</span>
+      <span></span>
+    </div>
+
+    <div class="brand-small"><span>Between<span class="amp">&</span>Together</span></div>
+
+    <div class="sp-y-lg">
+      <div class="screen-title">Your name first.</div>
+      <div class="screen-sub">They'll see this when you join up.</div>
+      <div class="form">
+        <div class="field">
+          <div class="field-label">Name</div>
+          <input class="input" id="create-name" placeholder="e.g. Harshit" maxlength="20" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-auto">
+      <button class="btn btn-primary btn-full btn-lg" onclick="doCreate()">Create room</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================== JOIN ================== -->
+<div class="sc" id="sc-join">
+  <div class="wrap">
+    <div class="top-row">
+      <button class="back-btn" onclick="goHome()">Back</button>
+      <span class="top-title">Join Room</span>
+      <span></span>
+    </div>
+
+    <div class="brand-small"><span>Between<span class="amp">&</span>Together</span></div>
+
+    <div class="sp-y-lg">
+      <div class="screen-title">Got a code?</div>
+      <div class="screen-sub">Enter the 4-letter room code and your name.</div>
+      <div class="form">
+        <div class="field">
+          <div class="field-label">Room Code</div>
+          <input class="input input-code" id="join-code" placeholder="ABCD" maxlength="4" autocomplete="off" autocapitalize="characters">
+        </div>
+        <div class="field">
+          <div class="field-label">Your name</div>
+          <input class="input" id="join-name" placeholder="e.g. Aisha" maxlength="20" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-auto">
+      <button class="btn btn-primary btn-full btn-lg" onclick="doJoin()">Join room</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================== WAITING ROOM ================== -->
+<div class="sc" id="sc-waiting">
+  <div class="wrap">
+    <div class="top-row">
+      <button class="back-btn" onclick="leaveRoom()">Leave</button>
+      <span class="top-title">Waiting Room</span>
+      <span></span>
+    </div>
+
+    <div class="waiting-hero">
+      <div class="upper">Your code</div>
+      <div class="waiting-code" id="waiting-code" onclick="copyCode()">----</div>
+      <div class="waiting-code-hint">Tap to copy · share with your player</div>
+    </div>
+
+    <div class="slots">
+      <div class="slot ready" id="slot-0">
+        <div class="slot-name" id="slot-0-name">—</div>
+        <div class="slot-status"><span class="slot-dot"></span>Ready</div>
+      </div>
+      <div class="slot" id="slot-1">
+        <div class="slot-name waiting" id="slot-1-name">Waiting for opponent...</div>
+        <div class="slot-status"><span class="slot-dot pulse"></span>Not here</div>
+      </div>
+    </div>
+
+    <div class="mt-auto">
+      <button class="btn btn-primary btn-full btn-lg" id="wait-continue" onclick="goLobby()" style="display:none">Continue to lobby</button>
+      <button class="btn btn-full" onclick="shareInvite()">Share invite</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================== LOBBY (PICK GAME) ================== -->
+<div class="sc" id="sc-lobby">
+  <div class="wrap">
+    <div class="top-row">
+      <button class="back-btn" onclick="leaveRoom()">Leave</button>
+      <span class="top-title">Lobby</span>
+      <span class="top-code" id="lobby-code" onclick="copyCode()">----</span>
+    </div>
+
+    <div class="lobby-hero">
+      <div class="serif italic" id="lobby-names">— & —</div>
+      <div class="lobby-hero-sub">Pick a game to play together</div>
+    </div>
+
+    <div class="game-grid">
+      <button class="game-card" onclick="pickGame('wyr')">
+        <div class="gc-kicker">01</div>
+        <div class="gc-title">Would you rather</div>
+        <div class="gc-desc">Two impossible choices. No scoring — just vibes.</div>
+      </button>
+      <button class="game-card" onclick="pickGame('ttt')">
+        <div class="gc-kicker">02</div>
+        <div class="gc-title">Tic tac toe</div>
+        <div class="gc-desc">Best of three. Pure competitive.</div>
+      </button>
+      <button class="game-card" onclick="pickGame('tnd')">
+        <div class="gc-kicker">03</div>
+        <div class="gc-title">Truth or dare</div>
+        <div class="gc-desc">Mild, medium, or spicy. Take turns.</div>
+      </button>
+      <button class="game-card" onclick="pickGame('guess')">
+        <div class="gc-kicker">04</div>
+        <div class="gc-title">Guess me</div>
+        <div class="gc-desc">How well do you actually know them?</div>
+      </button>
+    </div>
+
+    <div class="mt-auto pad-lg center" id="lobby-wait" style="display:none">
+      <div class="wyr-waiting" style="margin:0">Waiting for other player...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== SETUP (pre-game config) ================== -->
+<div class="sc" id="sc-setup">
+  <div class="wrap">
+    <div class="top-row">
+      <button class="back-btn" onclick="backToLobby()">Back</button>
+      <span class="top-title" id="setup-top">Setup</span>
+      <span class="top-code" id="setup-code" onclick="copyCode()">----</span>
+    </div>
+
+    <div class="setup-title" id="setup-title">Would you rather</div>
+    <div class="setup-sub" id="setup-sub">Two impossible choices. Same question — you both pick.</div>
+
+    <!-- Rounds -->
+    <div class="setup-section" id="setup-rounds-section">
+      <div class="setup-section-label">Rounds</div>
+      <div class="rounds-display">
+        <div class="rounds-num" id="rounds-num">10</div>
+        <div class="rounds-lbl">questions</div>
+      </div>
+      <input type="range" class="slider" id="rounds-slider" min="5" max="20" step="1" value="10" oninput="updateRounds(this.value)">
+    </div>
+
+    <!-- TND Spice selector -->
+    <div class="setup-section" id="setup-spice" style="display:none">
+      <div class="setup-section-label">Spice level</div>
+      <div class="chip-row">
+        <button class="chip on" data-spice="mild" onclick="setSpice('mild', this)">Mild</button>
+        <button class="chip" data-spice="medium" onclick="setSpice('medium', this)">Medium</button>
+        <button class="chip" data-spice="spicy" onclick="setSpice('spicy', this)">Spicy</button>
+      </div>
+      <div class="setup-footer-note" id="spice-hint" style="margin-top:12px">Safe territory. Low-commitment truths and dares.</div>
+    </div>
+
+    <!-- TTT best-of selector -->
+    <div class="setup-section" id="setup-ttt" style="display:none">
+      <div class="setup-section-label">Match length</div>
+      <div class="chip-row">
+        <button class="chip" data-bo="1" onclick="setBestOf(1, this)">Best of 1</button>
+        <button class="chip on" data-bo="3" onclick="setBestOf(3, this)">Best of 3</button>
+        <button class="chip" data-bo="5" onclick="setBestOf(5, this)">Best of 5</button>
+      </div>
+    </div>
+
+    <div class="mt-auto">
+      <button class="btn btn-primary btn-full btn-lg" id="setup-start" onclick="startGame()">Start game</button>
+      <div class="setup-footer-note" id="setup-note" style="margin:12px 0 0">Only the host can start.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== COUNTDOWN ================== -->
+<div class="sc" id="sc-cd">
+  <div class="wrap">
+    <div class="cd-wrap">
+      <div class="cd-num" id="cd-num">3</div>
+      <div class="cd-label" id="cd-label">Get ready</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== WYR ================== -->
+<div class="sc" id="sc-wyr">
+  <div class="wrap">
+    <div class="top-row">
+      <button class="back-btn" onclick="quitToLobby()">Quit</button>
+      <span class="top-title">Would you rather</span>
+      <span class="top-code" id="wyr-top-code" onclick="copyCode()">----</span>
+    </div>
+    <div class="game-head">
+      <div class="game-head-left" id="wyr-round-label">Round 1</div>
+      <div class="game-head-right" id="wyr-count">0 / 10</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="wyr-progress" style="width:0%"></div></div>
+
+    <!-- QUESTION PHASE -->
+    <div id="wyr-q-phase">
+      <div class="wyr-prompt">Would you rather</div>
+      <div class="wyr-options">
+        <button class="wyr-opt" id="wyr-opt-a" onclick="wyrPick('a')">
+          <span class="wyr-opt-kicker">A</span>
+          <span id="wyr-opt-a-text"></span>
+        </button>
+        <div class="wyr-or">— or —</div>
+        <button class="wyr-opt" id="wyr-opt-b" onclick="wyrPick('b')">
+          <span class="wyr-opt-kicker">B</span>
+          <span id="wyr-opt-b-text"></span>
+        </button>
+      </div>
+      <div class="wyr-waiting" id="wyr-waiting" style="display:none">Waiting for the other player...</div>
+    </div>
+
+    <!-- REVEAL PHASE -->
+    <div id="wyr-reveal-phase" style="display:none">
+      <div class="wyr-reveal-card" id="wyr-reveal-card">
+        <div class="wyr-reveal-verdict" id="wyr-reveal-verdict"></div>
+        <div class="wyr-reveal-sub" id="wyr-reveal-sub"></div>
+        <div class="wyr-reveal-picks">
+          <div class="wyr-pick-card">
+            <div class="wyr-pick-who" id="wyr-you-name">YOU</div>
+            <div class="wyr-pick-val" id="wyr-you-pick">—</div>
+          </div>
+          <div class="wyr-pick-card">
+            <div class="wyr-pick-who" id="wyr-them-name">THEM</div>
+            <div class="wyr-pick-val" id="wyr-them-pick">—</div>
+          </div>
+        </div>
+        <div class="rxn-bar" id="wyr-rxn"></div>
+      </div>
+    </div>
+
+    <div class="mt-auto" id="wyr-footer" style="display:none">
+      <button class="btn btn-primary btn-full" id="wyr-next-btn" onclick="wyrNext()">Next question →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================== TTT ================== -->
+<div class="sc" id="sc-ttt">
+  <div class="wrap">
+    <div class="top-row">
+      <button class="back-btn" onclick="quitToLobby()">Quit</button>
+      <span class="top-title">Tic tac toe</span>
+      <span class="top-code" id="ttt-top-code" onclick="copyCode()">----</span>
+    </div>
+    <div class="game-head">
+      <div class="game-head-left" id="ttt-round-label">Round 1</div>
+      <div class="game-head-right" id="ttt-bo-label">Best of 3</div>
+    </div>
+
+    <div class="ttt-scoreboard">
+      <div class="ttt-sbox" id="ttt-sbox-0">
+        <div class="ttt-sname" id="ttt-name-0">you</div>
+        <div class="ttt-sscore" id="ttt-score-0">0</div>
+      </div>
+      <div class="ttt-vs">vs</div>
+      <div class="ttt-sbox" id="ttt-sbox-1">
+        <div class="ttt-sname" id="ttt-name-1">them</div>
+        <div class="ttt-sscore" id="ttt-score-1">0</div>
+      </div>
+    </div>
+
+    <div class="ttt-status mine" id="ttt-status">Your turn — tap a cell</div>
+
+    <div class="ttt-board" id="ttt-board"></div>
+
+    <div class="mt-auto" id="ttt-footer" style="display:none">
+      <div class="rxn-bar" id="ttt-rxn"></div>
+      <button class="btn btn-primary btn-full" id="ttt-next-btn" onclick="tttNext()">Next round →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================== TND (Truth or Dare) ================== -->
+<div class="sc" id="sc-tnd">
+  <div class="wrap">
+    <div class="top-row">
+      <button class="back-btn" onclick="quitToLobby()">Quit</button>
+      <span class="top-title">Truth or dare</span>
+      <span class="top-code" id="tnd-top-code" onclick="copyCode()">----</span>
+    </div>
+    <div class="game-head">
+      <div class="game-head-left" id="tnd-round-label">Round 1</div>
+      <div class="game-head-right" id="tnd-count">1 / 10</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="tnd-progress" style="width:0%"></div></div>
+
+    <!-- PICKER PHASE (active player picks truth or dare) -->
+    <div id="tnd-picker-phase">
+      <div class="tnd-turn">
+        <div class="tnd-turn-label" id="tnd-whose-turn-label">It's your turn</div>
+        <div class="tnd-turn-name" id="tnd-whose-turn-name">Your pick</div>
+        <div class="tnd-turn-sub" id="tnd-pick-sub">Pick one. No take-backs.</div>
+      </div>
+      <div class="tnd-picker" id="tnd-picker-active">
+        <button class="tnd-choice" onclick="tndPick('truth')">
+          <span class="tnd-choice-kicker">No hiding</span>
+          Truth
+        </button>
+        <button class="tnd-choice" onclick="tndPick('dare')">
+          <span class="tnd-choice-kicker">No chickening</span>
+          Dare
+        </button>
+      </div>
+      <div class="tnd-watching" id="tnd-watching" style="display:none">
+        <div class="wyr-waiting" style="margin:0">Waiting for them to pick...</div>
+      </div>
+    </div>
+
+    <!-- PROMPT PHASE -->
+    <div id="tnd-prompt-phase" style="display:none">
+      <div class="tnd-turn">
+        <div class="tnd-turn-label" id="tnd-prompt-for">Your prompt</div>
+        <div class="tnd-turn-name" id="tnd-prompt-type-big">Truth</div>
+      </div>
+      <div class="tnd-prompt-card">
+        <div class="tnd-prompt-type" id="tnd-prompt-type-lbl">TRUTH</div>
+        <div class="tnd-prompt-text" id="tnd-prompt-text">—</div>
+      </div>
+      <div class="tnd-actions" id="tnd-actions">
+        <button class="btn btn-primary btn-full" onclick="tndSubmit('done')">I did it / answered honestly</button>
+        <button class="btn btn-full" onclick="tndSubmit('skip')">Chicken out (pass)</button>
+      </div>
+      <div class="tnd-watching" id="tnd-prompt-watch" style="display:none">
+        <div style="padding:20px 0">
+          <div class="tnd-prompt-type" id="tnd-watch-type-lbl" style="text-align:center;display:block;margin-bottom:12px">TRUTH</div>
+          <div class="tnd-prompt-text" id="tnd-watch-text" style="text-align:center">—</div>
+        </div>
+        <div class="mute" style="padding-top:10px">Waiting for them to answer...</div>
+      </div>
+    </div>
+
+    <!-- JUDGE PHASE (other player judges) -->
+    <div id="tnd-judge-phase" style="display:none">
+      <div class="tnd-turn">
+        <div class="tnd-turn-label">They said</div>
+        <div class="tnd-turn-name" id="tnd-judge-name">—</div>
+        <div class="tnd-turn-sub">Did they actually do it?</div>
+      </div>
+      <div class="tnd-prompt-card">
+        <div class="tnd-prompt-type" id="tnd-judge-type">TRUTH</div>
+        <div class="tnd-prompt-text" id="tnd-judge-text">—</div>
+      </div>
+      <div class="tnd-verdict-row">
+        <button class="btn" onclick="tndJudge('yes')">✓ Did it</button>
+        <button class="btn" onclick="tndJudge('mid')">⧗ Half-way</button>
+        <button class="btn" onclick="tndJudge('no')">✗ Chickened</button>
+      </div>
+    </div>
+
+    <!-- REVEAL PHASE -->
+    <div id="tnd-reveal-phase" style="display:none">
+      <div class="between">
+        <div class="between-verdict" id="tnd-verdict-text">—</div>
+        <div class="between-sub" id="tnd-verdict-sub"></div>
+      </div>
+      <div class="rxn-bar" id="tnd-rxn"></div>
+      <div class="mt-auto" style="padding-top:20px">
+        <button class="btn btn-primary btn-full" id="tnd-next-btn" onclick="tndNext()">Next round →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== GUESS ME ================== -->
+<div class="sc" id="sc-guess">
+  <div class="wrap">
+    <div class="top-row">
+      <button class="back-btn" onclick="quitToLobby()">Quit</button>
+      <span class="top-title">Guess me</span>
+      <span class="top-code" id="guess-top-code" onclick="copyCode()">----</span>
+    </div>
+    <div class="game-head">
+      <div class="game-head-left" id="guess-round-label">Round 1</div>
+      <div class="game-head-right" id="guess-count">1 / 10</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="guess-progress" style="width:0%"></div></div>
+
+    <!-- ANSWERER PHASE: answering about yourself -->
+    <div id="guess-answer-phase">
+      <div class="guess-stage">
+        <div class="guess-stage-label" id="guess-stage-who">Your turn — be honest</div>
+        <div class="guess-stage-title" id="guess-stage-title">About you</div>
+      </div>
+      <div class="guess-q" id="guess-q-answer">—</div>
+      <div class="guess-opts" id="guess-opts-answer"></div>
+    </div>
+
+    <!-- GUESSER PHASE: guessing about them -->
+    <div id="guess-guess-phase" style="display:none">
+      <div class="guess-stage">
+        <div class="guess-stage-label" id="guess-stage-guess-who">They answered — your guess</div>
+        <div class="guess-stage-title" id="guess-stage-guess-name">What did they say?</div>
+      </div>
+      <div class="guess-q" id="guess-q-guess">—</div>
+      <div class="guess-opts" id="guess-opts-guess"></div>
+    </div>
+
+    <!-- WAITING -->
+    <div id="guess-wait-phase" style="display:none" class="wyr-waiting">Waiting for the other player...</div>
+
+    <!-- REVEAL -->
+    <div id="guess-reveal-phase" style="display:none">
+      <div class="between">
+        <div class="between-verdict" id="guess-verdict">—</div>
+        <div class="between-sub" id="guess-verdict-sub"></div>
+      </div>
+      <div class="guess-q" id="guess-reveal-q">—</div>
+      <div class="guess-opts" id="guess-reveal-opts"></div>
+      <div class="rxn-bar" id="guess-rxn" style="margin-top:14px"></div>
+      <div class="mt-auto" style="padding-top:20px">
+        <button class="btn btn-primary btn-full" id="guess-next-btn" onclick="guessNext()">Next round →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== FINAL ================== -->
+<div class="sc" id="sc-final">
+  <div class="wrap">
+    <div class="final-hero">
+      <span class="final-emoji" id="final-emoji">🏆</span>
+      <div class="final-title" id="final-title">You win!</div>
+      <div class="final-sub" id="final-sub">—</div>
+    </div>
+
+    <div id="final-body"></div>
+
+    <div class="final-actions mt-auto">
+      <button class="btn btn-primary btn-full btn-lg" onclick="rematch()">Rematch</button>
+      <button class="btn btn-full" onclick="backToLobby()">Back to lobby</button>
+      <button class="btn btn-ghost btn-full" onclick="shareResult()">Share result</button>
+    </div>
+  </div>
+</div>
+
+</div> <!-- /#app -->
+
+<!-- Toasts / overlays -->
+<div class="toast" id="toast"></div>
+<div class="rxn-toast" id="rxn-toast"><span class="rxn-toast-emoji" id="rxn-toast-emoji"></span><span id="rxn-toast-text"></span></div>
+<canvas id="confetti-canvas" style="display:none"></canvas>
+
+
+<!-- ===== FIREBASE CONFIG ===== -->
+<!-- PASTE YOUR CONFIG BELOW. Keep the window.FIREBASE_CONFIG = assignment. -->
+<!-- Must include databaseURL (visible only after you create the Realtime Database). -->
+<script>
+window.FIREBASE_CONFIG = {
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  apiKey: "AIzaSyDf6Esw7gvkvS2RlWZCYn6zHoPI20ieOd4",
+  authDomain: "betweenandtogether.firebaseapp.com",
+  databaseURL: "https://betweenandtogether-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "betweenandtogether",
+  storageBucket: "betweenandtogether.firebasestorage.app",
+  messagingSenderId: "992316523374",
+  appId: "1:992316523374:web:4e0ea5abc037717799f77f",
+  measurementId: "G-P7ML3B9C4X"
+};
+</script>
+
+<!-- Firebase SDK (compat mode for simple global API) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<!-- App scripts -->
+<script>
+// ============================================================
+// PROMPT LIBRARIES — all universal, no framing assumptions
+// ============================================================
+
+// WOULD YOU RATHER — binary choice, no scoring, pure compatibility
+const WYR = [
+  ["be famous for something cringe", "be unknown for something great"],
+  ["read minds but always", "be invisible for one hour a day"],
+  ["know when you'll die", "know how you'll die"],
+  ["never use social media again", "never watch another movie or show"],
+  ["live without music", "live without taste buds"],
+  ["have one close friend forever", "100 casual friends who come and go"],
+  ["always be 10 minutes late", "always be 20 minutes early"],
+  ["have everyone read your texts", "have everyone see your search history"],
+  ["be the smartest person in every room", "the funniest"],
+  ["know every language", "play every instrument"],
+  ["teleport but land blindfolded", "fly but only 3 feet off the ground"],
+  ["lose your sense of smell", "lose your sense of touch"],
+  ["be stuck in traffic for 2 hours", "wait in a boring line for 2 hours"],
+  ["have no sense of humor", "have no sense of direction"],
+  ["eat only your favorite meal forever", "never eat it again"],
+  ["be a little too honest", "a little too nice"],
+  ["have an amazing memory of bad things", "a terrible memory of good things"],
+  ["win the lottery but everyone knows", "win half as much and no one knows"],
+  ["never feel embarrassed again", "never feel awkward again"],
+  ["text in all caps forever", "never use punctuation again"],
+  ["have a personal chef", "a personal driver"],
+  ["go back 5 years", "skip ahead 5 years"],
+  ["dream only in black and white", "never dream again"],
+  ["have a loud laugh", "a weird laugh"],
+  ["be hated by someone you love", "loved by someone you can't stand"],
+  ["know every secret people keep from you", "never know any"],
+  ["live in a city that never sleeps", "a village that never changes"],
+  ["lose all your photos", "lose all your playlists"],
+  ["be the person who cries first", "the person who never cries"],
+  ["have unlimited money but no friends", "great friends but broke forever"],
+  ["always sleep on silk sheets", "always wake up perfectly rested"],
+  ["be the villain of someone's story", "irrelevant in everyone's"],
+  ["find out you were adopted", "find out you have a secret sibling"],
+  ["have your first love back", "your first love forget you exist"],
+  ["never be recognized again", "always be recognized"],
+  ["remember every dream", "remember every meal you've ever eaten"],
+  ["have one perfect day on loop", "a normal lifetime"],
+  ["speak only in questions", "speak only in answers"],
+  ["always get the last word", "never have to argue again"],
+  ["date someone smarter than you", "someone funnier than you"],
+  ["kiss the wrong person publicly", "ignore the right one publicly"],
+  ["get butterflies for someone you'll never meet", "comfort with someone you don't really love"],
+  ["fall in love 10 times", "fall in love once, forever"],
+  ["be someone's almost", "be someone's maybe"],
+  ["have someone write a song about you", "a book about you"],
+  ["be irresistible for a week", "be deeply understood for a year"],
+  ["be the first to say I love you", "be the first to walk away"],
+  ["be someone's best decision", "someone's best memory"],
+  ["know your crush's thoughts for a day", "your own future for a week"],
+  ["be told you're hot", "be told you're interesting"],
+  ["have a situationship with the love of your life", "a stable life with someone okay"],
+  ["be cheated on and never find out", "find out but they didn't actually do it"],
+  ["be the reason someone glows up", "the reason someone gives up dating"],
+  ["have a type", "have no pattern at all"],
+  ["always text first", "always be texted first"],
+  ["be overdressed", "underdressed"],
+  ["say the wrong name in bed", "hear the wrong name in bed"],
+  ["get drunk and confess a secret", "get drunk and fight your best friend"],
+  ["be emotionally unavailable", "emotionally overwhelming"],
+  ["have perfect skin but wear ugly clothes", "great clothes but bad skin"],
+  ["post a cringe Instagram story", "send a drunk text you can't take back"],
+  ["accidentally like an ex's post from 2017", "accidentally text your crush's mom"],
+  ["sing at karaoke sober", "dance at a wedding drunk"],
+  ["have one great photo of you online", "zero photos online"],
+  ["be known for your opinions", "known for your vibe"],
+  ["lose an argument you were right in", "win one you were wrong in"],
+  ["ghost someone you liked", "be ghosted by someone you liked"],
+  ["overshare on a first meeting", "undershare on a tenth"],
+  ["be too much", "not enough"],
+  ["cry in public", "laugh at the wrong moment"],
+  ["accidentally send the screenshot to the person", "accidentally say the quiet part loud"],
+  ["have everyone remember you from high school", "everyone forget you entirely"],
+  ["be the first one at the party", "the last one to leave"],
+  ["live somewhere beautiful and alone", "somewhere ugly with everyone you love"],
+  ["always know what to say", "always know when to be quiet"],
+  ["have strong opinions about food", "strong opinions about music"],
+  ["never be bored", "never be in a hurry"],
+  ["have a signature scent", "a signature outfit"],
+  ["be the funniest at the table", "the most interesting at the table"],
+  ["be photographed a lot", "be written about once"],
+  ["have a niche hobby no one gets", "a mainstream hobby everyone has"],
+  ["be remembered for your work", "remembered for how you made people feel"],
+  ["live 100 mediocre years", "60 electric ones"],
+  ["own nothing", "owe nothing"],
+  ["travel solo for a year", "travel with someone you mildly annoy"],
+  ["be good at small talk", "good at deep talk"],
+  ["always be the one taking photos", "always be in them"],
+  ["have one defining regret", "no regrets and no story"],
+  ["be the best friend at the wedding", "the ex at the wedding"],
+  ["ghost your job", "ghost your relationship"],
+  ["throw up at a party", "cry at a party"],
+  ["say 'I love you' too early", "too late"],
+  ["be hard to read", "an open book"],
+  ["have a stalker who's nice", "a friend who secretly hates you"],
+  ["date someone your friends love", "date someone only you get"],
+  ["be complimented on your smile", "on your eyes"],
+  ["have chemistry with no connection", "connection with no chemistry"],
+  ["be liked at first", "grow on people slowly"],
+  ["know you're someone's second choice", "never know where you stand"],
+];
+
+// TRUTH OR DARE — spice tiers: mild / medium / spicy
+// Each prompt: { type: 'truth'|'dare', text: string, spice: 'mild'|'medium'|'spicy' }
+
+const TND_MILD = [
+  // Truths — mild
+  { t: 'truth', x: "What's a compliment you can never take seriously?" },
+  { t: 'truth', x: "What's the most childish thing you still do?" },
+  { t: 'truth', x: "What's your most irrational fear?" },
+  { t: 'truth', x: "What's a trend you secretly think is stupid?" },
+  { t: 'truth', x: "What song do you play on repeat when no one's around?" },
+  { t: 'truth', x: "What's the weirdest thing you Google at 2am?" },
+  { t: 'truth', x: "What's a skill you pretend to have?" },
+  { t: 'truth', x: "What's your comfort show you've rewatched too many times?" },
+  { t: 'truth', x: "What's the worst haircut you've ever had?" },
+  { t: 'truth', x: "What's something everyone loves that you just don't get?" },
+  { t: 'truth', x: "What's a small thing that instantly puts you in a bad mood?" },
+  { t: 'truth', x: "What's an opinion you'd never post online?" },
+  { t: 'truth', x: "What's the last thing you cried about?" },
+  { t: 'truth', x: "What's the most embarrassing song in your playlist?" },
+  { t: 'truth', x: "What's a food you hated as a kid but love now?" },
+  { t: 'truth', x: "What's something you're too lazy to care about?" },
+  { t: 'truth', x: "What's the worst gift you've ever received?" },
+  { t: 'truth', x: "What's a celebrity you find overrated?" },
+  { t: 'truth', x: "What's a phrase you use way too much?" },
+  { t: 'truth', x: "What's your most useless talent?" },
+  { t: 'truth', x: "What's the pettiest thing you've done this year?" },
+  { t: 'truth', x: "What's your go-to lie when you don't want to do something?" },
+  { t: 'truth', x: "What's a weird habit you have when you're alone?" },
+  { t: 'truth', x: "What's your most controversial food opinion?" },
+  { t: 'truth', x: "What's a movie everyone loves that you found boring?" },
+  { t: 'truth', x: "What's the longest you've gone without showering?" },
+  { t: 'truth', x: "What's a weird thing you find comforting?" },
+  { t: 'truth', x: "What's your most useless piece of trivia?" },
+  { t: 'truth', x: "What's the worst advice you've ever taken?" },
+  { t: 'truth', x: "What's a word you always misspell?" },
+
+  // Dares — mild
+  { t: 'dare', x: "Show the last photo in your camera roll, no skipping" },
+  { t: 'dare', x: "Do your best impression of your own voicemail" },
+  { t: 'dare', x: "Let the other person pick your next profile picture from your gallery" },
+  { t: 'dare', x: "Read your last 3 sent texts out loud" },
+  { t: 'dare', x: "Do a 10-second TED talk on something you're irrationally passionate about" },
+  { t: 'dare', x: "Show your screen time report for today" },
+  { t: 'dare', x: "Let them scroll your Instagram explore page for 15 seconds" },
+  { t: 'dare', x: "Share the most-played song on your Spotify this week" },
+  { t: 'dare', x: "Read the last voice note you received" },
+  { t: 'dare', x: "Show your notes app — any random note" },
+  { t: 'dare', x: "Do your best impression of someone you know" },
+  { t: 'dare', x: "Say the alphabet backwards, no cheating" },
+  { t: 'dare', x: "Post 'manifesting something big' on your close friends right now" },
+  { t: 'dare', x: "Show your phone's battery percentage and what's draining it" },
+  { t: 'dare', x: "Read your last search history entry out loud" },
+  { t: 'dare', x: "Send a 'how are you' text to someone you haven't talked to in 3 months" },
+  { t: 'dare', x: "Describe your current mood using only emojis" },
+  { t: 'dare', x: "Show your bookmarks folder" },
+  { t: 'dare', x: "Do your best fake laugh for 10 seconds" },
+  { t: 'dare', x: "Tell a 60-second story that has to include: a pigeon, a mistake, and a crush" },
+  { t: 'dare', x: "Scroll to the oldest photo on your phone and show it" },
+  { t: 'dare', x: "Let them write one word in your notes app that you can't delete for 24 hours" },
+  { t: 'dare', x: "Do a 15-second dance to whatever song plays next" },
+  { t: 'dare', x: "Tell a joke so bad the other person has to groan" },
+  { t: 'dare', x: "Show the top 3 apps you use most this week" },
+  { t: 'dare', x: "Send a one-word text to the 5th person in your chat list" },
+  { t: 'dare', x: "Impersonate a newsreader reading your grocery list" },
+  { t: 'dare', x: "Describe the last thing you ate like a food critic" },
+  { t: 'dare', x: "Say something flattering about yourself without smiling" },
+  { t: 'dare', x: "Show your screen right now — no hiding anything" },
+];
+
+const TND_MEDIUM = [
+  // Truths — medium
+  { t: 'truth', x: "What's a compliment you secretly want to hear but never do?" },
+  { t: 'truth', x: "What's the last lie you told and why?" },
+  { t: 'truth', x: "What do you pretend to understand but don't?" },
+  { t: 'truth', x: "What's something you've never told anyone because it feels too small?" },
+  { t: 'truth', x: "What's a moment you think about more than you should?" },
+  { t: 'truth', x: "What's your most toxic trait that you're not going to fix?" },
+  { t: 'truth', x: "What's a red flag you ignored that you shouldn't have?" },
+  { t: 'truth', x: "What's something you judge people for even though you shouldn't?" },
+  { t: 'truth', x: "What's a version of yourself you're glad no one remembers?" },
+  { t: 'truth', x: "What do you want people to think about you that isn't quite true?" },
+  { t: 'truth', x: "What's the most unhinged thing you've done for attention?" },
+  { t: 'truth', x: "What's something you wish you could say to someone without consequences?" },
+  { t: 'truth', x: "When was the last time you felt genuinely jealous?" },
+  { t: 'truth', x: "What's a secret you're carrying that isn't yours?" },
+  { t: 'truth', x: "What's the most selfish thing you've done recently and don't regret?" },
+  { t: 'truth', x: "What's a compliment that actually changed how you see yourself?" },
+  { t: 'truth', x: "What's the meanest thing you've ever thought about me?" },
+  { t: 'truth', x: "What's a moment you replay in your head before sleeping?" },
+  { t: 'truth', x: "What's something you want that you're embarrassed to want?" },
+  { t: 'truth', x: "What do you think people misunderstand about you?" },
+  { t: 'truth', x: "What's the last thing that made you feel truly alive?" },
+  { t: 'truth', x: "What's something you'd never tell your parents?" },
+  { t: 'truth', x: "What's a friendship you outgrew but haven't ended?" },
+  { t: 'truth', x: "What's the worst advice you ever gave someone?" },
+  { t: 'truth', x: "What's a decision you made that changed everything, that no one knows about?" },
+  { t: 'truth', x: "What's a time you were the villain in someone else's story?" },
+  { t: 'truth', x: "What's something you're scared to admit about your future?" },
+  { t: 'truth', x: "What's a fear you're in complete denial about?" },
+  { t: 'truth', x: "What's something you've done that you'd never do sober?" },
+  { t: 'truth', x: "What's a line you've crossed that you won't talk about?" },
+  { t: 'truth', x: "What do you notice about someone in the first 30 seconds that tells you everything?" },
+  { t: 'truth', x: "What's your honest first impression of me?" },
+  { t: 'truth', x: "What's something I do that you've never commented on but noticed?" },
+  { t: 'truth', x: "What's the closest you've come to a life you didn't end up living?" },
+  { t: 'truth', x: "What do you do when no one is watching that you'd never admit?" },
+
+  // Dares — medium
+  { t: 'dare', x: "Text the last person you messaged a completely random compliment, no context" },
+  { t: 'dare', x: "Call a random contact from your list and sing them a line of happy birthday" },
+  { t: 'dare', x: "Describe me in three words, don't overthink it" },
+  { t: 'dare', x: "Send a voice note right now saying something you've been thinking but haven't said" },
+  { t: 'dare', x: "Read out loud the last 3 things you Googled" },
+  { t: 'dare', x: "Show the other person your DMs with the person you talk to most" },
+  { t: 'dare', x: "Post a selfie on your story with no filter, right now" },
+  { t: 'dare', x: "Let the other person pick a ridiculous caption and post it on your story" },
+  { t: 'dare', x: "Send 'I have a confession' to someone and wait 60 seconds before explaining" },
+  { t: 'dare', x: "Record a voice note of you saying 'I'm kind of a mess lately' and send it to anyone" },
+  { t: 'dare', x: "Tell the other person the thing you first noticed about them" },
+  { t: 'dare', x: "Let them read one DM of their choosing" },
+  { t: 'dare', x: "Do a 30-second monologue as if you're the main character of a sad indie film" },
+  { t: 'dare', x: "Send a song to someone with just the caption 'this reminds me of you'" },
+  { t: 'dare', x: "Write a 2-line poem about the other person, no jokes allowed" },
+  { t: 'dare', x: "Say something kind about yourself and let the other person agree or disagree" },
+  { t: 'dare', x: "Show a screenshot of your most embarrassing purchase history" },
+  { t: 'dare', x: "Tell the other person the most attractive thing about the way they speak" },
+  { t: 'dare', x: "Describe your ideal date in one uninterrupted minute" },
+  { t: 'dare', x: "Let them DM someone on your behalf (you approve the message)" },
+  { t: 'dare', x: "Share the last person you stalked on Instagram" },
+  { t: 'dare', x: "Give the other person your unlocked phone for 30 seconds" },
+  { t: 'dare', x: "Tell them one thing you secretly hope they think about you" },
+  { t: 'dare', x: "Confess a small, harmless lie you told today" },
+  { t: 'dare', x: "Describe the last time you had butterflies" },
+  { t: 'dare', x: "Rate the energy in this conversation 1-10 and say why honestly" },
+  { t: 'dare', x: "Tell them a memory from the past month you keep replaying" },
+  { t: 'dare', x: "Send a voice note to someone saying 'I was just thinking about you'" },
+  { t: 'dare', x: "Play the last voice note you sent out loud" },
+  { t: 'dare', x: "Do your best impression of the other person" },
+];
+
+const TND_SPICY = [
+  // Truths — spicy
+  { t: 'truth', x: "What's something about me you've noticed and haven't said out loud?" },
+  { t: 'truth', x: "What would have to happen in the next hour for you to remember this conversation forever?" },
+  { t: 'truth', x: "What's the most attractive thing someone has ever done to you?" },
+  { t: 'truth', x: "What's a thought about me you've had that you wouldn't say in daylight?" },
+  { t: 'truth', x: "Where on your body do you like being touched that no one guesses?" },
+  { t: 'truth', x: "What's the last thing that turned you on unexpectedly?" },
+  { t: 'truth', x: "What's a fantasy you've had that surprised you?" },
+  { t: 'truth', x: "When was the last time you thought about someone you shouldn't have?" },
+  { t: 'truth', x: "What's something you'd do right now if there were no consequences?" },
+  { t: 'truth', x: "What's the most dangerous thing about the way you like people?" },
+  { t: 'truth', x: "What's a look someone gave you that you still think about?" },
+  { t: 'truth', x: "What's the riskiest message you've ever sent?" },
+  { t: 'truth', x: "What's your 'type' that you don't admit is your type?" },
+  { t: 'truth', x: "Who's the last person you replayed a kiss with in your head?" },
+  { t: 'truth', x: "What's something you want someone to do to you that you've never asked for?" },
+  { t: 'truth', x: "What's a compliment that would destroy you if I said it right now?" },
+  { t: 'truth', x: "What's the most honest thing you've told someone while drunk?" },
+  { t: 'truth', x: "What's something you've done that you'd only tell a stranger?" },
+  { t: 'truth', x: "What's the version of you that comes out at 2am?" },
+  { t: 'truth', x: "What's a way someone has held you that you've never forgotten?" },
+  { t: 'truth', x: "What's the wildest thing someone has said to you that turned you on?" },
+  { t: 'truth', x: "What's something about your body you're secretly proud of?" },
+  { t: 'truth', x: "What do you find attractive about me that I don't know about?" },
+  { t: 'truth', x: "What's the boldest thing you'd want someone to do for you?" },
+  { t: 'truth', x: "What's a rule you'd break for the right person?" },
+  { t: 'truth', x: "What's the most you've ever wanted someone you couldn't have?" },
+  { t: 'truth', x: "What's an intrusive thought you've had about me?" },
+  { t: 'truth', x: "What's something you only feel when you're with me?" },
+  { t: 'truth', x: "What would you want me to whisper to you right now?" },
+  { t: 'truth', x: "What's the most honest thing you've wanted to say in this conversation?" },
+
+  // Dares — spicy
+  { t: 'dare', x: "Tell the other person the most attractive thing about them, unfiltered" },
+  { t: 'dare', x: "Describe what you'd do if you were alone with them for an hour" },
+  { t: 'dare', x: "Send them a song that describes how you're feeling right now, no explanation" },
+  { t: 'dare', x: "Look them in the eyes for 45 seconds without speaking" },
+  { t: 'dare', x: "Whisper the last thing that made you blush" },
+  { t: 'dare', x: "Tell them the last time you thought about them in a way you shouldn't have" },
+  { t: 'dare', x: "Say something you want them to remember tomorrow" },
+  { t: 'dare', x: "Write them a one-line message they can't reply to until morning" },
+  { t: 'dare', x: "Name a place you'd want to take them and why" },
+  { t: 'dare', x: "Send a voice note with nothing but one sentence that'll make them smile" },
+  { t: 'dare', x: "Tell them the compliment you've been saving" },
+  { t: 'dare', x: "Describe a moment from tonight you'll think about later" },
+  { t: 'dare', x: "Hold their hand for 30 seconds, no commentary" },
+  { t: 'dare', x: "Tell them the first thing you noticed that made you curious about them" },
+  { t: 'dare', x: "Confess something you've been holding back in this conversation" },
+  { t: 'dare', x: "Describe your ideal kiss in one sentence" },
+  { t: 'dare', x: "Tell them what you'd want them to do if you were about to fall asleep next to them" },
+  { t: 'dare', x: "Say the most flirtatious thing you've ever said to someone, to them" },
+  { t: 'dare', x: "Send them a photo that shows more than you usually would (dealer's choice)" },
+  { t: 'dare', x: "Admit one thing you want to happen before the night is over" },
+  { t: 'dare', x: "Tell them a small detail about them you find irrationally attractive" },
+  { t: 'dare', x: "Describe what 'being close' means to you, physically" },
+  { t: 'dare', x: "Tell them how you'd want them to say your name" },
+  { t: 'dare', x: "Let them pick a truth you have to answer completely honestly" },
+  { t: 'dare', x: "Describe something you've imagined about this exact moment before it happened" },
+  { t: 'dare', x: "Tell them what they're doing right now that's working" },
+  { t: 'dare', x: "Sit in silence with them for 30 seconds and hold eye contact" },
+  { t: 'dare', x: "Describe the last time you wanted to be held" },
+  { t: 'dare', x: "Tell them what they'd have to do for you to lose your composure" },
+  { t: 'dare', x: "Confess the dare you wish they'd give you next" },
+];
+
+// GUESS ME — one player writes about themselves, other guesses from options
+// Each: { q: question, options: [4 options with one being "common/safe" answer]}
+// The answerer picks their real answer, guesser tries to match
+const GUESS = [
+  { q: "If I had to pick one, my biggest love language is...", o: ["words", "touch", "time", "gifts"] },
+  { q: "On a typical night, you'd probably find me...", o: ["out with people", "watching something", "deep in thought", "asleep early"] },
+  { q: "The fastest way to annoy me is...", o: ["being late", "being loud", "being vague", "being fake"] },
+  { q: "I'd describe my ideal Sunday as...", o: ["productive", "lazy", "social", "outside"] },
+  { q: "My love-hate relationship is with...", o: ["my phone", "my habits", "my family", "myself"] },
+  { q: "When I'm stressed I usually...", o: ["shut down", "lash out", "overwork", "disappear"] },
+  { q: "My biggest guilty pleasure is...", o: ["trashy shows", "junk food", "stalking online", "daydreaming"] },
+  { q: "The thing that makes me feel most like myself is...", o: ["being alone", "being with close people", "making something", "moving"] },
+  { q: "If I had an extra hour each day I'd...", o: ["sleep", "read", "call people", "do nothing"] },
+  { q: "My pettiest trait is...", o: ["grudges", "one-upping", "side-eye", "silent treatment"] },
+  { q: "I'm most confident when...", o: ["dressed up", "around close people", "doing my work", "nowhere, actually"] },
+  { q: "The compliment I remember the most was about my...", o: ["mind", "looks", "humor", "presence"] },
+  { q: "If I had to be famous, I'd want it to be for...", o: ["art", "business", "activism", "nothing — I'd hate it"] },
+  { q: "My biggest pet peeve in people is...", o: ["loudness", "fake energy", "negativity", "flakiness"] },
+  { q: "I feel most attractive when I'm...", o: ["laughing", "focused", "well-rested", "confident in what I'm saying"] },
+  { q: "The thing I'd never compromise on is...", o: ["honesty", "ambition", "humor", "loyalty"] },
+  { q: "If a friend called me at 3am, I'd probably feel...", o: ["worried", "annoyed", "happy to help", "half-asleep"] },
+  { q: "My phone's most-used app is...", o: ["Instagram", "WhatsApp", "YouTube", "something boring"] },
+  { q: "The vibe I give off that isn't totally accurate is...", o: ["confident", "chill", "mysterious", "serious"] },
+  { q: "I'm secretly really good at...", o: ["reading people", "remembering useless facts", "staying calm", "getting my way"] },
+  { q: "My biggest red flag is probably...", o: ["I overthink", "I'm avoidant", "I'm too honest", "I disappear"] },
+  { q: "I get emotional about...", o: ["nostalgia", "kindness", "unfairness", "endings"] },
+  { q: "In a disagreement I usually...", o: ["dig in", "withdraw", "try to find middle ground", "explode then apologize"] },
+  { q: "I'd rather be told I'm...", o: ["smart", "hot", "funny", "kind"] },
+  { q: "The thing I worry about most is...", o: ["time", "money", "being alone", "being enough"] },
+  { q: "My dream aesthetic for life is...", o: ["quiet and cozy", "loud and stylish", "minimal and refined", "chaotic and full"] },
+  { q: "I fall for people who are...", o: ["funny", "mysterious", "warm", "confident"] },
+  { q: "I'd describe my sense of humor as...", o: ["dry", "chaotic", "wholesome", "dark"] },
+  { q: "In a group, I'm usually...", o: ["the leader", "the instigator", "the observer", "the connector"] },
+  { q: "The scariest thing for me is...", o: ["irrelevance", "rejection", "loss", "being misunderstood"] },
+  { q: "I get my energy from...", o: ["people", "being alone", "music", "productivity"] },
+  { q: "I'd never want a partner who's...", o: ["boring", "possessive", "too chill", "overly needy"] },
+  { q: "I trust someone when they...", o: ["show up", "listen", "remember small things", "let me see them messy"] },
+  { q: "My love style is...", o: ["slow burn", "all in immediately", "fluctuates", "cautious but loyal"] },
+  { q: "I'd rather spend a Saturday...", o: ["hiking", "at a café", "in bed", "at a house party"] },
+  { q: "The thing I'd teach a kid first is...", o: ["kindness", "boundaries", "curiosity", "how to lose gracefully"] },
+  { q: "I'm addicted to the feeling of...", o: ["being wanted", "being good at things", "being free", "being understood"] },
+  { q: "I overshare when I'm...", o: ["drunk", "nervous", "comfortable", "tired"] },
+  { q: "I undersell myself when it comes to...", o: ["work", "looks", "relationships", "talents"] },
+  { q: "My ideal apology includes...", o: ["accountability", "a plan to change", "space", "food"] },
+];
+
+// -- exported containers --
+window.PROMPTS = {
+  wyr: WYR,
+  tnd: { mild: TND_MILD, medium: TND_MEDIUM, spicy: TND_SPICY },
+  guess: GUESS
+};
+
+</script>
+<script>
+// ============================================================
+// BETWEEN & TOGETHER — APP CORE
+// ============================================================
+
+// ── GLOBAL STATE ──
+const S = {
+  // Firebase
+  db: null,
+  rref: null,
+  unsub: null,
+
+  // Identity
+  name: '',
+  role: null,          // 0 = host, 1 = guest
+  code: null,
+  playerId: null,      // random persistent id per device
+
+  // Room state mirror
+  room: null,
+
+  // Setup scratch
+  selectedGame: null,
+  rounds: 10,
+  spice: 'mild',
+  bestOf: 3,
+
+  // Per-game local state
+  lastState: '',
+  lastGameId: null,
+  lastPhase: '',
+  _lastRxnKey: null,
+  _lastTttBoard: null,
+  _scored: false,
+  _cdIv: null,
+
+  // Seen prompts (per room pair) — tracked in Firebase
+  // but cached locally too to avoid re-fetching constantly
+};
+
+// ── UTILS ──
+const $ = id => document.getElementById(id);
+
+function toast(msg, dur = 2400){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('on'), dur);
+}
+
+function rxnToast(emoji, name){
+  $('rxn-toast-emoji').textContent = emoji;
+  $('rxn-toast-text').textContent = name + ' reacted';
+  const t = $('rxn-toast');
+  t.classList.add('on');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('on'), 2000);
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function genCode(){
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no I/L/O/0/1
+  let s = '';
+  for(let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
+
+function pid(){
+  let p = null;
+  try { p = localStorage.getItem('bt_pid'); } catch(e){}
+  if(!p){
+    p = 'p_' + Math.random().toString(36).slice(2, 10);
+    try { localStorage.setItem('bt_pid', p); } catch(e){}
+  }
+  return p;
+}
+
+// ── SCREEN NAVIGATION ──
+function showScreen(id){
+  document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
+  $(id).classList.add('on');
+  window.scrollTo(0, 0);
+}
+
+function goHome(){
+  cleanupRoom();
+  S.selectedGame = null;
+  renderHistory();
+  showScreen('sc-home');
+}
+
+function goCreate(){
+  showScreen('sc-create');
+  setTimeout(() => { try{ $('create-name').focus(); }catch(e){} }, 200);
+}
+
+function goJoin(){
+  showScreen('sc-join');
+  setTimeout(() => { try{ $('join-code').focus(); }catch(e){} }, 200);
+}
+
+// ── HISTORY (recent rooms) ──
+function saveRoomHistory(code, opponentName){
+  try{
+    const hist = JSON.parse(localStorage.getItem('bt_rooms') || '[]');
+    const filtered = hist.filter(h => h.code !== code);
+    filtered.unshift({ code, opp: opponentName || '—', ts: Date.now() });
+    localStorage.setItem('bt_rooms', JSON.stringify(filtered.slice(0, 5)));
+  }catch(e){}
+}
+
+function renderHistory(){
+  let hist = [];
+  try{ hist = JSON.parse(localStorage.getItem('bt_rooms') || '[]'); } catch(e){}
+  if(!hist.length){
+    $('history-wrap').style.display = 'none';
+    return;
+  }
+  $('history-wrap').style.display = 'block';
+  const html = hist.map(h => {
+    const dt = Date.now() - h.ts;
+    let when = 'just now';
+    if(dt > 86400000) when = Math.floor(dt / 86400000) + 'd';
+    else if(dt > 3600000) when = Math.floor(dt / 3600000) + 'h';
+    else if(dt > 60000) when = Math.floor(dt / 60000) + 'm';
+    return `<div class="history-item" onclick="rejoinRoom('${h.code}')">
+      <div class="hi-left">
+        <span class="hi-code">${h.code}</span>
+        <span class="hi-name">with ${h.opp}</span>
+      </div>
+      <span class="hi-time">${when}</span>
+    </div>`;
+  }).join('');
+  $('history-list').innerHTML = html;
+}
+
+function rejoinRoom(code){
+  $('join-code').value = code;
+  let name = '';
+  try{ name = localStorage.getItem('bt_name') || ''; }catch(e){}
+  $('join-name').value = name;
+  showScreen('sc-join');
+}
+
+// ── FIREBASE INIT ──
+function initFirebase(){
+  if(S.db) return;
+  if(typeof firebase === 'undefined'){
+    toast('Firebase not loaded', 4000);
+    return;
+  }
+  if(!window.FIREBASE_CONFIG){
+    toast('Config missing', 4000);
+    return;
+  }
+  try{
+    firebase.initializeApp(window.FIREBASE_CONFIG);
+    S.db = firebase.database();
+  }catch(e){
+    console.error(e);
+    toast('Firebase init failed: ' + e.message, 4000);
+  }
+}
+
+// ── CREATE / JOIN ROOM ──
+async function doCreate(){
+  const name = $('create-name').value.trim();
+  if(!name){ toast('Enter your name'); return; }
+  if(name.length < 2){ toast('Name too short'); return; }
+
+  initFirebase();
+  if(!S.db){ toast('Connection failed'); return; }
+
+  S.name = name;
+  S.role = 0;
+  S.playerId = pid();
+  try{ localStorage.setItem('bt_name', name); }catch(e){}
+
+  // Try up to 5 codes
+  let attempts = 0;
+  let code = null;
+  while(attempts < 5){
+    code = genCode();
+    const snap = await S.db.ref('rooms/' + code).once('value');
+    if(!snap.exists()) break;
+    attempts++;
+    code = null;
+  }
+  if(!code){ toast('Try again'); return; }
+  S.code = code;
+  S.rref = S.db.ref('rooms/' + code);
+
+  const roomData = {
+    code,
+    state: 'waiting',
+    createdAt: firebase.database.ServerValue.TIMESTAMP,
+    lastActive: firebase.database.ServerValue.TIMESTAMP,
+    players: {
+      0: { name, id: S.playerId, joined: Date.now() },
+      1: null
+    },
+    game: null,
+    gameId: null,
+    seen: {}
+  };
+
+  try{
+    await S.rref.set(roomData);
+    // Set this player's disconnect cleanup hook
+    S.rref.child('players/0/online').onDisconnect().set(false);
+    await S.rref.child('players/0/online').set(true);
+
+    showScreen('sc-waiting');
+    updateWaitingUI();
+    listenRoom();
+  }catch(e){
+    console.error(e);
+    toast('Could not create room');
+  }
+}
+
+async function doJoin(){
+  const name = $('join-name').value.trim();
+  const code = $('join-code').value.trim().toUpperCase();
+  if(!name){ toast('Enter your name'); return; }
+  if(code.length !== 4){ toast('Code must be 4 letters'); return; }
+
+  initFirebase();
+  if(!S.db){ toast('Connection failed'); return; }
+
+  try{
+    const snap = await S.db.ref('rooms/' + code).once('value');
+    if(!snap.exists()){ toast('Room not found'); return; }
+    const room = snap.val();
+
+    // Check slot availability / re-entry
+    S.playerId = pid();
+    S.name = name;
+    S.code = code;
+    S.rref = S.db.ref('rooms/' + code);
+    try{ localStorage.setItem('bt_name', name); }catch(e){}
+
+    // Am I already player 0?
+    if(room.players && room.players[0] && room.players[0].id === S.playerId){
+      S.role = 0;
+      await S.rref.child('players/0').update({ name, online: true });
+      S.rref.child('players/0/online').onDisconnect().set(false);
+    }
+    // Am I already player 1?
+    else if(room.players && room.players[1] && room.players[1].id === S.playerId){
+      S.role = 1;
+      await S.rref.child('players/1').update({ name, online: true });
+      S.rref.child('players/1/online').onDisconnect().set(false);
+    }
+    // Join as player 1 if empty
+    else if(!room.players || !room.players[1]){
+      S.role = 1;
+      await S.rref.child('players/1').set({
+        name, id: S.playerId, joined: Date.now(), online: true
+      });
+      S.rref.child('players/1/online').onDisconnect().set(false);
+    }
+    // Room full and we're not in it
+    else {
+      toast('Room is full');
+      return;
+    }
+
+    await S.rref.child('lastActive').set(firebase.database.ServerValue.TIMESTAMP);
+
+    showScreen('sc-waiting');
+    listenRoom();
+  }catch(e){
+    console.error(e);
+    toast('Could not join: ' + e.message);
+  }
+}
+
+// ── COPY CODE / SHARE ──
+function copyCode(){
+  if(!S.code) return;
+  try{
+    navigator.clipboard.writeText(S.code).then(() => toast('Code copied'));
+  }catch(e){
+    toast('Code: ' + S.code);
+  }
+}
+
+function shareInvite(){
+  const url = location.origin + location.pathname;
+  const msg = `join me on between & together — code: ${S.code}\n${url}`;
+  if(navigator.share){
+    navigator.share({ title: 'Between & Together', text: msg, url })
+      .catch(() => {});
+  } else {
+    const wa = 'https://wa.me/?text=' + encodeURIComponent(msg);
+    window.open(wa, '_blank');
+  }
+}
+
+// ── WAITING ROOM UI ──
+function updateWaitingUI(){
+  if(!S.room) return;
+  const p0 = S.room.players && S.room.players[0];
+  const p1 = S.room.players && S.room.players[1];
+  $('waiting-code').textContent = S.code;
+
+  const myRole = S.role;
+  const otherRole = 1 - myRole;
+
+  $('slot-0-name').textContent = (p0 && p0.name) || '—';
+  $('slot-0-name').classList.remove('waiting');
+  $('slot-0').classList.add('ready');
+
+  if(p1 && p1.name){
+    $('slot-1-name').textContent = p1.name;
+    $('slot-1-name').classList.remove('waiting');
+    $('slot-1').classList.add('ready');
+    $('slot-1').querySelector('.slot-status').innerHTML = '<span class="slot-dot"></span>Ready';
+    $('wait-continue').style.display = 'block';
+  } else {
+    $('slot-1-name').textContent = 'Waiting for opponent...';
+    $('slot-1-name').classList.add('waiting');
+    $('slot-1').classList.remove('ready');
+    $('slot-1').querySelector('.slot-status').innerHTML = '<span class="slot-dot pulse"></span>Not here';
+    $('wait-continue').style.display = 'none';
+  }
+}
+
+function goLobby(){
+  if(!S.rref) return;
+  // Host moves everyone to lobby
+  if(S.role === 0){
+    S.rref.update({ state: 'lobby', lastActive: firebase.database.ServerValue.TIMESTAMP });
+  }
+  renderLobby();
+  showScreen('sc-lobby');
+}
+
+function renderLobby(){
+  if(!S.room) return;
+  const p0 = (S.room.players && S.room.players[0]) ? S.room.players[0].name : '—';
+  const p1 = (S.room.players && S.room.players[1]) ? S.room.players[1].name : '—';
+  $('lobby-names').textContent = `${p0} & ${p1}`;
+  $('lobby-code').textContent = S.code;
+  $('lobby-wait').style.display = 'none';
+}
+
+// ── PICK GAME ──
+function pickGame(game){
+  if(!S.rref) return;
+  S.selectedGame = game;
+
+  // Open setup screen
+  // Both players see same setup; only host can change and start
+  const cfgDefaults = { wyr: 10, ttt: 3, tnd: 10, guess: 10 };
+  const cfg = {
+    game,
+    rounds: cfgDefaults[game] || 10,
+    spice: 'mild',
+    bestOf: 3,
+    setupBy: S.role,
+    startedAt: null
+  };
+
+  if(S.role === 0){
+    S.rref.update({ state: 'setup', setup: cfg, lastActive: firebase.database.ServerValue.TIMESTAMP });
+  }
+  // Guest will follow via listener
+}
+
+function renderSetup(room){
+  const cfg = room.setup || {};
+  const game = cfg.game;
+  S.selectedGame = game;
+  S.rounds = cfg.rounds || 10;
+  S.spice = cfg.spice || 'mild';
+  S.bestOf = cfg.bestOf || 3;
+
+  const titles = {
+    wyr: ['Would you rather', 'Two impossible choices. Same question — you both pick.'],
+    ttt: ['Tic tac toe', 'Best of N. Simple. Winner takes the round.'],
+    tnd: ['Truth or dare', 'Take turns. Pick your poison. Judge their honesty.'],
+    guess: ['Guess me', 'You answer, they guess. Find out who actually pays attention.']
+  };
+  const [title, sub] = titles[game] || ['Setup', ''];
+  $('setup-title').textContent = title;
+  $('setup-sub').textContent = sub;
+  $('setup-top').textContent = title;
+  $('setup-code').textContent = S.code;
+
+  // Rounds section
+  if(game === 'ttt'){
+    $('setup-rounds-section').style.display = 'none';
+    $('setup-ttt').style.display = 'block';
+    $('setup-spice').style.display = 'none';
+    document.querySelectorAll('#setup-ttt .chip').forEach(c => c.classList.toggle('on', parseInt(c.dataset.bo) === S.bestOf));
+  } else {
+    $('setup-rounds-section').style.display = 'block';
+    $('setup-ttt').style.display = 'none';
+    $('rounds-num').textContent = S.rounds;
+    $('rounds-slider').value = S.rounds;
+
+    if(game === 'tnd'){
+      $('setup-spice').style.display = 'block';
+      document.querySelectorAll('#setup-spice .chip').forEach(c => c.classList.toggle('on', c.dataset.spice === S.spice));
+      setSpiceHint(S.spice);
+    } else {
+      $('setup-spice').style.display = 'none';
+    }
+  }
+
+  // Host-only controls
+  const isHost = S.role === 0;
+  $('setup-start').disabled = !isHost;
+  $('setup-start').textContent = isHost ? 'Start game' : 'Waiting for host...';
+  $('setup-note').textContent = isHost ? 'Adjust settings, then tap start.' : 'The host is setting things up.';
+
+  // Disable sliders for guest
+  $('rounds-slider').disabled = !isHost;
+  document.querySelectorAll('.chip').forEach(c => { c.style.pointerEvents = isHost ? 'auto' : 'none'; c.style.opacity = isHost ? '1' : '.7'; });
+
+  showScreen('sc-setup');
+}
+
+function updateRounds(v){
+  S.rounds = parseInt(v);
+  $('rounds-num').textContent = S.rounds;
+  if(S.role === 0 && S.rref){
+    S.rref.child('setup/rounds').set(S.rounds);
+  }
+}
+
+function setSpice(spice, el){
+  if(S.role !== 0) return;
+  S.spice = spice;
+  document.querySelectorAll('#setup-spice .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  setSpiceHint(spice);
+  if(S.rref) S.rref.child('setup/spice').set(spice);
+}
+
+function setSpiceHint(spice){
+  const hints = {
+    mild: 'Safe territory. Low-commitment truths and light dares.',
+    medium: 'Real talk. Vulnerable questions, bolder moves.',
+    spicy: 'Not for strangers. Unfiltered, flirtatious, and forward.'
+  };
+  $('spice-hint').textContent = hints[spice];
+}
+
+function setBestOf(n, el){
+  if(S.role !== 0) return;
+  S.bestOf = n;
+  document.querySelectorAll('#setup-ttt .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  if(S.rref) S.rref.child('setup/bestOf').set(n);
+}
+
+function backToLobby(){
+  if(S.role === 0 && S.rref){
+    S.rref.update({ state: 'lobby', setup: null, game: null, gameId: null, lastActive: firebase.database.ServerValue.TIMESTAMP });
+  }
+  showScreen('sc-lobby');
+}
+
+function quitToLobby(){
+  if(!S.rref) return;
+  if(confirm('Quit the current game and go back to lobby?')){
+    if(S.role === 0){
+      S.rref.update({ state: 'lobby', game: null, gameId: null, lastActive: firebase.database.ServerValue.TIMESTAMP });
+    } else {
+      // Guest asks host by setting a flag
+      toast('Asking host to quit...');
+      S.rref.update({ 'setup/guestQuit': true });
+    }
+  }
+}
+
+// ── START GAME (host) ──
+function startGame(){
+  if(S.role !== 0) return;
+  const game = S.selectedGame;
+  if(!game) return;
+
+  const gameId = 'g_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+
+  // Build the initial game state based on game type
+  let gameState = null;
+  if(game === 'wyr'){
+    const pool = pickUnseen(window.PROMPTS.wyr, S.rounds, 'wyr');
+    gameState = {
+      kind: 'wyr',
+      gameId,
+      pool,
+      round: 0,
+      rounds: pool.length,
+      phase: 'q',
+      picks: {},
+      startedAt: Date.now()
+    };
+  }
+  else if(game === 'ttt'){
+    const bo = S.bestOf;
+    const target = Math.ceil(bo / 2); // wins needed
+    gameState = {
+      kind: 'ttt',
+      gameId,
+      bestOf: bo,
+      target,
+      round: 0,
+      phase: 'play',
+      board: [null,null,null,null,null,null,null,null,null],
+      turn: 0, // who plays first — alternates
+      scores: [0, 0],
+      winner: null,
+      startedAt: Date.now()
+    };
+  }
+  else if(game === 'tnd'){
+    const spicePool = window.PROMPTS.tnd[S.spice] || window.PROMPTS.tnd.mild;
+    const pool = pickUnseen(spicePool, S.rounds, 'tnd_' + S.spice);
+    gameState = {
+      kind: 'tnd',
+      gameId,
+      pool,
+      round: 0,
+      rounds: pool.length,
+      spice: S.spice,
+      phase: 'pick', // pick -> prompt -> judge -> reveal
+      activePlayer: 0,
+      pickedType: null,
+      promptIdx: null,
+      doneSignal: null,
+      verdict: null,
+      results: [],
+      startedAt: Date.now()
+    };
+  }
+  else if(game === 'guess'){
+    const pool = pickUnseen(window.PROMPTS.guess, S.rounds, 'guess');
+    gameState = {
+      kind: 'guess',
+      gameId,
+      pool,
+      round: 0,
+      rounds: pool.length,
+      phase: 'answer', // answer -> guess -> reveal
+      answerer: 0,
+      answer: null, // { idx }
+      guess: null,  // { idx }
+      scores: [0, 0],
+      results: [],
+      startedAt: Date.now()
+    };
+  }
+
+  if(!gameState) return;
+
+  S.rref.update({
+    state: 'countdown',
+    game: gameState,
+    gameId,
+    lastActive: firebase.database.ServerValue.TIMESTAMP
+  });
+}
+
+// ── UNSEEN PROMPT SELECTION ──
+// Pull N prompts from pool that haven't been seen by this room.
+function pickUnseen(pool, n, category){
+  if(!S.room || !S.room.seen) return shuffle(pool).slice(0, n);
+  const seen = (S.room.seen[category] || {});
+  const unseen = [];
+  const seenArr = [];
+  for(let i = 0; i < pool.length; i++){
+    if(seen[i]) seenArr.push(i);
+    else unseen.push(i);
+  }
+  const shuffled = shuffle(unseen);
+  let selected = shuffled.slice(0, n);
+  // If not enough unseen, reset and include seen ones
+  if(selected.length < n){
+    const extra = shuffle(seenArr).slice(0, n - selected.length);
+    selected = selected.concat(extra);
+  }
+  return selected.map(i => ({ i, v: pool[i] }));
+}
+
+function markSeen(category, indices){
+  if(!S.rref) return;
+  const updates = {};
+  indices.forEach(i => { updates[`seen/${category}/${i}`] = true; });
+  S.rref.update(updates);
+}
+
+// ── LEAVE / CLEANUP ──
+function leaveRoom(){
+  if(!confirm('Leave this room?')) return;
+  cleanupRoom();
+  goHome();
+}
+
+function cleanupRoom(){
+  if(S.unsub && S.rref){
+    S.rref.off('value', S.unsub);
+  }
+  if(S.rref && S.role !== null){
+    try{
+      S.rref.child('players/' + S.role + '/online').set(false);
+    }catch(e){}
+  }
+  if(S._cdIv){ clearInterval(S._cdIv); S._cdIv = null; }
+  S.rref = null;
+  S.unsub = null;
+  S.room = null;
+  S.role = null;
+  S.code = null;
+  S.lastState = '';
+  S.lastGameId = null;
+  S.lastPhase = '';
+  S._scored = false;
+  S._lastTttBoard = null;
+  S._lastRxnKey = null;
+}
+
+// ── LISTEN TO ROOM ──
+function listenRoom(){
+  if(!S.rref) return;
+  S.unsub = S.rref.on('value', snap => {
+    if(!snap.exists()){
+      toast('Room deleted');
+      goHome();
+      return;
+    }
+    const room = snap.val();
+    S.room = room;
+    handleRoomUpdate(room);
+  });
+}
+
+function handleRoomUpdate(room){
+  // Save recent opponent name on first successful join
+  if(room.players && room.players[0] && room.players[1] && room.players[0].name && room.players[1].name){
+    const oppName = (S.role === 0) ? room.players[1].name : room.players[0].name;
+    saveRoomHistory(S.code, oppName);
+  }
+
+  // Waiting
+  if(room.state === 'waiting'){
+    updateWaitingUI();
+    if(S.lastState !== 'waiting') showScreen('sc-waiting');
+    S.lastState = 'waiting';
+    return;
+  }
+
+  // Lobby
+  if(room.state === 'lobby'){
+    if(S.lastState !== 'lobby'){
+      S.lastState = 'lobby';
+      renderLobby();
+      showScreen('sc-lobby');
+    } else {
+      renderLobby();
+    }
+    return;
+  }
+
+  // Setup
+  if(room.state === 'setup'){
+    if(S.lastState !== 'setup' || S.lastGameId !== (room.setup && room.setup.game)){
+      S.lastState = 'setup';
+      S.lastGameId = room.setup && room.setup.game;
+      renderSetup(room);
+    } else {
+      // Reflect changes from host
+      if(room.setup){
+        S.rounds = room.setup.rounds || S.rounds;
+        S.spice = room.setup.spice || S.spice;
+        S.bestOf = room.setup.bestOf || S.bestOf;
+        if(S.role === 1){
+          $('rounds-num').textContent = S.rounds;
+          $('rounds-slider').value = S.rounds;
+          document.querySelectorAll('#setup-spice .chip').forEach(c => c.classList.toggle('on', c.dataset.spice === S.spice));
+          setSpiceHint(S.spice);
+          document.querySelectorAll('#setup-ttt .chip').forEach(c => c.classList.toggle('on', parseInt(c.dataset.bo) === S.bestOf));
+        }
+      }
+    }
+    return;
+  }
+
+  // Countdown
+  if(room.state === 'countdown'){
+    if(S.lastState !== 'countdown' || S.lastGameId !== room.gameId){
+      S.lastState = 'countdown';
+      S.lastGameId = room.gameId;
+      S._scored = false;
+      showScreen('sc-cd');
+      runCountdown();
+    }
+    return;
+  }
+
+  // Playing
+  if(room.state === 'playing' && room.game){
+    handleGameUpdate(room.game);
+    return;
+  }
+
+  // Done
+  if(room.state === 'done' && room.game){
+    if(S.lastState !== 'done' || S.lastGameId !== room.gameId){
+      S.lastState = 'done';
+      S.lastGameId = room.gameId;
+      renderFinal(room.game);
+    }
+    return;
+  }
+}
+
+function handleGameUpdate(game){
+  if(!game) return;
+
+  // Reactions — show toasts but only for new ones
+  if(game.rxn){
+    const keys = Object.keys(game.rxn).sort();
+    const lastKey = keys[keys.length - 1];
+    if(lastKey && lastKey !== S._lastRxnKey){
+      S._lastRxnKey = lastKey;
+      const r = game.rxn[lastKey];
+      if(r && r.from !== undefined && r.from !== S.role){
+        const p = S.room.players[r.from];
+        rxnToast(r.e, (p && p.name) || 'them');
+      }
+    }
+  }
+
+  // Dispatch to game-specific handler
+  const kind = game.kind;
+  if(kind === 'wyr'){
+    if(S.lastState !== 'playing-wyr' || S.lastGameId !== game.gameId){
+      S.lastState = 'playing-wyr';
+      S.lastGameId = game.gameId;
+      showScreen('sc-wyr');
+    }
+    renderWYR(game);
+  }
+  else if(kind === 'ttt'){
+    if(S.lastState !== 'playing-ttt' || S.lastGameId !== game.gameId){
+      S.lastState = 'playing-ttt';
+      S.lastGameId = game.gameId;
+      showScreen('sc-ttt');
+    }
+    renderTTT(game);
+  }
+  else if(kind === 'tnd'){
+    if(S.lastState !== 'playing-tnd' || S.lastGameId !== game.gameId){
+      S.lastState = 'playing-tnd';
+      S.lastGameId = game.gameId;
+      showScreen('sc-tnd');
+    }
+    renderTND(game);
+  }
+  else if(kind === 'guess'){
+    if(S.lastState !== 'playing-guess' || S.lastGameId !== game.gameId){
+      S.lastState = 'playing-guess';
+      S.lastGameId = game.gameId;
+      showScreen('sc-guess');
+    }
+    renderGuess(game);
+  }
+}
+
+// ── COUNTDOWN ──
+function runCountdown(){
+  if(S._cdIv) clearInterval(S._cdIv);
+  let n = 3;
+  $('cd-num').textContent = n;
+  $('cd-label').textContent = 'Get ready';
+  playTick();
+  S._cdIv = setInterval(() => {
+    n--;
+    if(n > 0){
+      $('cd-num').textContent = n;
+      $('cd-num').style.animation = 'none';
+      void $('cd-num').offsetWidth;
+      $('cd-num').style.animation = 'cdPulse 0.9s ease';
+      playTick();
+    } else if(n === 0){
+      $('cd-num').textContent = 'Go';
+      $('cd-num').style.animation = 'none';
+      void $('cd-num').offsetWidth;
+      $('cd-num').style.animation = 'cdPulse 0.9s ease';
+      $('cd-label').textContent = '';
+    } else {
+      clearInterval(S._cdIv);
+      S._cdIv = null;
+      // Host flips state to playing
+      if(S.role === 0 && S.rref){
+        S.rref.update({ state: 'playing', lastActive: firebase.database.ServerValue.TIMESTAMP });
+      }
+    }
+  }, 900);
+}
+
+function playTick(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 800;
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.1, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.15);
+    osc.start(); osc.stop(ctx.currentTime + 0.15);
+    setTimeout(() => { try{ ctx.close(); }catch(e){} }, 200);
+  }catch(e){}
+}
+
+function playWin(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [523, 659, 784, 1047].forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = f;
+      const start = ctx.currentTime + i * 0.12;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.15, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3);
+      osc.start(start); osc.stop(start + 0.3);
+    });
+    setTimeout(() => { try{ ctx.close(); }catch(e){} }, 1200);
+  }catch(e){}
+}
+
+// ── REACTIONS ──
+const REACTIONS = ['🔥','😂','💀','👀','🤝','😳'];
+
+function renderRxn(containerId){
+  const c = $(containerId);
+  if(!c) return;
+  c.innerHTML = REACTIONS.map(e =>
+    `<button class="rxn-btn" onclick="sendRxn('${e}')">${e}</button>`
+  ).join('');
+}
+
+function sendRxn(emoji){
+  if(!S.rref) return;
+  const k = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5);
+  S.rref.child('game/rxn/' + k).set({ e: emoji, from: S.role, ts: Date.now() });
+  // Auto-cleanup old reactions
+  setTimeout(() => {
+    S.rref && S.rref.child('game/rxn/' + k).remove().catch(() => {});
+  }, 4000);
+}
+
+// ── SHARE RESULT ──
+function shareResult(){
+  const g = S.room && S.room.game;
+  if(!g) return;
+  let msg = '';
+  const p0 = S.room.players[0].name;
+  const p1 = S.room.players[1].name;
+  if(g.kind === 'wyr'){
+    const total = (g.results || []).length;
+    const matched = (g.results || []).filter(r => r.match).length;
+    msg = `${p0} & ${p1} matched ${matched}/${total} on would you rather. play at: ${location.origin}${location.pathname}`;
+  } else if(g.kind === 'ttt'){
+    msg = `${p0} ${g.scores[0]}–${g.scores[1]} ${p1} on tic tac toe. rematch? ${location.origin}${location.pathname}`;
+  } else if(g.kind === 'guess'){
+    msg = `how well do ${p0} & ${p1} know each other? ${g.scores[0]}/${g.rounds} guessed right. play at: ${location.origin}${location.pathname}`;
+  } else if(g.kind === 'tnd'){
+    const did = (g.results || []).filter(r => r.verdict === 'yes').length;
+    msg = `${p0} & ${p1} did ${did} truths and dares. play at: ${location.origin}${location.pathname}`;
+  }
+  if(navigator.share){
+    navigator.share({ title: 'Between & Together', text: msg }).catch(() => {});
+  } else {
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  }
+}
+
+// ── REMATCH ──
+function rematch(){
+  if(!S.rref) return;
+  if(S.role === 0){
+    S.rref.update({ state: 'setup', game: null, gameId: null, setup: {
+      game: S.selectedGame,
+      rounds: S.rounds,
+      spice: S.spice,
+      bestOf: S.bestOf,
+      setupBy: 0
+    }, lastActive: firebase.database.ServerValue.TIMESTAMP });
+  } else {
+    toast('Ask the host to start a rematch');
+  }
+}
+
+// ── CONFETTI ──
+function confetti(){
+  const c = $('confetti-canvas');
+  c.style.display = 'block';
+  c.width = window.innerWidth;
+  c.height = window.innerHeight;
+  const ctx = c.getContext('2d');
+  const colors = ['#d99a3e','#c07d6a','#f5ebdc','#8fa67a'];
+  const ps = Array.from({length: 80}, () => ({
+    x: Math.random() * c.width,
+    y: -20,
+    vx: (Math.random() - 0.5) * 4,
+    vy: Math.random() * 3 + 2,
+    r: Math.random() * 4 + 2,
+    c: colors[Math.floor(Math.random() * colors.length)],
+    rot: Math.random() * Math.PI * 2,
+    vrot: (Math.random() - 0.5) * 0.2
+  }));
+  let frames = 0;
+  function draw(){
+    ctx.clearRect(0, 0, c.width, c.height);
+    ps.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      p.vy += 0.08;
+      p.rot += p.vrot;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.r, -p.r * 0.4, p.r * 2, p.r * 0.8);
+      ctx.restore();
+    });
+    frames++;
+    if(frames < 200) requestAnimationFrame(draw);
+    else { ctx.clearRect(0, 0, c.width, c.height); c.style.display = 'none'; }
+  }
+  draw();
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  // Auto-uppercase room code input
+  $('join-code').addEventListener('input', e => {
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  });
+  // Prefill name
+  try{
+    const saved = localStorage.getItem('bt_name');
+    if(saved){
+      $('create-name').value = saved;
+      $('join-name').value = saved;
+    }
+  }catch(e){}
+  renderHistory();
+
+  // Check for ?room=CODE in URL
+  const params = new URLSearchParams(location.search);
+  const roomFromUrl = params.get('r');
+  if(roomFromUrl && roomFromUrl.length === 4){
+    $('join-code').value = roomFromUrl.toUpperCase();
+    showScreen('sc-join');
+  }
+});
+
+</script>
+<script>
+// ============================================================
+// WOULD YOU RATHER — simultaneous picks, match/clash reveal
+// ============================================================
+
+function renderWYR(g){
+  const round = g.round || 0;
+  const total = g.rounds;
+  const cur = g.pool[round];
+  if(!cur){ return; } // safety
+
+  $('wyr-top-code').textContent = S.code;
+  $('wyr-round-label').textContent = 'Round ' + (round + 1);
+  $('wyr-count').textContent = (round + 1) + ' / ' + total;
+  $('wyr-progress').style.width = ((round / total) * 100) + '%';
+
+  const phase = g.phase || 'q';
+
+  // Names
+  const youName = S.room.players[S.role].name;
+  const themName = S.room.players[1 - S.role].name;
+  $('wyr-you-name').textContent = youName.toUpperCase();
+  $('wyr-them-name').textContent = themName.toUpperCase();
+
+  if(phase === 'q'){
+    // Question phase
+    $('wyr-q-phase').style.display = 'block';
+    $('wyr-reveal-phase').style.display = 'none';
+    $('wyr-footer').style.display = 'none';
+
+    $('wyr-opt-a-text').textContent = cur.v[0];
+    $('wyr-opt-b-text').textContent = cur.v[1];
+
+    // Have I picked yet?
+    const myPick = g.picks && g.picks[S.role];
+    const themPick = g.picks && g.picks[1 - S.role];
+
+    if(myPick){
+      $('wyr-opt-a').classList.toggle('picked', myPick === 'a');
+      $('wyr-opt-b').classList.toggle('picked', myPick === 'b');
+      $('wyr-opt-a').classList.add('disabled');
+      $('wyr-opt-b').classList.add('disabled');
+      $('wyr-waiting').style.display = themPick ? 'none' : 'block';
+    } else {
+      $('wyr-opt-a').classList.remove('picked', 'disabled');
+      $('wyr-opt-b').classList.remove('picked', 'disabled');
+      $('wyr-waiting').style.display = 'none';
+    }
+
+    // Host: when both have picked, move to reveal phase
+    if(S.role === 0 && myPick && themPick && g.phase === 'q' && !S._scored){
+      S._scored = true;
+      // Record result
+      const results = (g.results || []).slice();
+      results.push({
+        q: cur.v,
+        p0: g.picks[0],
+        p1: g.picks[1],
+        match: g.picks[0] === g.picks[1],
+        seenIdx: cur.i
+      });
+      S.rref.child('game').update({ phase: 'reveal', results });
+      // Mark seen
+      markSeen('wyr', [cur.i]);
+    }
+  }
+  else if(phase === 'reveal'){
+    S._scored = false;
+    $('wyr-q-phase').style.display = 'none';
+    $('wyr-reveal-phase').style.display = 'block';
+    $('wyr-footer').style.display = 'block';
+
+    const myPick = g.picks[S.role];
+    const themPick = g.picks[1 - S.role];
+    const match = myPick === themPick;
+
+    const card = $('wyr-reveal-card');
+    const verdict = $('wyr-reveal-verdict');
+
+    card.classList.remove('match', 'clash');
+    verdict.classList.remove('match', 'clash');
+
+    if(match){
+      card.classList.add('match');
+      verdict.classList.add('match');
+      verdict.textContent = rnd([
+        'Literally the same brain',
+        'Aligned. Suspicious.',
+        'The nation agrees',
+        'Same page.',
+        'Mind meld.'
+      ]);
+      $('wyr-reveal-sub').textContent = 'Both picked the same thing.';
+    } else {
+      card.classList.add('clash');
+      verdict.classList.add('clash');
+      verdict.textContent = rnd([
+        'Nation divided',
+        'Completely different wavelengths',
+        'Red flag or a green flag?',
+        'Irreconcilable differences',
+        'Agree to disagree'
+      ]);
+      $('wyr-reveal-sub').textContent = 'No match. Unpack that.';
+    }
+
+    $('wyr-you-pick').textContent = myPick === 'a' ? cur.v[0] : cur.v[1];
+    $('wyr-them-pick').textContent = themPick === 'a' ? cur.v[0] : cur.v[1];
+
+    renderRxn('wyr-rxn');
+
+    // Next button
+    const isLast = round + 1 >= total;
+    $('wyr-next-btn').textContent = isLast ? 'See results →' : 'Next question →';
+    $('wyr-next-btn').disabled = false;
+  }
+}
+
+function wyrPick(side){
+  const g = S.room && S.room.game;
+  if(!g) return;
+  if(g.phase !== 'q') return;
+  // Block double-pick
+  if(g.picks && g.picks[S.role]) return;
+  S.rref.child('game/picks/' + S.role).set(side);
+}
+
+function wyrNext(){
+  if(S.role !== 0){
+    // Guest signals readiness
+    S.rref.child('game/guestReady').set(true);
+    $('wyr-next-btn').textContent = 'Waiting for host...';
+    $('wyr-next-btn').disabled = true;
+    return;
+  }
+  // Host advances
+  const g = S.room.game;
+  const nextRound = g.round + 1;
+  if(nextRound >= g.rounds){
+    // Done
+    S.rref.update({ state: 'done' });
+    return;
+  }
+  S.rref.child('game').update({
+    round: nextRound,
+    phase: 'q',
+    picks: null,
+    guestReady: null
+  });
+}
+
+// utility
+function rnd(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
+// Host: react to guest ready
+function wyrCheckGuestReady(g){
+  if(S.role !== 0) return;
+  if(g.phase === 'reveal' && g.guestReady){
+    wyrNext();
+  }
+}
+
+</script>
+<script>
+// ============================================================
+// TIC TAC TOE — strict turns, best-of-N match
+// ============================================================
+
+const TTT_WINS = [
+  [0,1,2],[3,4,5],[6,7,8], // rows
+  [0,3,6],[1,4,7],[2,5,8], // cols
+  [0,4,8],[2,4,6]          // diags
+];
+
+function tttCheckWinner(board){
+  for(let i = 0; i < TTT_WINS.length; i++){
+    const [a,b,c] = TTT_WINS[i];
+    if(board[a] !== null && board[a] === board[b] && board[a] === board[c]){
+      return { winner: board[a], line: TTT_WINS[i] };
+    }
+  }
+  return null;
+}
+
+function renderTTT(g){
+  $('ttt-top-code').textContent = S.code;
+  $('ttt-round-label').textContent = 'Round ' + ((g.round || 0) + 1);
+  $('ttt-bo-label').textContent = 'Best of ' + g.bestOf;
+
+  const p0Name = S.room.players[0].name;
+  const p1Name = S.room.players[1].name;
+
+  // Score display — always in MY perspective (me on left)
+  const myScore = g.scores[S.role];
+  const themScore = g.scores[1 - S.role];
+  const myName = (S.role === 0 ? p0Name : p1Name);
+  const themName = (S.role === 0 ? p1Name : p0Name);
+
+  $('ttt-name-0').textContent = myName;
+  $('ttt-name-1').textContent = themName;
+  $('ttt-score-0').textContent = myScore;
+  $('ttt-score-1').textContent = themScore;
+
+  const phase = g.phase || 'play';
+
+  if(phase === 'play'){
+    const board = g.board || [null,null,null,null,null,null,null,null,null];
+    const turn = g.turn || 0; // absolute role whose turn it is
+    const isMyTurn = turn === S.role;
+
+    // Scoreboard active indicator
+    $('ttt-sbox-0').classList.toggle('active', isMyTurn);
+    $('ttt-sbox-1').classList.toggle('active', !isMyTurn);
+
+    // Status
+    const st = $('ttt-status');
+    if(isMyTurn){
+      st.className = 'ttt-status mine';
+      st.textContent = 'Your move — tap a cell';
+    } else {
+      st.className = 'ttt-status';
+      st.textContent = themName + ' is thinking...';
+    }
+
+    renderTTTBoard(board, isMyTurn, null);
+    $('ttt-footer').style.display = 'none';
+  }
+  else if(phase === 'reveal'){
+    // Round complete, show result
+    const board = g.board;
+    const w = tttCheckWinner(board);
+    const st = $('ttt-status');
+
+    if(w){
+      if(w.winner === S.role){
+        st.className = 'ttt-status win';
+        st.textContent = 'You won this round';
+      } else {
+        st.className = 'ttt-status lose';
+        st.textContent = themName + ' wins this round';
+      }
+    } else {
+      st.className = 'ttt-status';
+      st.textContent = 'Draw — no winner';
+    }
+
+    // Active indicator off
+    $('ttt-sbox-0').classList.remove('active');
+    $('ttt-sbox-1').classList.remove('active');
+
+    renderTTTBoard(board, false, w ? w.line : null);
+
+    $('ttt-footer').style.display = 'block';
+    renderRxn('ttt-rxn');
+
+    // Next button — check if match is over
+    const matchOver = g.scores[0] >= g.target || g.scores[1] >= g.target || (g.round + 1) >= g.bestOf;
+    $('ttt-next-btn').textContent = matchOver ? 'See final →' : 'Next round →';
+    $('ttt-next-btn').disabled = false;
+  }
+}
+
+function renderTTTBoard(board, interactive, highlightLine){
+  const el = $('ttt-board');
+  el.innerHTML = '';
+  board.forEach((cell, i) => {
+    const div = document.createElement('div');
+    div.className = 'ttt-cell';
+    if(cell === 0){ div.classList.add('mark-x', 'taken'); div.textContent = '×'; }
+    else if(cell === 1){ div.classList.add('mark-o', 'taken'); div.textContent = '○'; }
+    else if(interactive){
+      const idx = i;
+      div.onclick = () => tttMove(idx);
+    } else {
+      div.classList.add('waiting');
+    }
+    if(highlightLine && highlightLine.includes(i)){
+      div.classList.add('highlight');
+    }
+    el.appendChild(div);
+  });
+}
+
+function tttMove(i){
+  const g = S.room && S.room.game;
+  if(!g || g.kind !== 'ttt') return;
+  if(g.phase !== 'play') return;
+  if(g.turn !== S.role) return;
+  const board = (g.board || []).slice();
+  if(board[i] !== null) return;
+  board[i] = S.role;
+
+  // Check if this move wins
+  const w = tttCheckWinner(board);
+  const full = board.indexOf(null) < 0;
+
+  const updates = {
+    board,
+    turn: 1 - S.role
+  };
+
+  if(w || full){
+    // Round ends — both players will handle this, but host authoritatively updates scores
+    // To avoid races, only host writes scores
+    if(S.role === 0){
+      const scores = g.scores.slice();
+      if(w) scores[w.winner]++;
+      updates.scores = scores;
+      updates.phase = 'reveal';
+      updates.winner = w ? w.winner : null;
+    }
+  }
+
+  S.rref.child('game').update(updates);
+
+  // If guest moved and it's game-ending, host listener will handle it
+  if((w || full) && S.role === 1){
+    // Host will score when they receive the update
+  }
+}
+
+function tttNext(){
+  if(S.role !== 0){
+    // Guest signals readiness
+    S.rref.child('game/guestReady').set(true);
+    $('ttt-next-btn').textContent = 'Waiting for host...';
+    $('ttt-next-btn').disabled = true;
+    return;
+  }
+  const g = S.room.game;
+  const matchOver = g.scores[0] >= g.target || g.scores[1] >= g.target || (g.round + 1) >= g.bestOf;
+  if(matchOver){
+    S.rref.update({ state: 'done' });
+    return;
+  }
+  const nextRound = g.round + 1;
+  S.rref.child('game').update({
+    round: nextRound,
+    phase: 'play',
+    board: [null,null,null,null,null,null,null,null,null],
+    turn: nextRound % 2, // alternate who starts
+    winner: null,
+    guestReady: null
+  });
+}
+
+// Host: also process guest's game-ending move when we see it
+function tttHostCheckEnd(g){
+  if(S.role !== 0) return;
+  if(g.phase !== 'play') return;
+  if(!g.board) return;
+  const w = tttCheckWinner(g.board);
+  const full = g.board.indexOf(null) < 0;
+  if(w || full){
+    const scores = g.scores.slice();
+    if(w) scores[w.winner]++;
+    S.rref.child('game').update({
+      phase: 'reveal',
+      scores,
+      winner: w ? w.winner : null
+    });
+  }
+}
+
+</script>
+<script>
+// ============================================================
+// TRUTH OR DARE — strict turns, pick -> prompt -> judge -> reveal
+// ============================================================
+
+function renderTND(g){
+  $('tnd-top-code').textContent = S.code;
+  const round = g.round || 0;
+  const total = g.rounds;
+  $('tnd-round-label').textContent = 'Round ' + (round + 1);
+  $('tnd-count').textContent = (round + 1) + ' / ' + total;
+  $('tnd-progress').style.width = ((round / total) * 100) + '%';
+
+  const activePlayer = g.activePlayer !== undefined ? g.activePlayer : 0;
+  const isMyTurn = activePlayer === S.role;
+  const activeName = S.room.players[activePlayer].name;
+  const watcherName = S.room.players[1 - activePlayer].name;
+
+  // Hide all phases first
+  $('tnd-picker-phase').style.display = 'none';
+  $('tnd-prompt-phase').style.display = 'none';
+  $('tnd-judge-phase').style.display = 'none';
+  $('tnd-reveal-phase').style.display = 'none';
+
+  const phase = g.phase;
+
+  if(phase === 'pick'){
+    $('tnd-picker-phase').style.display = 'block';
+
+    if(isMyTurn){
+      $('tnd-whose-turn-label').textContent = "It's your turn";
+      $('tnd-whose-turn-name').textContent = 'Pick your fate';
+      $('tnd-pick-sub').textContent = 'No take-backs — pick one.';
+      $('tnd-picker-active').style.display = 'grid';
+      $('tnd-watching').style.display = 'none';
+    } else {
+      $('tnd-whose-turn-label').textContent = "It's their turn";
+      $('tnd-whose-turn-name').textContent = activeName;
+      $('tnd-pick-sub').textContent = 'They pick first.';
+      $('tnd-picker-active').style.display = 'none';
+      $('tnd-watching').style.display = 'block';
+    }
+  }
+  else if(phase === 'prompt'){
+    $('tnd-prompt-phase').style.display = 'block';
+    const prompt = (g.pool && g.pool[g.promptIdx]) || null;
+    if(!prompt){ return; }
+
+    const typeLabel = prompt.v.t === 'truth' ? 'Truth' : 'Dare';
+    const typeUpper = typeLabel.toUpperCase();
+
+    if(isMyTurn){
+      $('tnd-prompt-for').textContent = 'Your ' + typeLabel.toLowerCase();
+      $('tnd-prompt-type-big').textContent = typeLabel;
+      $('tnd-prompt-type-lbl').textContent = typeUpper;
+      $('tnd-prompt-text').textContent = prompt.v.x;
+      $('tnd-actions').style.display = 'flex';
+      $('tnd-prompt-watch').style.display = 'none';
+    } else {
+      $('tnd-prompt-for').textContent = activeName + "'s " + typeLabel.toLowerCase();
+      $('tnd-prompt-type-big').textContent = typeLabel;
+      $('tnd-actions').style.display = 'none';
+      $('tnd-prompt-watch').style.display = 'block';
+      $('tnd-watch-type-lbl').textContent = typeUpper;
+      $('tnd-watch-text').textContent = prompt.v.x;
+    }
+  }
+  else if(phase === 'judge'){
+    // The one who was active just declared done/skipped — other judges
+    $('tnd-judge-phase').style.display = 'block';
+    const prompt = (g.pool && g.pool[g.promptIdx]) || null;
+    if(!prompt) return;
+
+    if(isMyTurn){
+      // Active player is waiting for judge
+      $('tnd-judge-phase').style.display = 'none';
+      $('tnd-prompt-phase').style.display = 'block';
+      $('tnd-actions').style.display = 'none';
+      $('tnd-prompt-watch').style.display = 'block';
+      $('tnd-prompt-watch').innerHTML = '<div style="padding:20px 0;text-align:center" class="mute italic serif">Waiting for ' + watcherName + ' to judge...</div>';
+    } else {
+      $('tnd-judge-name').textContent = activeName;
+      $('tnd-judge-type').textContent = prompt.v.t === 'truth' ? 'TRUTH' : 'DARE';
+      $('tnd-judge-text').textContent = prompt.v.x;
+    }
+  }
+  else if(phase === 'reveal'){
+    $('tnd-reveal-phase').style.display = 'block';
+    const verdict = g.verdict;
+    const prompt = (g.pool && g.pool[g.promptIdx]) || null;
+
+    let verdictText = '';
+    let verdictSub = '';
+    if(verdict === 'yes'){
+      verdictText = rnd(['Respect.', 'They did the thing.', 'No chickening.', 'Fair play.']);
+      verdictSub = 'Point for honesty';
+    } else if(verdict === 'mid'){
+      verdictText = rnd(['Halfway there.', 'Partial credit.', 'A for effort.', 'Middle ground.']);
+      verdictSub = 'Half the glory';
+    } else {
+      verdictText = rnd(['Chickened.', 'Disappointing.', 'No dice.', 'Skipped — noted.']);
+      verdictSub = 'Passed this one';
+    }
+
+    $('tnd-verdict-text').textContent = verdictText;
+    $('tnd-verdict-sub').textContent = verdictSub;
+    renderRxn('tnd-rxn');
+
+    const isLast = round + 1 >= total;
+    $('tnd-next-btn').textContent = isLast ? 'See results →' : 'Next round →';
+    $('tnd-next-btn').disabled = false;
+  }
+}
+
+function tndPick(type){
+  const g = S.room && S.room.game;
+  if(!g || g.kind !== 'tnd') return;
+  if(g.phase !== 'pick') return;
+  if(g.activePlayer !== S.role) return;
+
+  // Pick a random unseen prompt of this type from pool
+  const pool = g.pool || [];
+  // Filter indexes where type matches
+  const candidateIdx = [];
+  for(let i = 0; i < pool.length; i++){
+    if(pool[i].v.t === type) candidateIdx.push(i);
+  }
+  // Prefer not-yet-used in this game
+  const usedIdx = new Set((g.results || []).map(r => r.promptIdx));
+  const fresh = candidateIdx.filter(i => !usedIdx.has(i));
+  const chosen = fresh.length > 0 ? fresh[Math.floor(Math.random() * fresh.length)] : candidateIdx[Math.floor(Math.random() * candidateIdx.length)];
+
+  S.rref.child('game').update({
+    phase: 'prompt',
+    pickedType: type,
+    promptIdx: chosen
+  });
+}
+
+function tndSubmit(action){
+  // Active player declares: 'done' or 'skip'
+  const g = S.room && S.room.game;
+  if(!g) return;
+  if(g.activePlayer !== S.role) return;
+  if(g.phase !== 'prompt') return;
+
+  if(action === 'skip'){
+    // Skip — skip verdict, go straight to reveal with 'no'
+    S.rref.child('game').update({
+      phase: 'reveal',
+      verdict: 'no',
+      doneSignal: 'skip'
+    });
+  } else {
+    // Done — move to judge phase
+    S.rref.child('game').update({
+      phase: 'judge',
+      doneSignal: 'done'
+    });
+  }
+}
+
+function tndJudge(verdict){
+  // Watcher passes judgment — verdict: 'yes' | 'mid' | 'no'
+  const g = S.room && S.room.game;
+  if(!g) return;
+  if(g.activePlayer === S.role) return; // only watcher can judge
+  if(g.phase !== 'judge') return;
+
+  S.rref.child('game').update({
+    phase: 'reveal',
+    verdict
+  });
+}
+
+function tndNext(){
+  if(S.role !== 0){
+    S.rref.child('game/guestReady').set(true);
+    $('tnd-next-btn').textContent = 'Waiting for host...';
+    $('tnd-next-btn').disabled = true;
+    return;
+  }
+  const g = S.room.game;
+
+  // Save result
+  const prompt = g.pool[g.promptIdx];
+  const results = (g.results || []).slice();
+  results.push({
+    promptIdx: g.promptIdx,
+    player: g.activePlayer,
+    type: g.pickedType,
+    text: prompt && prompt.v.x,
+    verdict: g.verdict
+  });
+  // Mark seen
+  if(prompt) markSeen('tnd_' + (g.spice || 'mild'), [prompt.i]);
+
+  const nextRound = g.round + 1;
+  if(nextRound >= g.rounds){
+    S.rref.child('game').update({ results });
+    setTimeout(() => S.rref.update({ state: 'done' }), 50);
+    return;
+  }
+
+  S.rref.child('game').update({
+    round: nextRound,
+    phase: 'pick',
+    activePlayer: nextRound % 2, // alternate
+    pickedType: null,
+    promptIdx: null,
+    doneSignal: null,
+    verdict: null,
+    results,
+    guestReady: null
+  });
+}
+
+</script>
+<script>
+// ============================================================
+// GUESS ME — answerer answers about self, guesser picks
+// ============================================================
+
+function renderGuess(g){
+  $('guess-top-code').textContent = S.code;
+  const round = g.round || 0;
+  const total = g.rounds;
+  $('guess-round-label').textContent = 'Round ' + (round + 1);
+  $('guess-count').textContent = (round + 1) + ' / ' + total;
+  $('guess-progress').style.width = ((round / total) * 100) + '%';
+
+  const answerer = g.answerer !== undefined ? g.answerer : 0;
+  const guesser = 1 - answerer;
+  const iAmAnswerer = answerer === S.role;
+  const answererName = S.room.players[answerer].name;
+  const guesserName = S.room.players[guesser].name;
+
+  const cur = g.pool[round];
+  if(!cur) return;
+  const q = cur.v;
+
+  // Hide all phases
+  $('guess-answer-phase').style.display = 'none';
+  $('guess-guess-phase').style.display = 'none';
+  $('guess-wait-phase').style.display = 'none';
+  $('guess-reveal-phase').style.display = 'none';
+
+  const phase = g.phase;
+
+  if(phase === 'answer'){
+    // Answerer picks real answer about self; guesser waits
+    if(iAmAnswerer){
+      $('guess-answer-phase').style.display = 'block';
+      $('guess-stage-who').textContent = 'Your turn — be honest';
+      $('guess-stage-title').textContent = 'About you';
+      $('guess-q-answer').textContent = q.q;
+      const opts = $('guess-opts-answer');
+      opts.innerHTML = '';
+      q.o.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'guess-opt';
+        btn.textContent = opt;
+        btn.onclick = () => guessAnswer(i);
+        opts.appendChild(btn);
+      });
+    } else {
+      $('guess-wait-phase').style.display = 'block';
+      $('guess-wait-phase').textContent = 'Waiting for ' + answererName + ' to answer about themselves...';
+    }
+  }
+  else if(phase === 'guess'){
+    // Guesser picks; answerer waits
+    if(!iAmAnswerer){
+      $('guess-guess-phase').style.display = 'block';
+      $('guess-stage-guess-who').textContent = 'Your guess — do you know them?';
+      $('guess-stage-guess-name').textContent = 'What did ' + answererName + ' say?';
+      $('guess-q-guess').textContent = q.q;
+      const opts = $('guess-opts-guess');
+      opts.innerHTML = '';
+      q.o.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'guess-opt';
+        btn.textContent = opt;
+        btn.onclick = () => guessPick(i);
+        opts.appendChild(btn);
+      });
+    } else {
+      $('guess-wait-phase').style.display = 'block';
+      $('guess-wait-phase').textContent = 'Waiting for ' + guesserName + ' to guess...';
+    }
+  }
+  else if(phase === 'reveal'){
+    $('guess-reveal-phase').style.display = 'block';
+
+    const answerIdx = g.answer && g.answer.idx;
+    const guessIdx = g.guess && g.guess.idx;
+    const right = answerIdx === guessIdx;
+
+    const verdict = $('guess-verdict');
+    verdict.classList.remove('win', 'lose', 'tie');
+    if(right){
+      verdict.classList.add('win');
+      verdict.textContent = iAmAnswerer ? 'They got it' : rnd(['You know them.', 'Nailed it.', 'Read them perfectly.', 'Spot on.']);
+      $('guess-verdict-sub').textContent = '+1 for ' + guesserName;
+    } else {
+      verdict.classList.add('lose');
+      verdict.textContent = iAmAnswerer ? 'They missed it' : rnd(["That's not them.", 'Swing and a miss.', 'Back to school.', 'Wrong call.']);
+      $('guess-verdict-sub').textContent = 'No point this round';
+    }
+
+    $('guess-reveal-q').textContent = q.q;
+    const opts = $('guess-reveal-opts');
+    opts.innerHTML = '';
+    q.o.forEach((opt, i) => {
+      const div = document.createElement('div');
+      div.className = 'guess-opt';
+      div.textContent = opt;
+      if(i === answerIdx && i === guessIdx){
+        div.classList.add('correct', 'truth-tag');
+      } else if(i === answerIdx){
+        div.classList.add('correct', 'truth-tag');
+      } else if(i === guessIdx){
+        div.classList.add('wrong');
+      }
+      opts.appendChild(div);
+    });
+
+    renderRxn('guess-rxn');
+    const isLast = round + 1 >= total;
+    $('guess-next-btn').textContent = isLast ? 'See results →' : 'Next round →';
+    $('guess-next-btn').disabled = false;
+  }
+}
+
+function guessAnswer(idx){
+  const g = S.room && S.room.game;
+  if(!g || g.kind !== 'guess') return;
+  if(g.phase !== 'answer') return;
+  if(g.answerer !== S.role) return;
+  S.rref.child('game').update({
+    phase: 'guess',
+    answer: { idx }
+  });
+}
+
+function guessPick(idx){
+  const g = S.room && S.room.game;
+  if(!g) return;
+  if(g.phase !== 'guess') return;
+  if(g.answerer === S.role) return;
+
+  // Host authoritative — but both players might be either role.
+  // Solution: just write the guess, host processes it.
+  S.rref.child('game').update({
+    phase: 'reveal',
+    guess: { idx }
+  });
+}
+
+function guessNext(){
+  if(S.role !== 0){
+    S.rref.child('game/guestReady').set(true);
+    $('guess-next-btn').textContent = 'Waiting for host...';
+    $('guess-next-btn').disabled = true;
+    return;
+  }
+  const g = S.room.game;
+  const cur = g.pool[g.round];
+  const right = g.answer && g.guess && g.answer.idx === g.guess.idx;
+  const scores = g.scores.slice();
+  if(right) scores[1 - g.answerer]++; // guesser gets point
+
+  const results = (g.results || []).slice();
+  results.push({
+    q: cur.v.q,
+    options: cur.v.o,
+    answererIdx: g.answerer,
+    answerIdx: g.answer.idx,
+    guessIdx: g.guess.idx,
+    right
+  });
+
+  // Mark seen
+  markSeen('guess', [cur.i]);
+
+  const nextRound = g.round + 1;
+  if(nextRound >= g.rounds){
+    S.rref.child('game').update({ scores, results });
+    setTimeout(() => S.rref.update({ state: 'done' }), 50);
+    return;
+  }
+
+  S.rref.child('game').update({
+    round: nextRound,
+    phase: 'answer',
+    answerer: nextRound % 2,
+    answer: null,
+    guess: null,
+    scores,
+    results,
+    guestReady: null
+  });
+}
+
+</script>
+<script>
+// ============================================================
+// FINAL SCREEN + HOST LISTENER WIRING
+// ============================================================
+
+function renderFinal(game){
+  if(!game) return;
+  const kind = game.kind;
+  const myName = S.room.players[S.role].name;
+  const themName = S.room.players[1 - S.role].name;
+
+  const emoji = $('final-emoji');
+  const title = $('final-title');
+  const sub = $('final-sub');
+  const body = $('final-body');
+  body.innerHTML = '';
+
+  if(kind === 'wyr'){
+    const total = (game.results || []).length;
+    const matched = (game.results || []).filter(r => r.match).length;
+    const pct = Math.round((matched / total) * 100);
+
+    emoji.textContent = matched >= total * 0.7 ? '💫' : matched >= total * 0.4 ? '✨' : '🌪️';
+    if(matched >= total * 0.7){
+      title.textContent = 'Two brains, one wavelength';
+      sub.textContent = 'Matched on ' + matched + ' of ' + total;
+    } else if(matched >= total * 0.4){
+      title.textContent = 'Solid overlap, real differences';
+      sub.textContent = 'Matched on ' + matched + ' of ' + total;
+    } else {
+      title.textContent = "Opposites. That's fun though.";
+      sub.textContent = 'Matched on ' + matched + ' of ' + total;
+    }
+
+    // Big score
+    const scoreHtml = `<div class="final-score-row">
+      <div class="final-score-col ${matched >= total/2 ? 'win' : ''}" style="grid-column:1/-1">
+        <div class="final-score-num">${matched}/${total}</div>
+        <div class="final-score-name" style="margin-top:4px">${pct}% aligned</div>
+      </div>
+    </div>`;
+
+    const reportItems = (game.results || []).map(r => `
+      <div class="final-report-item">
+        <div class="final-report-q">Would you rather: ${r.q[0]} — or — ${r.q[1]}</div>
+        <div class="final-report-ans">
+          <span><b>${myName}:</b> ${(S.role === 0 ? r.p0 : r.p1) === 'a' ? r.q[0] : r.q[1]}</span>
+          <span style="margin-left:auto">${r.match ? '✓ match' : '✗ clash'}</span>
+        </div>
+      </div>`).join('');
+
+    body.innerHTML = scoreHtml + `<div class="final-report"><div class="final-report-head">All answers</div>${reportItems}</div>`;
+
+    if(matched >= total * 0.6){ confetti(); playWin(); }
+  }
+  else if(kind === 'ttt'){
+    const myScore = game.scores[S.role];
+    const themScore = game.scores[1 - S.role];
+    const iWon = myScore > themScore;
+    const tied = myScore === themScore;
+
+    if(iWon){
+      emoji.textContent = '🏆';
+      title.textContent = rnd(['You win.', 'Domination.', 'Too clean.']);
+      sub.textContent = 'Best of ' + game.bestOf;
+      confetti();
+      playWin();
+    } else if(tied){
+      emoji.textContent = '🤝';
+      title.textContent = 'Dead even.';
+      sub.textContent = 'No one walks away with it';
+    } else {
+      emoji.textContent = '💀';
+      title.textContent = rnd(['You lose.', 'Outplayed.', 'Back to the books.']);
+      sub.textContent = themName + ' took it';
+    }
+
+    body.innerHTML = `<div class="final-score-row">
+      <div class="final-score-col ${iWon ? 'win' : ''}">
+        <div class="final-score-name">${myName}</div>
+        <div class="final-score-num">${myScore}</div>
+      </div>
+      <div class="final-vs">vs</div>
+      <div class="final-score-col ${!iWon && !tied ? 'win' : ''}">
+        <div class="final-score-name">${themName}</div>
+        <div class="final-score-num">${themScore}</div>
+      </div>
+    </div>`;
+  }
+  else if(kind === 'tnd'){
+    const results = game.results || [];
+    const yesCount = results.filter(r => r.verdict === 'yes').length;
+    const skipCount = results.filter(r => r.verdict === 'no').length;
+    const midCount = results.filter(r => r.verdict === 'mid').length;
+
+    emoji.textContent = yesCount >= results.length * 0.7 ? '🔥' : yesCount >= results.length * 0.4 ? '⚡' : '🐔';
+    if(yesCount >= results.length * 0.7){
+      title.textContent = 'Unstoppable energy';
+      sub.textContent = yesCount + ' of ' + results.length + ' completed';
+    } else if(yesCount >= results.length * 0.4){
+      title.textContent = 'Decent chaos';
+      sub.textContent = yesCount + ' completed · ' + skipCount + ' skipped';
+    } else {
+      title.textContent = 'Mostly chickened out.';
+      sub.textContent = yesCount + ' / ' + results.length + ' completed';
+    }
+
+    const p0Yes = results.filter(r => r.player === 0 && r.verdict === 'yes').length;
+    const p1Yes = results.filter(r => r.player === 1 && r.verdict === 'yes').length;
+    const p0Total = results.filter(r => r.player === 0).length;
+    const p1Total = results.filter(r => r.player === 1).length;
+
+    const n0 = S.room.players[0].name;
+    const n1 = S.room.players[1].name;
+
+    body.innerHTML = `<div class="final-score-row">
+      <div class="final-score-col">
+        <div class="final-score-name">${n0}</div>
+        <div class="final-score-num">${p0Yes}/${p0Total}</div>
+      </div>
+      <div class="final-vs">·</div>
+      <div class="final-score-col">
+        <div class="final-score-name">${n1}</div>
+        <div class="final-score-num">${p1Yes}/${p1Total}</div>
+      </div>
+    </div>
+    <div class="final-report">
+      <div class="final-report-head">Round recap</div>
+      ${results.map((r, i) => {
+        const pName = S.room.players[r.player].name;
+        const vMap = { yes: '✓ did it', mid: '⧗ half', no: '✗ skipped' };
+        return `<div class="final-report-item">
+          <div class="final-report-q">${r.type === 'truth' ? 'Truth' : 'Dare'} · ${r.text}</div>
+          <div class="final-report-ans">
+            <span><b>${pName}</b></span>
+            <span style="margin-left:auto">${vMap[r.verdict] || r.verdict}</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+    if(yesCount >= results.length * 0.6){ confetti(); }
+  }
+  else if(kind === 'guess'){
+    const myScore = game.scores[S.role];
+    const themScore = game.scores[1 - S.role];
+    const total = game.rounds;
+    const totalRight = game.scores[0] + game.scores[1];
+
+    emoji.textContent = totalRight >= total ? '💘' : totalRight >= total * 0.6 ? '💫' : '🌀';
+    if(totalRight >= total){
+      title.textContent = 'You actually know each other';
+      sub.textContent = totalRight + ' correct guesses of ' + total;
+      confetti();
+      playWin();
+    } else if(totalRight >= total * 0.6){
+      title.textContent = 'Paying attention, mostly';
+      sub.textContent = totalRight + ' of ' + total;
+    } else {
+      title.textContent = 'You need to talk more';
+      sub.textContent = totalRight + ' of ' + total;
+    }
+
+    const n0 = S.room.players[0].name;
+    const n1 = S.room.players[1].name;
+
+    body.innerHTML = `<div class="final-score-row">
+      <div class="final-score-col ${game.scores[0] > game.scores[1] ? 'win' : ''}">
+        <div class="final-score-name">${n0}</div>
+        <div class="final-score-num">${game.scores[0]}</div>
+      </div>
+      <div class="final-vs">vs</div>
+      <div class="final-score-col ${game.scores[1] > game.scores[0] ? 'win' : ''}">
+        <div class="final-score-name">${n1}</div>
+        <div class="final-score-num">${game.scores[1]}</div>
+      </div>
+    </div>
+    <div class="final-report">
+      <div class="final-report-head">Every round</div>
+      ${(game.results || []).map(r => {
+        const aName = S.room.players[r.answererIdx].name;
+        const gName = S.room.players[1 - r.answererIdx].name;
+        return `<div class="final-report-item">
+          <div class="final-report-q">${r.q}</div>
+          <div class="final-report-ans">
+            <span><b>${aName}</b> said: ${r.options[r.answerIdx]}</span>
+            <span style="margin-left:auto">${gName} guessed: ${r.options[r.guessIdx]} ${r.right ? '✓' : '✗'}</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  showScreen('sc-final');
+}
+
+// ── Host listener wiring — patches handleGameUpdate to also check
+// for guest-side state advancement (wyr guest ready, ttt guest move finishing a round)
+const _origHandleGameUpdate = handleGameUpdate;
+handleGameUpdate = function(game){
+  _origHandleGameUpdate(game);
+  if(!game) return;
+  // Only host runs these
+  if(S.role !== 0) return;
+
+  if(game.kind === 'wyr' && game.phase === 'reveal' && game.guestReady){
+    wyrNext();
+  }
+  else if(game.kind === 'ttt' && game.phase === 'play'){
+    // Check if guest just made a game-ending move
+    tttHostCheckEnd(game);
+  }
+  else if(game.kind === 'ttt' && game.phase === 'reveal' && game.guestReady){
+    tttNext();
+  }
+  else if(game.kind === 'tnd' && game.phase === 'reveal' && game.guestReady){
+    tndNext();
+  }
+  else if(game.kind === 'guess' && game.phase === 'reveal' && game.guestReady){
+    guessNext();
+  }
+};
+
+</script>
+</body>
+</html>
