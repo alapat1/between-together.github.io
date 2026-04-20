@@ -1397,6 +1397,276 @@ button:focus-visible, .input:focus-visible{
   .cd-num{ font-size: 100px; }
 }
 
+/* ============================================================
+   POLISH PASS — WAITING STATES, PREVIEWS, MICRO-ANIMATIONS
+   ============================================================ */
+
+/* Elapsed-time waiting indicator */
+.wait-state{
+  text-align: center;
+  padding: 28px 16px;
+  color: var(--ink-mute);
+}
+.wait-state-dots{
+  display: inline-flex;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+.wait-state-dots span{
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--amber);
+  opacity: 0.35;
+  animation: waitDot 1.4s ease-in-out infinite;
+}
+.wait-state-dots span:nth-child(2){ animation-delay: 0.2s; }
+.wait-state-dots span:nth-child(3){ animation-delay: 0.4s; }
+@keyframes waitDot{
+  0%, 60%, 100%{ opacity: 0.35; transform: scale(1); }
+  30%{ opacity: 1; transform: scale(1.3); }
+}
+.wait-state-msg{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink-dim);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+.wait-state-timer{
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+}
+
+/* "They acted" inline indicator */
+.acted-chip{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(143,166,122,0.12);
+  border: 1px solid rgba(143,166,122,0.3);
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--sage);
+  animation: chipIn .4s cubic-bezier(.2,.7,.2,1);
+}
+.acted-chip::before{
+  content: '✓';
+  font-size: 10px;
+  line-height: 1;
+}
+@keyframes chipIn{
+  from{ opacity: 0; transform: translateY(-4px) scale(0.9); }
+  to  { opacity: 1; transform: none; }
+}
+.acted-chip-row{
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 14px;
+  min-height: 24px;
+}
+
+/* Setup screen: game preview card (for guest) */
+.preview-card{
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.preview-card::before{
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--amber-glow) 0%, transparent 40%);
+  pointer-events: none;
+}
+.preview-label{
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--amber);
+  font-weight: 500;
+  margin-bottom: 12px;
+  position: relative;
+}
+.preview-body{
+  position: relative;
+}
+.preview-title{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.preview-meta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.04em;
+  margin-top: 8px;
+}
+.preview-meta-item{
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.preview-meta-item b{
+  color: var(--ink-dim);
+  font-weight: 500;
+}
+
+/* Sample prompt fanned-out for WYR preview */
+.preview-wyr-prompt{
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-dim);
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  filter: blur(1.5px);
+  opacity: 0.6;
+  transform: rotate(-0.3deg);
+}
+.preview-wyr-prompt + .preview-wyr-prompt{ transform: rotate(0.3deg); opacity: 0.4; }
+.preview-wyr-prompt + .preview-wyr-prompt + .preview-wyr-prompt{ transform: rotate(-0.2deg); opacity: 0.25; filter: blur(2px); }
+
+/* Mini TTT board for preview */
+.preview-ttt{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  width: 70px;
+  aspect-ratio: 1;
+  margin: 10px auto 4px;
+  padding: 3px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.preview-ttt-cell{
+  background: var(--bg-card);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-dim);
+  animation: mcFade 2.4s ease-in-out infinite;
+}
+.preview-ttt-cell.x{ color: var(--amber); }
+.preview-ttt-cell.o{ color: var(--rose); }
+@keyframes mcFade{
+  0%, 70%, 100%{ opacity: 0.85; }
+  35%{ opacity: 0.4; }
+}
+
+/* Lobby: "other player is navigating" indicator */
+.game-card.nav-active{
+  border-color: var(--amber-border);
+  background: var(--bg-card);
+  position: relative;
+}
+.game-card.nav-active::after{
+  content: '';
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 10px var(--amber);
+  animation: slotPulse 1.6s ease infinite;
+}
+.lobby-nav-hint{
+  text-align: center;
+  padding: 12px 0;
+  font-size: 12px;
+  color: var(--ink-mute);
+  font-style: italic;
+  font-family: var(--serif);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.lobby-nav-hint.on{ opacity: 1; }
+
+/* TTT: opponent thinking — pulse on board border */
+.ttt-board.their-turn{
+  animation: boardThink 2.2s ease-in-out infinite;
+}
+@keyframes boardThink{
+  0%, 100%{ border-color: var(--line); box-shadow: none; }
+  50%{ border-color: var(--line-strong); box-shadow: 0 0 20px rgba(217,154,62,0.06); }
+}
+
+/* TTT: thinking dots in scoreboard */
+.ttt-thinking-dots{
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.ttt-thinking-dots span{
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--amber);
+  opacity: 0.4;
+  animation: waitDot 1.2s ease-in-out infinite;
+}
+.ttt-thinking-dots span:nth-child(2){ animation-delay: 0.15s; }
+.ttt-thinking-dots span:nth-child(3){ animation-delay: 0.3s; }
+
+/* TND prompt card pulse when waiting for verdict */
+.tnd-prompt-card.waiting-verdict{
+  animation: cardBreathe 3.2s ease-in-out infinite;
+}
+@keyframes cardBreathe{
+  0%, 100%{ border-color: var(--amber-border); }
+  50%{ border-color: var(--amber); box-shadow: 0 0 30px rgba(217,154,62,0.08); }
+}
+
+/* Guess Me: question card pulse while waiting */
+.guess-q.waiting{
+  animation: textBreathe 2.8s ease-in-out infinite;
+}
+@keyframes textBreathe{
+  0%, 100%{ opacity: 1; }
+  50%{ opacity: 0.55; }
+}
+
+/* Button pressed feedback (micro-interaction) */
+.btn:active:not(:disabled),
+.wyr-opt:active:not(.disabled),
+.guess-opt:active,
+.tnd-choice:active,
+.ttt-cell:active:not(.taken):not(.waiting),
+.chip:active,
+.rxn-btn:active{
+  transform: scale(0.97);
+}
+
+/* Waiting screen on setup for guest — softer */
+.setup-waiting-note{
+  text-align: center;
+  padding: 10px 0;
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.08em;
+}
+
 </style>
 </head>
 <body>
@@ -1578,6 +1848,9 @@ button:focus-visible, .input:focus-visible{
     <div class="setup-title" id="setup-title">Would you rather</div>
     <div class="setup-sub" id="setup-sub">Two impossible choices. Same question — you both pick.</div>
 
+    <!-- Guest-only preview card (populated via JS) -->
+    <div id="setup-preview" style="display:none"></div>
+
     <!-- Rounds -->
     <div class="setup-section" id="setup-rounds-section">
       <div class="setup-section-label">Rounds</div>
@@ -1643,6 +1916,7 @@ button:focus-visible, .input:focus-visible{
     <!-- QUESTION PHASE -->
     <div id="wyr-q-phase">
       <div class="wyr-prompt">Would you rather</div>
+      <div class="acted-chip-row" id="wyr-acted-row"></div>
       <div class="wyr-options">
         <button class="wyr-opt" id="wyr-opt-a" onclick="wyrPick('a')">
           <span class="wyr-opt-kicker">A</span>
@@ -1654,7 +1928,11 @@ button:focus-visible, .input:focus-visible{
           <span id="wyr-opt-b-text"></span>
         </button>
       </div>
-      <div class="wyr-waiting" id="wyr-waiting" style="display:none">Waiting for the other player...</div>
+      <div class="wait-state" id="wyr-waiting" style="display:none">
+        <div class="wait-state-dots"><span></span><span></span><span></span></div>
+        <div class="wait-state-msg" id="wyr-waiting-msg">Waiting for the other player...</div>
+        <div class="wait-state-timer" id="wyr-waiting-timer">0s</div>
+      </div>
     </div>
 
     <!-- REVEAL PHASE -->
@@ -1750,7 +2028,11 @@ button:focus-visible, .input:focus-visible{
         </button>
       </div>
       <div class="tnd-watching" id="tnd-watching" style="display:none">
-        <div class="wyr-waiting" style="margin:0">Waiting for them to pick...</div>
+        <div class="wait-state">
+          <div class="wait-state-dots"><span></span><span></span><span></span></div>
+          <div class="wait-state-msg" id="tnd-watching-msg">Waiting for them to pick...</div>
+          <div class="wait-state-timer" id="tnd-watching-timer">0s</div>
+        </div>
       </div>
     </div>
 
@@ -1773,7 +2055,11 @@ button:focus-visible, .input:focus-visible{
           <div class="tnd-prompt-type" id="tnd-watch-type-lbl" style="text-align:center;display:block;margin-bottom:12px">TRUTH</div>
           <div class="tnd-prompt-text" id="tnd-watch-text" style="text-align:center">—</div>
         </div>
-        <div class="mute" style="padding-top:10px">Waiting for them to answer...</div>
+        <div class="wait-state" style="padding:10px 0 0">
+          <div class="wait-state-dots"><span></span><span></span><span></span></div>
+          <div class="wait-state-msg tnd-watch-foot mute">Waiting for them to answer...</div>
+          <div class="wait-state-timer">0s</div>
+        </div>
       </div>
     </div>
 
@@ -1844,7 +2130,13 @@ button:focus-visible, .input:focus-visible{
     </div>
 
     <!-- WAITING -->
-    <div id="guess-wait-phase" style="display:none" class="wyr-waiting">Waiting for the other player...</div>
+    <div id="guess-wait-phase" style="display:none">
+      <div class="wait-state">
+        <div class="wait-state-dots"><span></span><span></span><span></span></div>
+        <div class="wait-state-msg">Waiting for the other player...</div>
+        <div class="wait-state-timer">0s</div>
+      </div>
+    </div>
 
     <!-- REVEAL -->
     <div id="guess-reveal-phase" style="display:none">
@@ -2339,6 +2631,20 @@ function rxnToast(emoji, name){
   t._t = setTimeout(() => t.classList.remove('on'), 2000);
 }
 
+// ── HAPTICS (mobile vibration) ──
+// Silently no-ops on devices/browsers that don't support it.
+function haptic(kind){
+  if(!navigator.vibrate) return;
+  const patterns = {
+    tap: 10,         // button press, cell tap
+    pick: 25,        // WYR pick, TND pick
+    reveal: [30, 60, 30], // match/reveal moment
+    win: [40, 30, 40, 30, 80], // win fanfare
+    error: [60, 40, 60]  // error/skip
+  };
+  try { navigator.vibrate(patterns[kind] || 10); } catch(e){}
+}
+
 function shuffle(arr){
   const a = arr.slice();
   for(let i = a.length - 1; i > 0; i--){
@@ -2709,6 +3015,9 @@ function renderSetup(room){
   // Disable sliders for guest
   $('rounds-slider').disabled = !isHost;
   document.querySelectorAll('.chip').forEach(c => { c.style.pointerEvents = isHost ? 'auto' : 'none'; c.style.opacity = isHost ? '1' : '.7'; });
+
+  // Render preview card (guest only)
+  renderSetupPreview(game);
 
   showScreen('sc-setup');
 }
@@ -3126,8 +3435,142 @@ function playWin(){
   }catch(e){}
 }
 
-// ── REACTIONS ──
-const REACTIONS = ['👏','😂','😮','👀','🤝','❤️'];
+// ── WAITING STATE INFRASTRUCTURE ──
+// One shared ticker updates all active timers every second.
+// Each waiting panel has: an ID, a started-at timestamp, a role
+// (so we don't time our own actions), and a list of progressive messages.
+const WAIT_STATES = {}; // { domId: { startedAt, messages: [{afterSec, text}] } }
+let _waitTickIv = null;
+
+function startWaiting(domId, messages, startedAt){
+  WAIT_STATES[domId] = {
+    startedAt: startedAt || Date.now(),
+    messages: messages || [{ afterSec: 0, text: 'Waiting...' }]
+  };
+  updateWaitingPanel(domId);
+  if(!_waitTickIv){
+    _waitTickIv = setInterval(tickAllWaits, 1000);
+  }
+}
+
+function stopWaiting(domId){
+  delete WAIT_STATES[domId];
+  if(Object.keys(WAIT_STATES).length === 0 && _waitTickIv){
+    clearInterval(_waitTickIv);
+    _waitTickIv = null;
+  }
+}
+
+function tickAllWaits(){
+  Object.keys(WAIT_STATES).forEach(updateWaitingPanel);
+}
+
+function updateWaitingPanel(domId){
+  const w = WAIT_STATES[domId];
+  if(!w) return;
+  const el = $(domId);
+  if(!el){ stopWaiting(domId); return; }
+  const elapsed = Math.floor((Date.now() - w.startedAt) / 1000);
+  // Pick the latest message whose afterSec <= elapsed
+  let msg = w.messages[0].text;
+  for(const m of w.messages){
+    if(elapsed >= m.afterSec) msg = m.text;
+  }
+  const msgEl = el.querySelector('.wait-state-msg');
+  const timerEl = el.querySelector('.wait-state-timer');
+  if(msgEl) msgEl.textContent = msg;
+  if(timerEl){
+    let timeStr;
+    if(elapsed < 60) timeStr = elapsed + 's';
+    else timeStr = Math.floor(elapsed / 60) + 'm ' + (elapsed % 60) + 's';
+    timerEl.textContent = timeStr;
+  }
+}
+
+// ── SETUP SCREEN: GUEST PREVIEW ──
+// Show guest a "here's what you're in for" card while host configures.
+// For WYR: blurred sample prompts. TTT: mini animated board. TND/Guess: meta.
+function renderSetupPreview(game){
+  const el = $('setup-preview');
+  if(!el) return;
+  if(S.role === 0){ el.style.display = 'none'; return; }
+  // Guest only
+  el.style.display = 'block';
+
+  let body = '';
+  if(game === 'wyr'){
+    // Pick 3 random WYR prompts to blur behind glass
+    const pool = window.PROMPTS.wyr;
+    const picks = [];
+    const used = new Set();
+    while(picks.length < 3){
+      const i = Math.floor(Math.random() * pool.length);
+      if(!used.has(i)){ used.add(i); picks.push(pool[i]); }
+    }
+    body = `
+      <div class="preview-label">While you wait</div>
+      <div class="preview-body">
+        <div class="preview-title">A taste of what's coming...</div>
+        ${picks.map(p => `<div class="preview-wyr-prompt">${p[0]} — or — ${p[1]}</div>`).join('')}
+        <div class="preview-meta">
+          <span class="preview-meta-item"><b>98</b> prompts in library</span>
+          <span class="preview-meta-item"><b>Both</b> pick at once</span>
+          <span class="preview-meta-item"><b>No</b> winner — just alignment</span>
+        </div>
+      </div>`;
+  }
+  else if(game === 'ttt'){
+    // Mini animated board
+    const cells = ['x','','o','','x','','','o','x'];
+    body = `
+      <div class="preview-label">While you wait</div>
+      <div class="preview-body">
+        <div class="preview-title">Classic tic tac toe. Strict turns. First to their target wins the match.</div>
+        <div class="preview-ttt">
+          ${cells.map(c => `<div class="preview-ttt-cell ${c}">${c === 'x' ? '×' : c === 'o' ? '○' : ''}</div>`).join('')}
+        </div>
+        <div class="preview-meta">
+          <span class="preview-meta-item"><b>Best of</b> 1, 3, or 5</span>
+          <span class="preview-meta-item"><b>Alternating</b> first moves</span>
+        </div>
+      </div>`;
+  }
+  else if(game === 'tnd'){
+    body = `
+      <div class="preview-label">While you wait</div>
+      <div class="preview-body">
+        <div class="preview-title">Pick truth or dare on your turn. The other player judges if you actually followed through.</div>
+        <div class="preview-meta">
+          <span class="preview-meta-item"><b>Mild</b> — safe territory</span>
+          <span class="preview-meta-item"><b>Medium</b> — real talk</span>
+          <span class="preview-meta-item"><b>Spicy</b> — unfiltered</span>
+          <span class="preview-meta-item"><b>No</b> repeats in a room</span>
+        </div>
+      </div>`;
+  }
+  else if(game === 'guess'){
+    body = `
+      <div class="preview-label">While you wait</div>
+      <div class="preview-body">
+        <div class="preview-title">One of you answers about yourself. The other guesses from 4 options. Point for every right guess.</div>
+        <div class="preview-meta">
+          <span class="preview-meta-item"><b>40+</b> questions</span>
+          <span class="preview-meta-item"><b>Alternating</b> turns</span>
+          <span class="preview-meta-item"><b>Tests</b> how well you know each other</span>
+        </div>
+      </div>`;
+  }
+  el.className = 'preview-card';
+  el.innerHTML = body;
+}
+
+// ── LOBBY: navigation indicator reserved for future use ──
+function renderLobbyNavHint(room){
+  // Currently both players auto-move to setup together, so this is a no-op.
+  // Kept as a stub in case flow changes to allow "browsing" lobbies.
+}
+
+
 
 function renderRxn(containerId){
   const c = $(containerId);
@@ -3290,17 +3733,45 @@ function renderWYR(g){
     // Have I picked yet?
     const myPick = g.picks && g.picks[S.role];
     const themPick = g.picks && g.picks[1 - S.role];
+    const themName = S.room.players[1 - S.role].name;
+
+    // Acted chip — show when they've picked but we haven't yet
+    const actedRow = $('wyr-acted-row');
+    if(themPick && !myPick){
+      actedRow.innerHTML = `<span class="acted-chip">${themName} has picked</span>`;
+    } else {
+      actedRow.innerHTML = '';
+    }
 
     if(myPick){
       $('wyr-opt-a').classList.toggle('picked', myPick === 'a');
       $('wyr-opt-b').classList.toggle('picked', myPick === 'b');
       $('wyr-opt-a').classList.add('disabled');
       $('wyr-opt-b').classList.add('disabled');
-      $('wyr-waiting').style.display = themPick ? 'none' : 'block';
+      // Show waiting state with elapsed-time tracking
+      if(themPick){
+        $('wyr-waiting').style.display = 'none';
+        stopWaiting('wyr-waiting');
+      } else {
+        $('wyr-waiting').style.display = 'block';
+        // Only start if not already running for this round
+        const waitKey = 'wyr-waiting-r' + g.round;
+        if(S._waitKey !== waitKey){
+          S._waitKey = waitKey;
+          startWaiting('wyr-waiting', [
+            { afterSec: 0, text: 'Waiting for ' + themName + '...' },
+            { afterSec: 15, text: themName + ' is really weighing it...' },
+            { afterSec: 40, text: themName + ' might be stuck on this one' },
+            { afterSec: 90, text: 'Still waiting on ' + themName + '...' }
+          ]);
+        }
+      }
     } else {
       $('wyr-opt-a').classList.remove('picked', 'disabled');
       $('wyr-opt-b').classList.remove('picked', 'disabled');
       $('wyr-waiting').style.display = 'none';
+      stopWaiting('wyr-waiting');
+      S._waitKey = null;
     }
 
     // Host: when both have picked, move to reveal phase
@@ -3321,7 +3792,14 @@ function renderWYR(g){
     }
   }
   else if(phase === 'reveal'){
+    // Haptic pulse on first entry to reveal (not on re-renders)
+    if(S._lastWyrRevealRound !== g.round){
+      S._lastWyrRevealRound = g.round;
+      haptic('reveal');
+    }
     S._scored = false;
+    S._waitKey = null;
+    stopWaiting('wyr-waiting');
     $('wyr-q-phase').style.display = 'none';
     $('wyr-reveal-phase').style.display = 'block';
     $('wyr-footer').style.display = 'block';
@@ -3378,6 +3856,7 @@ function wyrPick(side){
   if(g.phase !== 'q') return;
   // Block double-pick
   if(g.picks && g.picks[S.role]) return;
+  haptic('pick');
   S.rref.child('game/picks/' + S.role).set(side);
 }
 
@@ -3504,12 +3983,31 @@ function renderTTT(g){
 
     // Status
     const st = $('ttt-status');
+    const board = $('ttt-board');
     if(isMyTurn){
       st.className = 'ttt-status mine';
       st.textContent = 'Your move — tap a cell';
+      board.classList.remove('their-turn');
+      stopWaiting('ttt-waiting-hidden');
+      S._tttWaitKey = null;
     } else {
       st.className = 'ttt-status';
-      st.textContent = themName + ' is thinking...';
+      // Progressive "they're thinking" text based on how long we've been waiting
+      const waitKey = 'ttt-t-r' + g.round + '-m' + boardArr.filter(c => c !== null).length;
+      if(S._tttWaitKey !== waitKey){
+        S._tttWaitKey = waitKey;
+        S._tttWaitStart = Date.now();
+      }
+      const elapsed = Math.floor((Date.now() - (S._tttWaitStart || Date.now())) / 1000);
+      let statusText = themName + ' is thinking';
+      if(elapsed >= 30) statusText = themName + ' is taking their time...';
+      else if(elapsed >= 15) statusText = themName + ' is weighing options...';
+      const dots = '<span class="ttt-thinking-dots"><span></span><span></span><span></span></span>';
+      st.innerHTML = statusText + dots;
+      board.classList.add('their-turn');
+      // Schedule a re-render in a second to update the status text
+      if(S._tttWaitIv) clearTimeout(S._tttWaitIv);
+      S._tttWaitIv = setTimeout(() => { if(S.room && S.room.game) renderTTT(S.room.game); }, 1000);
     }
 
     renderTTTBoard(boardArr, isMyTurn, null);
@@ -3517,6 +4015,10 @@ function renderTTT(g){
   }
   else if(phase === 'reveal'){
     // Round complete, show result
+    S._tttWaitKey = null;
+    if(S._tttWaitIv){ clearTimeout(S._tttWaitIv); S._tttWaitIv = null; }
+    const board = $('ttt-board');
+    board.classList.remove('their-turn');
     const w = tttCheckWinner(boardArr);
     const st = $('ttt-status');
 
@@ -3585,6 +4087,7 @@ function tttMove(i){
   const arr = tttBoardArr(g.board);
   if(arr[i] !== null) return;
   arr[i] = S.role;
+  haptic('tap');
 
   // Check if this move wins or draws the round
   const w = tttCheckWinner(arr);
@@ -3693,12 +4196,23 @@ function renderTND(g){
       $('tnd-pick-sub').textContent = 'No take-backs — pick one.';
       $('tnd-picker-active').style.display = 'grid';
       $('tnd-watching').style.display = 'none';
+      stopWaiting('tnd-watching');
     } else {
       $('tnd-whose-turn-label').textContent = "It's their turn";
       $('tnd-whose-turn-name').textContent = activeName;
       $('tnd-pick-sub').textContent = 'They pick first.';
       $('tnd-picker-active').style.display = 'none';
       $('tnd-watching').style.display = 'block';
+      const waitKey = 'tnd-pick-r' + g.round;
+      if(S._waitKey !== waitKey){
+        S._waitKey = waitKey;
+        startWaiting('tnd-watching', [
+          { afterSec: 0, text: 'Waiting for ' + activeName + ' to pick...' },
+          { afterSec: 15, text: activeName + ' is deciding...' },
+          { afterSec: 40, text: activeName + ' is weighing truth vs dare' },
+          { afterSec: 90, text: 'Still on ' + activeName + '...' }
+        ]);
+      }
     }
   }
   else if(phase === 'prompt'){
@@ -3725,6 +4239,9 @@ function renderTND(g){
       $('tnd-prompt-text').textContent = prompt.v.x;
       $('tnd-actions').style.display = 'flex';
       $('tnd-prompt-watch').style.display = 'none';
+      stopWaiting('tnd-prompt-watch');
+      // Remove any waiting-verdict pulse from card
+      document.querySelectorAll('.tnd-prompt-card').forEach(c => c.classList.remove('waiting-verdict'));
     } else {
       $('tnd-prompt-for').textContent = activeName + "'s " + typeLabel.toLowerCase();
       $('tnd-prompt-type-big').textContent = typeLabel;
@@ -3732,25 +4249,15 @@ function renderTND(g){
       $('tnd-prompt-watch').style.display = 'block';
       $('tnd-watch-type-lbl').textContent = typeUpper;
       $('tnd-watch-text').textContent = prompt.v.x;
-      // Reset the trailing waiting text (in case it was overwritten by judge-phase
-      // active-player waiting state in a previous round). We rebuild it safely.
-      const watchEl = $('tnd-prompt-watch');
-      let waitFoot = watchEl.querySelector('.tnd-watch-foot');
-      if(!waitFoot){
-        // If the original trailing `.mute` div was destroyed, rebuild it
-        const m = watchEl.querySelector('.mute');
-        if(!m){
-          const f = document.createElement('div');
-          f.className = 'tnd-watch-foot mute';
-          f.style.paddingTop = '10px';
-          f.textContent = 'Waiting for them to answer...';
-          watchEl.appendChild(f);
-        } else {
-          m.classList.add('tnd-watch-foot');
-          m.textContent = 'Waiting for them to answer...';
-        }
-      } else {
-        waitFoot.textContent = 'Waiting for them to answer...';
+      const waitKey = 'tnd-prompt-r' + g.round;
+      if(S._waitKey !== waitKey){
+        S._waitKey = waitKey;
+        startWaiting('tnd-prompt-watch', [
+          { afterSec: 0, text: 'Waiting for ' + activeName + ' to ' + (prompt.v.t === 'truth' ? 'answer' : 'do it') + '...' },
+          { afterSec: 20, text: activeName + ' is working on it' },
+          { afterSec: 60, text: activeName + ' is really committing...' },
+          { afterSec: 120, text: 'Still going on ' + activeName + '...' }
+        ]);
       }
     }
   }
@@ -3759,9 +4266,7 @@ function renderTND(g){
     const prompt = (g.pool && (g.promptIdx !== undefined && g.promptIdx !== null)) ? g.pool[g.promptIdx] : null;
 
     if(isMyTurn){
-      // Active player is waiting for judge — show prompt card with a "waiting for verdict" line,
-      // WITHOUT destroying the watcher DOM nodes. We use the prompt phase's watcher view
-      // and just tweak the trailing text.
+      // Active player is waiting for judge — reuse the prompt-watch view
       $('tnd-prompt-phase').style.display = 'block';
       $('tnd-actions').style.display = 'none';
       $('tnd-prompt-watch').style.display = 'block';
@@ -3773,18 +4278,17 @@ function renderTND(g){
         $('tnd-watch-type-lbl').textContent = typeLabel.toUpperCase();
         $('tnd-watch-text').textContent = prompt.v.x;
       }
-      // Reuse / ensure the trailing footer exists and update its text
-      const watchEl = $('tnd-prompt-watch');
-      let waitFoot = watchEl.querySelector('.tnd-watch-foot') || watchEl.querySelector('.mute');
-      if(!waitFoot){
-        waitFoot = document.createElement('div');
-        waitFoot.className = 'tnd-watch-foot mute';
-        waitFoot.style.paddingTop = '10px';
-        watchEl.appendChild(waitFoot);
-      } else {
-        waitFoot.classList.add('tnd-watch-foot');
+      // Add breathing pulse to signal verdict pending
+      document.querySelectorAll('.tnd-prompt-card').forEach(c => c.classList.add('waiting-verdict'));
+      const waitKey = 'tnd-judge-r' + g.round;
+      if(S._waitKey !== waitKey){
+        S._waitKey = waitKey;
+        startWaiting('tnd-prompt-watch', [
+          { afterSec: 0, text: 'Waiting for ' + watcherName + ' to judge...' },
+          { afterSec: 15, text: watcherName + ' is deciding your fate' },
+          { afterSec: 40, text: watcherName + ' is really weighing it' }
+        ]);
       }
-      waitFoot.textContent = 'Waiting for ' + watcherName + ' to judge...';
     } else {
       $('tnd-judge-phase').style.display = 'block';
       if(prompt && prompt.v){
@@ -3798,6 +4302,11 @@ function renderTND(g){
   }
   else if(phase === 'reveal'){
     $('tnd-reveal-phase').style.display = 'block';
+    // Clear all waiting states
+    stopWaiting('tnd-watching');
+    stopWaiting('tnd-prompt-watch');
+    S._waitKey = null;
+    document.querySelectorAll('.tnd-prompt-card').forEach(c => c.classList.remove('waiting-verdict'));
     const verdict = g.verdict;
 
     let verdictText = '';
@@ -3829,6 +4338,7 @@ function tndPick(type){
   if(!g || g.kind !== 'tnd') return;
   if(g.phase !== 'pick') return;
   if(g.activePlayer !== S.role) return;
+  haptic('pick');
 
   const pool = g.pool || [];
   // Filter pool entries matching the chosen type
@@ -3997,6 +4507,9 @@ function renderGuess(g){
       $('guess-stage-who').textContent = 'Your turn — be honest';
       $('guess-stage-title').textContent = 'About you';
       $('guess-q-answer').textContent = q.q;
+      $('guess-q-answer').classList.remove('waiting');
+      stopWaiting('guess-wait-phase');
+      S._waitKey = null;
       const opts = $('guess-opts-answer');
       opts.innerHTML = '';
       q.o.forEach((opt, i) => {
@@ -4008,10 +4521,23 @@ function renderGuess(g){
       });
     } else {
       $('guess-wait-phase').style.display = 'block';
-      $('guess-wait-phase').textContent = 'Waiting for ' + answererName + ' to answer about themselves...';
+      // Also make the question card breathe
+      $('guess-q-answer').classList.add('waiting');
+      const waitKey = 'guess-answer-r' + round;
+      if(S._waitKey !== waitKey){
+        S._waitKey = waitKey;
+        startWaiting('guess-wait-phase', [
+          { afterSec: 0, text: 'Waiting for ' + answererName + ' to answer...' },
+          { afterSec: 15, text: answererName + ' is reflecting on this one' },
+          { afterSec: 40, text: answererName + ' is really thinking about themselves' }
+        ]);
+      }
     }
   }
   else if(phase === 'guess'){
+    // Clear any breathing
+    $('guess-q-answer').classList.remove('waiting');
+    $('guess-q-guess').classList.remove('waiting');
     // Guesser picks; answerer waits
     if(!iAmAnswerer){
       $('guess-guess-phase').style.display = 'block';
@@ -4027,13 +4553,28 @@ function renderGuess(g){
         btn.onclick = () => guessPick(i);
         opts.appendChild(btn);
       });
+      stopWaiting('guess-wait-phase');
+      S._waitKey = null;
     } else {
       $('guess-wait-phase').style.display = 'block';
-      $('guess-wait-phase').textContent = 'Waiting for ' + guesserName + ' to guess...';
+      $('guess-q-guess').classList.add('waiting');
+      const waitKey = 'guess-guess-r' + round;
+      if(S._waitKey !== waitKey){
+        S._waitKey = waitKey;
+        startWaiting('guess-wait-phase', [
+          { afterSec: 0, text: 'Waiting for ' + guesserName + ' to guess...' },
+          { afterSec: 15, text: guesserName + ' is picking carefully' },
+          { afterSec: 40, text: guesserName + ' is stuck between options' }
+        ]);
+      }
     }
   }
   else if(phase === 'reveal'){
     $('guess-reveal-phase').style.display = 'block';
+    stopWaiting('guess-wait-phase');
+    S._waitKey = null;
+    $('guess-q-answer').classList.remove('waiting');
+    $('guess-q-guess').classList.remove('waiting');
 
     const answerIdx = g.answer && g.answer.idx;
     const guessIdx = g.guess && g.guess.idx;
@@ -4080,6 +4621,7 @@ function guessAnswer(idx){
   if(!g || g.kind !== 'guess') return;
   if(g.phase !== 'answer') return;
   if(g.answerer !== S.role) return;
+  haptic('pick');
   S.rref.child('game').update({
     phase: 'guess',
     answer: { idx }
@@ -4091,6 +4633,7 @@ function guessPick(idx){
   if(!g) return;
   if(g.phase !== 'guess') return;
   if(g.answerer === S.role) return;
+  haptic('pick');
 
   // Host authoritative — but both players might be either role.
   // Solution: just write the guess, host processes it.
@@ -4158,6 +4701,7 @@ function guessNext(){
 
 function renderFinal(game){
   if(!game) return;
+  haptic('win');
   const kind = game.kind;
   const myName = S.room.players[S.role].name;
   const themName = S.room.players[1 - S.role].name;
