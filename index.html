@@ -514,7 +514,6 @@
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 22px;
     padding: 22px;
-    cursor: pointer;
     transition: all 0.2s ease;
     text-align: left;
     width: 100%;
@@ -535,51 +534,52 @@
     transition: opacity 0.3s;
     pointer-events: none;
   }
-  .game-card:hover {
-    border-color: var(--mint);
-    transform: translateY(-2px);
-  }
-  .game-card:hover::after { opacity: 1; }
-  .game-card:active { transform: translateY(0); }
-  .game-card:disabled {
+  .game-card.is-disabled {
     opacity: 0.45;
-    cursor: not-allowed;
   }
-  .game-card:disabled:hover { transform: none; border-color: rgba(255,255,255,0.08); }
-  .game-card:disabled::after { opacity: 0; }
 
-  .game-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
   .game-card-title {
     font-size: 26px;
     font-weight: 600;
     letter-spacing: -0.025em;
     line-height: 1.1;
   }
-  .game-card-arrow {
-    color: var(--mint);
-    font-size: 24px;
-    font-weight: 500;
-    transition: transform 0.25s;
-  }
-  .game-card:hover .game-card-arrow { transform: translateX(4px); }
   .game-card-desc {
     font-size: 14px;
     color: var(--text-soft);
     line-height: 1.4;
   }
-  .game-card-meta {
-    margin-top: 6px;
+
+  .round-picker {
     display: flex;
-    gap: 10px;
-    font-family: 'Geist Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-faint);
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .round-chip {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    color: var(--text);
+    padding: 14px 6px;
+    border-radius: 14px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .round-chip:hover:not(:disabled) {
+    background: rgba(127,255,196,0.08);
+    border-color: var(--mint);
+    color: var(--mint);
+    transform: translateY(-2px);
+  }
+  .round-chip:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  .round-chip:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   /* WYR & TOD shared game header */
@@ -1052,8 +1052,8 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: true, storageKey: 'bt-auth' }
 });
 
-const ROUNDS_WYR = 7;
-const ROUNDS_TOD = 6;
+const ROUNDS_WYR_DEFAULT = 7;
+const ROUNDS_TOD_DEFAULT = 6;
 
 // ─── Prompts ───────────────────────────────────────────
 const WYR_PROMPTS = [
@@ -1120,82 +1120,108 @@ const WYR_PROMPTS = [
 ];
 
 const TOD_PROMPTS = {
-  mild: {
+  easy: {
     truth: [
-      "what was your most embarrassing moment in school?",
-      "what's a small lie you told this week?",
-      "have you ever lied to me, even tiny?",
-      "what's your guilty pleasure show?",
-      "what's something you're a little vain about?",
-      "have you ever pretended to laugh at a joke?",
-      "what's the most expensive thing you bought without telling anyone?",
-      "what was your most cringe phase growing up?",
-      "have you ever stalked someone on social media for too long?",
-      "what's a habit of mine you secretly find weird?"
+      "what's a song you'd put on if you wanted to feel cool?",
+      "what's the most useless skill you have?",
+      "what's a snack you can't stop eating lately?",
+      "what's a movie you'd watch on repeat without getting bored?",
+      "what's something you find very funny that nobody else does?",
+      "what's the dumbest thing you'd buy if money didn't matter?",
+      "what's a hill you'd die on about a tv show?",
+      "what's a habit you have that even you find weird?",
+      "what's something you secretly enjoy that you pretend you don't?",
+      "what's a small thing that always makes you smile?"
     ],
     dare: [
-      "do 15 jumping jacks right now",
+      "do 10 jumping jacks right now",
       "speak in a british accent until your next turn",
+      "send the dumbest selfie you can make to a random contact",
+      "sing the chorus of any song, full commitment",
+      "tell a joke and laugh at it before the punchline",
       "eat or drink with your wrong hand until your next turn",
-      "take a selfie making your worst face and send it to me",
-      "sing the chorus of a song stuck in your head",
-      "imitate your favourite celebrity for 20 seconds",
-      "speak only in questions until your next turn",
-      "do your best impression of me",
-      "tell a really bad joke and commit to it",
-      "say tongue twister three times fast: red lorry yellow lorry"
+      "say 'red lorry yellow lorry' three times fast",
+      "dance for 15 seconds, music optional",
+      "do your best impression of a celebrity for 20 seconds",
+      "make up a 3-line jingle about your phone"
     ]
   },
-  medium: {
+  fun: {
     truth: [
-      "what's the worst thing you've said about someone behind their back?",
-      "what's something you've done that you'd never admit publicly?",
-      "what's the last thing you googled?",
-      "who was your first real crush and why?",
-      "what's a fear you've never told anyone?",
-      "what's something you've stolen and got away with?",
-      "what's a compliment you've never told me?",
-      "what's the most jealous you've ever been?",
-      "what's a regret you carry?",
-      "what's a secret you've kept from me, even small?"
+      "who's a fictional character you'd actually be friends with?",
+      "what's a superpower that sounds cool but would be annoying?",
+      "if you could swap lives with anyone for a day, who?",
+      "what's something everyone seems to love that you find boring?",
+      "what's a food combination you love that nobody else gets?",
+      "if you could only listen to one album forever, which one?",
+      "what's a small thing you spend way too much money on?",
+      "what would you name a pet you got tomorrow?",
+      "what's a hobby you'd start if you had unlimited free time?",
+      "what's the weirdest dream you can remember right now?"
     ],
     dare: [
-      "show me the last 5 photos in your camera roll",
-      "let me post anything on your story for 1 minute",
-      "call a friend and tell them a wild fake story for 30s",
-      "show me your most embarrassing screenshot",
-      "let me see your search history for today",
-      "read out the last text i sent you in a dramatic voice",
-      "show me the last meme you saved",
-      "let me ask you 3 yes/no questions, no lying",
-      "reveal one drafted text you never sent",
-      "let me pick a song to play on your speaker right now"
+      "let me pick a song to play on your speakers right now",
+      "show me the last 5 emojis you used",
+      "show me your most-used app this week",
+      "text 'i'm doing fine, why?' to a random contact",
+      "let me write your status or bio for the next hour",
+      "scroll to a random photo in your camera roll and describe it dramatically",
+      "take a selfie pulling the weirdest face possible",
+      "say the next sentence you say in a movie trailer voice",
+      "share your home screen with me",
+      "send a voice note in your worst attempted accent"
+    ]
+  },
+  wild: {
+    truth: [
+      "what's a small lie everyone tells that you wish people stopped?",
+      "what's a take you have that would lose you friends?",
+      "what's something everyone is supposed to enjoy that you don't?",
+      "who's a celebrity you find genuinely annoying?",
+      "what's a quirk of mine you secretly find funny?",
+      "what's something you'd never admit you google?",
+      "if i had your phone for a day, what's the one thing i'd be surprised by?",
+      "what's something i do that confuses you, in a good or bad way?",
+      "what's a small opinion you hold that sounds wild out loud?",
+      "what's a recent thought you've had that you wouldn't say out loud?"
+    ],
+    dare: [
+      "show me the last 5 messages you sent to anyone",
+      "show me your search history from today",
+      "open photos, pick a random shot, describe it like breaking news",
+      "let me post one thing on your story (i'll behave)",
+      "send any random emoji to 3 contacts and read replies aloud later",
+      "read the last meme you saved as if it's a serious announcement",
+      "record a 10-second voice note about your love for socks",
+      "show me the contact you've saved with the funniest name",
+      "freestyle rap for 20 seconds about whatever you're looking at",
+      "let me ask 3 yes/no questions, no skipping"
     ]
   },
   spicy: {
     truth: [
-      "tell me about a time you almost fell for someone else",
-      "what's a fantasy you've never shared with me?",
-      "what's the most rebellious thing you've done?",
-      "have you ever lied about your past?",
-      "what's an attraction you have that you find embarrassing?",
-      "what's the worst thing you've done in a relationship?",
-      "what's a secret about me you think i don't know?",
-      "what's a body part of mine you find unexpectedly attractive?",
-      "what's something you wish you could change about us?",
-      "what's a memory of us that means more than i realise?"
+      "what's something about me you find unexpectedly attractive?",
+      "what's a small thing i do that you love?",
+      "if you had to write a vow about me right now, what's the first line?",
+      "what's something we should do more of together?",
+      "what's a side of you that you'd want me to see more of?",
+      "what's something you've wanted to say to me but haven't yet?",
+      "what's the most underrated thing about being with me?",
+      "what would make this evening perfect if we were together right now?",
+      "what's something you'd want me to do more of?",
+      "if i described you in one word to a stranger, what should it be?"
     ],
     dare: [
-      "compliment me genuinely for 60 seconds straight, no filler",
-      "tell me 3 things you find attractive about me right now",
-      "send me a voice note saying something only i'd understand",
-      "show me one photo of yours that makes you feel hot",
-      "look me in the eyes for 60 seconds, no laughing",
-      "tell me about the best date we ever had, in detail",
-      "plan our next date right now, in detail",
-      "whisper the next thing you say to me",
-      "tell me your most romantic memory of us",
-      "describe me as if you're meeting me for the first time"
+      "tell me three things you genuinely love about me, no filler",
+      "compliment me for 60 seconds straight, no repeats",
+      "send a voice note saying something only i'd understand",
+      "plan our next perfect date right now, in detail",
+      "describe me to a stranger in 30 seconds",
+      "send me a photo of you exactly as you are right now",
+      "share a song that reminds you of me and tell me why",
+      "write a 4-line poem about us, on the spot",
+      "say one thing you want from tonight or tomorrow with me",
+      "describe your favorite version of me, in your own words"
     ]
   }
 };
@@ -1723,57 +1749,65 @@ function renderLobby() {
         </div>
       ` : ''}
       <div class="games-list">
-        <button class="game-card" id="startWyr" ${!hasPartner ? 'disabled' : ''}>
-          <div class="game-card-top">
-            <div class="game-card-title">would you rather</div>
-            <div class="game-card-arrow">→</div>
+        <div class="game-card ${!hasPartner ? 'is-disabled' : ''}">
+          <div class="game-card-title">would you rather</div>
+          <div class="game-card-desc">both pick, then reveal together. agree or diverge.</div>
+          <div class="round-picker">
+            <button class="round-chip" data-game="wyr" data-rounds="5" ${!hasPartner ? 'disabled' : ''}>5 rounds</button>
+            <button class="round-chip" data-game="wyr" data-rounds="7" ${!hasPartner ? 'disabled' : ''}>7 rounds</button>
+            <button class="round-chip" data-game="wyr" data-rounds="10" ${!hasPartner ? 'disabled' : ''}>10 rounds</button>
           </div>
-          <div class="game-card-desc">both pick, then reveal together. ${ROUNDS_WYR} rounds. agree or clash.</div>
-          <div class="game-card-meta"><span>simultaneous</span><span>·</span><span>2 min</span></div>
-        </button>
-        <button class="game-card" id="startTod" ${!hasPartner ? 'disabled' : ''}>
-          <div class="game-card-top">
-            <div class="game-card-title">truth or dare</div>
-            <div class="game-card-arrow">→</div>
+        </div>
+        <div class="game-card ${!hasPartner ? 'is-disabled' : ''}">
+          <div class="game-card-title">truth or dare</div>
+          <div class="game-card-desc">take turns, pick your poison, the other one judges.</div>
+          <div class="round-picker">
+            <button class="round-chip" data-game="tod" data-rounds="4" ${!hasPartner ? 'disabled' : ''}>4 rounds</button>
+            <button class="round-chip" data-game="tod" data-rounds="6" ${!hasPartner ? 'disabled' : ''}>6 rounds</button>
+            <button class="round-chip" data-game="tod" data-rounds="8" ${!hasPartner ? 'disabled' : ''}>8 rounds</button>
           </div>
-          <div class="game-card-desc">take turns, pick your poison, the other one judges. ${ROUNDS_TOD} rounds.</div>
-          <div class="game-card-meta"><span>turn-based</span><span>·</span><span>5 min</span></div>
-        </button>
+        </div>
       </div>
     </div>
   `;
-  if (hasPartner) {
-    $('#startWyr').addEventListener('click', () => startGame('wyr'));
-    $('#startTod').addEventListener('click', () => startGame('tod'));
-  }
+  body.querySelectorAll('.round-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const g = chip.dataset.game;
+      const r = parseInt(chip.dataset.rounds);
+      startGame(g, r);
+    });
+  });
 }
 
 // ─── Game start ────────────────────────────────────────
-async function startGame(type) {
+async function startGame(type, rounds) {
   const me = selfOf(state.room.members);
   const partner = partnerOf(state.room.members);
   if (!partner) return;
 
   let initialState;
   if (type === 'wyr') {
-    // pick prompts now, persist
-    const prompts = pickN(WYR_PROMPTS, ROUNDS_WYR);
+    const n = rounds || ROUNDS_WYR_DEFAULT;
+    const prompts = pickN(WYR_PROMPTS, n);
     initialState = {
       round: 0,
       prompts,
-      scores: { match: 0, clash: 0 },
+      total_rounds: n,
+      scores: { same: 0, different: 0 },
       history: []
     };
   } else {
+    const n = rounds || ROUNDS_TOD_DEFAULT;
     initialState = {
-      spice: null,           // set before play
+      spice: null,
       round: 0,
-      picker_id: state.user.id, // first picker is the starter
-      pick: null,            // 'truth' | 'dare'
+      total_rounds: n,
+      picker_id: state.user.id,
+      pick: null,
       prompt_idx: null,
-      judgment: null,        // 'did' | 'didnt'
-      used: { mild: { truth: [], dare: [] }, medium: { truth: [], dare: [] }, spicy: { truth: [], dare: [] } },
-      scores: {}             // {user_id: number}
+      judgment: null,
+      used: { easy: { truth: [], dare: [] }, fun: { truth: [], dare: [] }, wild: { truth: [], dare: [] }, spicy: { truth: [], dare: [] } },
+      scores: {}
     };
     initialState.scores[me.user_id] = 0;
     initialState.scores[partner.user_id] = 0;
@@ -1816,30 +1850,30 @@ async function refreshWyrRound() {
     .eq('round', round);
   state._wyrMoves = moves || [];
 
-  // if both have moved and we're still in 'pick', advance to 'reveal'
+  // if both have moved and we're still in 'pick', attempt to advance to 'reveal'.
+  // Both clients may attempt this; only the one whose UPDATE actually mutates
+  // a row will update local state. The other receives the change via realtime.
   if (state.activeGame.phase === 'pick' && (moves || []).length >= 2) {
-    // update score in state
-    const newState = { ...state.activeGame.state };
+    const newState = JSON.parse(JSON.stringify(state.activeGame.state));
     const a = moves[0], b = moves[1];
     const match = a.choice === b.choice;
     newState.scores = {
-      match: newState.scores.match + (match ? 1 : 0),
-      clash: newState.scores.clash + (match ? 0 : 1)
+      same: (newState.scores.same || 0) + (match ? 1 : 0),
+      different: (newState.scores.different || 0) + (match ? 0 : 1)
     };
     newState.history.push({
       prompt: newState.prompts[round],
       choices: { [a.user_id]: a.choice, [b.user_id]: b.choice }
     });
-    // attempt transition (idempotent via version)
-    const { error } = await sb
+    const { data, error } = await sb
       .from('game_sessions')
       .update({ state: newState, phase: 'reveal' })
       .eq('id', state.activeGame.id)
       .eq('version', state.activeGame.version)
-      .eq('phase', 'pick');
-    // realtime will update us; render now in case
-    if (!error) {
-      state.activeGame = { ...state.activeGame, state: newState, phase: 'reveal', version: state.activeGame.version + 1 };
+      .eq('phase', 'pick')
+      .select();
+    if (!error && data && data.length > 0) {
+      state.activeGame = data[0];
     }
   }
   renderRoom();
@@ -1860,7 +1894,7 @@ function renderWYR() {
   let isReveal = g.phase === 'reveal';
   if (isReveal && myMove && theirMove) {
     const match = myMove.choice === theirMove.choice;
-    banner = `<div class="reveal-banner ${match ? 'match' : 'clash'}">${match ? '✦ you matched' : 'different vibes'}</div>`;
+    banner = `<div class="reveal-banner ${match ? 'match' : 'clash'}">${match ? '✦ same pick' : 'different pick'}</div>`;
   } else if (isReveal && myMove && !theirMove) {
     banner = `<div class="reveal-banner">they didn't pick yet</div>`;
   }
@@ -1900,8 +1934,8 @@ function renderWYR() {
       <div class="game-meta-bar">
         <button class="game-back" id="backToLobby">← lobby</button>
         <div class="scores">
-          <div class="score-chip">matched <span class="num">${g.state.scores.match}</span></div>
-          <div class="score-chip">clashed <span class="num">${g.state.scores.clash}</span></div>
+          <div class="score-chip">same <span class="num">${g.state.scores.same || 0}</span></div>
+          <div class="score-chip">diff <span class="num">${g.state.scores.different || 0}</span></div>
         </div>
         <div class="game-round">${round + 1}/${g.state.prompts.length}</div>
       </div>
@@ -1980,7 +2014,7 @@ function renderTOD() {
         <div class="score-chip">${escapeHtml(me.display_name.slice(0,8))} <span class="num">${g.state.scores[me.user_id] || 0}</span></div>
         <div class="score-chip">${escapeHtml((partner && partner.display_name) ? partner.display_name.slice(0,8) : '–')} <span class="num">${g.state.scores[partner ? partner.user_id : ''] || 0}</span></div>
       </div>
-      <div class="game-round">${g.state.round + 1}/${ROUNDS_TOD}</div>
+      <div class="game-round">${g.state.round + 1}/${g.state.total_rounds || ROUNDS_TOD_DEFAULT}</div>
     </div>
   `;
 
@@ -1989,10 +2023,11 @@ function renderTOD() {
     const canChoose = g.current_turn_user_id === state.user.id;
     inner = `
       ${header}
-      <div class="spice-label">pick a spice level${canChoose ? '' : ' · waiting on them'}</div>
+      <div class="spice-label">pick a vibe${canChoose ? '' : ' · waiting on them'}</div>
       <div class="tod-spice">
-        <button class="spice-btn" data-spice="mild" ${canChoose ? '' : 'disabled'}>mild</button>
-        <button class="spice-btn" data-spice="medium" ${canChoose ? '' : 'disabled'}>medium</button>
+        <button class="spice-btn" data-spice="easy" ${canChoose ? '' : 'disabled'}>easy</button>
+        <button class="spice-btn" data-spice="fun" ${canChoose ? '' : 'disabled'}>fun</button>
+        <button class="spice-btn" data-spice="wild" ${canChoose ? '' : 'disabled'}>wild</button>
         <button class="spice-btn" data-spice="spicy" ${canChoose ? '' : 'disabled'}>spicy</button>
       </div>
     `;
@@ -2046,7 +2081,7 @@ function renderTOD() {
     inner = `
       ${header}
       <div class="reveal-banner ${did ? 'match' : 'clash'}">${did ? '✦ point scored' : 'they couldn\'t do it'}</div>
-      <button class="btn-primary" id="todNext">${g.state.round + 1 >= ROUNDS_TOD ? 'see how it went' : 'next round'} <span class="arrow">→</span></button>
+      <button class="btn-primary" id="todNext">${g.state.round + 1 >= (g.state.total_rounds || ROUNDS_TOD_DEFAULT) ? 'see how it went' : 'next round'} <span class="arrow">→</span></button>
     `;
   }
 
@@ -2142,7 +2177,8 @@ async function judge(verdict) {
 async function advanceTodRound() {
   const g = state.activeGame;
   const nextRound = g.state.round + 1;
-  if (nextRound >= ROUNDS_TOD) {
+  const total = g.state.total_rounds || ROUNDS_TOD_DEFAULT;
+  if (nextRound >= total) {
     await sb.from('game_sessions')
       .update({ ended_at: new Date().toISOString(), phase: 'ended' })
       .eq('id', g.id);
@@ -2174,12 +2210,12 @@ function renderEndCard() {
   let headline = '';
 
   if (g.game_type === 'wyr') {
-    const m = g.state.scores.match;
-    const c = g.state.scores.clash;
-    headline = m > c ? `<span class="mint">aligned</span><br>more often` : c > m ? `<span class="mint">different</span><br>vibes` : `<span class="mint">balanced</span>`;
+    const s = g.state.scores.same || 0;
+    const d = g.state.scores.different || 0;
+    headline = s > d ? `mostly<br><span class="mint">same page</span>` : d > s ? `mostly<br><span class="mint">different</span>` : `<span class="mint">balanced</span>`;
     statHtml = `
-      <div class="end-stat">matched <span class="num">${m}</span></div>
-      <div class="end-stat">clashed <span class="num">${c}</span></div>
+      <div class="end-stat">same <span class="num">${s}</span></div>
+      <div class="end-stat">different <span class="num">${d}</span></div>
     `;
   } else {
     const myScore = g.state.scores[me.user_id] || 0;
@@ -2207,7 +2243,7 @@ function renderEndCard() {
       </div>
     </div>
   `;
-  $('#playAgain').addEventListener('click', () => startGame(g.game_type));
+  $('#playAgain').addEventListener('click', () => startGame(g.game_type, g.state.total_rounds || (g.game_type === 'wyr' ? ROUNDS_WYR_DEFAULT : ROUNDS_TOD_DEFAULT)));
   $('#backLobby').addEventListener('click', async () => {
     state.activeGame = null;
     renderRoom();
