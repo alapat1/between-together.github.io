@@ -1116,7 +1116,26 @@ const WYR_PROMPTS = [
   ["live a long normal life", "live a short exciting one"],
   ["have a personal stylist", "have a personal therapist"],
   ["be early to everything", "be the last one to arrive"],
-  ["meet everyone you'll ever love now", "meet them at random over time"]
+  ["meet everyone you'll ever love now", "meet them at random over time"],
+  ["always have a perfect singing voice", "be a perfect dancer"],
+  ["live without sleep but feel rested", "sleep normally but need 10 hours"],
+  ["have a private chef who'll cook anything", "be able to teleport to any restaurant"],
+  ["always know one secret about everyone you meet", "have nobody ever be able to lie to you"],
+  ["eat the same meal three times a day forever", "never eat the same thing twice"],
+  ["have a pet that can talk", "have a pet that can fly"],
+  ["own every book ever written", "remember every word you've ever read"],
+  ["lose your sense of touch", "lose your sense of taste"],
+  ["travel only by walking", "travel only by boat"],
+  ["always feel well-rested", "always feel calm"],
+  ["spend a year living in your favourite city", "spend a year exploring a new city each week"],
+  ["only listen to instrumental music", "only listen to songs with lyrics"],
+  ["write a song that becomes huge", "write a book that becomes famous"],
+  ["have unlimited free flights but only economy", "limited flights but always business"],
+  ["never have to cook again", "never have to clean again"],
+  ["wake up an hour earlier every day", "stay up an hour later every night"],
+  ["only watch movies in black and white", "only watch movies without sound"],
+  ["live in a world with no internet", "live in a world with no books"],
+  ["always know what someone wants from you", "never have to explain yourself"]
 ];
 
 const TOD_PROMPTS = {
@@ -1131,7 +1150,12 @@ const TOD_PROMPTS = {
       "what's a hill you'd die on about a tv show?",
       "what's a habit you have that even you find weird?",
       "what's something you secretly enjoy that you pretend you don't?",
-      "what's a small thing that always makes you smile?"
+      "what's a small thing that always makes you smile?",
+      "what's your most-played song this week?",
+      "what would be your ideal breakfast tomorrow morning?",
+      "what's a thing you're irrationally good at?",
+      "if you could pick a superpower for one day only, what?",
+      "what's an animal you'd love to have as a pet?"
     ],
     dare: [
       "do 10 jumping jacks right now",
@@ -1143,7 +1167,12 @@ const TOD_PROMPTS = {
       "say 'red lorry yellow lorry' three times fast",
       "dance for 15 seconds, music optional",
       "do your best impression of a celebrity for 20 seconds",
-      "make up a 3-line jingle about your phone"
+      "make up a 3-line jingle about your phone",
+      "text 'hi from a parallel universe' to a random contact",
+      "show me your most recent screenshot",
+      "pull 3 silly faces in 10 seconds",
+      "balance something on your head for 20 seconds",
+      "say 'i love you' to the next inanimate object you see"
     ]
   },
   fun: {
@@ -1157,7 +1186,12 @@ const TOD_PROMPTS = {
       "what's a small thing you spend way too much money on?",
       "what would you name a pet you got tomorrow?",
       "what's a hobby you'd start if you had unlimited free time?",
-      "what's the weirdest dream you can remember right now?"
+      "what's the weirdest dream you can remember right now?",
+      "if you could only eat one cuisine for a month, which?",
+      "what's a small thing that gives you irrational joy?",
+      "what would your reality tv show be about?",
+      "what's a fictional world you'd actually want to live in?",
+      "if you could trade lives with me for a day, what would you do first?"
     ],
     dare: [
       "let me pick a song to play on your speakers right now",
@@ -1169,7 +1203,12 @@ const TOD_PROMPTS = {
       "take a selfie pulling the weirdest face possible",
       "say the next sentence you say in a movie trailer voice",
       "share your home screen with me",
-      "send a voice note in your worst attempted accent"
+      "send a voice note in your worst attempted accent",
+      "text a friend a fake plot twist about your day",
+      "let me write the next thing you text someone",
+      "give a 30-second commentary on a random object near you",
+      "invent a backstory for a stranger you saw today",
+      "set an alarm with the funniest possible label"
     ]
   },
   wild: {
@@ -1183,7 +1222,12 @@ const TOD_PROMPTS = {
       "if i had your phone for a day, what's the one thing i'd be surprised by?",
       "what's something i do that confuses you, in a good or bad way?",
       "what's a small opinion you hold that sounds wild out loud?",
-      "what's a recent thought you've had that you wouldn't say out loud?"
+      "what's a recent thought you've had that you wouldn't say out loud?",
+      "what's a controversial food opinion you stand by?",
+      "what's the wildest thing you've thought about doing lately?",
+      "what's a small risk you've been considering taking?",
+      "what's an unpopular opinion about something we both like?",
+      "what's a thing you'd never actually do but secretly find appealing?"
     ],
     dare: [
       "show me the last 5 messages you sent to anyone",
@@ -1195,7 +1239,12 @@ const TOD_PROMPTS = {
       "record a 10-second voice note about your love for socks",
       "show me the contact you've saved with the funniest name",
       "freestyle rap for 20 seconds about whatever you're looking at",
-      "let me ask 3 yes/no questions, no skipping"
+      "let me ask 3 yes/no questions, no skipping",
+      "let me pick a contact and text them 'thinking of you'",
+      "show me your tab graveyard (currently open tabs)",
+      "read the most recent comment you wrote anywhere out loud",
+      "let me ask 5 yes/no questions, max 3 skips",
+      "play 'two truths and a lie' right now, three statements"
     ]
   },
   spicy: {
@@ -1209,7 +1258,17 @@ const TOD_PROMPTS = {
       "what's the most underrated thing about being with me?",
       "what would make this evening perfect if we were together right now?",
       "what's something you'd want me to do more of?",
-      "if i described you in one word to a stranger, what should it be?"
+      "if i described you in one word to a stranger, what should it be?",
+      "when do you find me most irresistible?",
+      "what's a moment with me that replays in your head when we're apart?",
+      "what's something about how i look that you think about often?",
+      "what's your favorite way for me to look at you?",
+      "when do you feel closest to me?",
+      "if we had a whole day just to ourselves, what would you want to do first?",
+      "what's something about my voice or laugh that gets you?",
+      "when do you most want to kiss me?",
+      "what's a feeling i give you that's hard to name?",
+      "what's something you've imagined doing with me but haven't said?"
     ],
     dare: [
       "tell me three things you genuinely love about me, no filler",
@@ -1221,7 +1280,17 @@ const TOD_PROMPTS = {
       "share a song that reminds you of me and tell me why",
       "write a 4-line poem about us, on the spot",
       "say one thing you want from tonight or tomorrow with me",
-      "describe your favorite version of me, in your own words"
+      "describe your favorite version of me, in your own words",
+      "record a voice note in your most flirty tone",
+      "tell me what you'd want to do if we had the next 24 hours together",
+      "describe how you'd kiss me if we were together right now",
+      "tell me one thing you've imagined doing with me",
+      "text me one line as if you were trying to win me over",
+      "send a voice note saying my name three different ways",
+      "describe a perfect evening, from the moment i walk in",
+      "send a photo of what you're wearing right now",
+      "tell me one thing you find attractive about how i think",
+      "say the most flirty thing you can think of right now"
     ]
   }
 };
@@ -1574,18 +1643,105 @@ async function loadRoom(code) {
 
   await unsubscribeAll();
   subscribeRoom();
+  startPolling();
   renderRoom();
 }
 
 function goHome() {
   state.room = null;
   state.activeGame = null;
+  stopPolling();
   unsubscribeAll();
   window.location.hash = '';
   // reset slots
   slots.forEach(s => { s.value = ''; s.classList.remove('filled'); });
   show('screen-home');
 }
+
+// ─── Sync layer (defense in depth against realtime gaps) ───
+let _pollTimer = null;
+function startPolling() {
+  if (_pollTimer) clearInterval(_pollTimer);
+  _pollTimer = setInterval(syncRoomState, 4000);
+}
+function stopPolling() {
+  if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+}
+
+async function syncRoomState() {
+  if (!state.room) return;
+  try {
+    // refetch active game
+    const { data: game } = await sb
+      .from('game_sessions')
+      .select('*')
+      .eq('room_id', state.room.id)
+      .is('ended_at', null)
+      .maybeSingle();
+
+    // if a previously-active game has ended or vanished, refetch by id
+    if (!game && state.activeGame && !state.activeGame.ended_at) {
+      const { data: prev } = await sb
+        .from('game_sessions')
+        .select('*')
+        .eq('id', state.activeGame.id)
+        .maybeSingle();
+      state.activeGame = prev || null;
+      renderRoom();
+      return;
+    }
+
+    // adopt newer state from DB
+    if (game) {
+      if (!state.activeGame || game.id !== state.activeGame.id || game.version > state.activeGame.version) {
+        state.activeGame = game;
+        renderRoom();
+      }
+      // refresh wyr moves whenever WYR is active
+      if (game.game_type === 'wyr') {
+        await refreshWyrRound();
+      }
+    }
+
+    // refetch members (catches missed join/leave events)
+    const { data: members } = await sb
+      .from('room_members')
+      .select('user_id, role, joined_at')
+      .eq('room_id', state.room.id);
+    if (members) {
+      const ids = members.map(m => m.user_id);
+      const profMap = {};
+      (state.room.members || []).forEach(m => profMap[m.user_id] = m.display_name);
+      const missing = ids.filter(id => !profMap[id]);
+      if (missing.length) {
+        const { data: profs } = await sb
+          .from('profiles').select('id, display_name').in('id', missing);
+        (profs || []).forEach(p => { profMap[p.id] = p.display_name; });
+      }
+      const before = JSON.stringify(state.room.members.map(m => m.user_id).sort());
+      state.room.members = members.map(m => ({
+        ...m, display_name: profMap[m.user_id] || '...'
+      }));
+      const after = JSON.stringify(ids.sort());
+      if (before !== after) renderRoom();
+    }
+  } catch (e) {
+    // silent fail, next tick tries again
+    console.debug('sync error', e);
+  }
+}
+
+// Refetch on visibility change (user comes back to tab/app)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && state.room) {
+    syncRoomState();
+  }
+});
+
+// Refetch on network reconnect
+window.addEventListener('online', () => {
+  if (state.room) syncRoomState();
+});
 
 // ─── Realtime ──────────────────────────────────────────
 async function unsubscribeAll() {
@@ -1725,6 +1881,8 @@ function renderRoom() {
     renderWYR();
   } else if (state.activeGame.game_type === 'tod') {
     renderTOD();
+  } else if (state.activeGame.game_type === 'fs') {
+    renderFS();
   }
 }
 
@@ -1765,6 +1923,14 @@ function renderLobby() {
             <button class="round-chip" data-game="tod" data-rounds="4" ${!hasPartner ? 'disabled' : ''}>4 rounds</button>
             <button class="round-chip" data-game="tod" data-rounds="6" ${!hasPartner ? 'disabled' : ''}>6 rounds</button>
             <button class="round-chip" data-game="tod" data-rounds="8" ${!hasPartner ? 'disabled' : ''}>8 rounds</button>
+          </div>
+        </div>
+        <div class="game-card ${!hasPartner ? 'is-disabled' : ''}">
+          <div class="game-card-title">finger smash</div>
+          <div class="game-card-desc">tap your screen as fast as you can. push the line into their side. don't overheat.</div>
+          <div class="round-picker">
+            <button class="round-chip" data-game="fs" data-rounds="1" ${!hasPartner ? 'disabled' : ''}>quick match</button>
+            <button class="round-chip" data-game="fs" data-rounds="3" ${!hasPartner ? 'disabled' : ''}>best of 3</button>
           </div>
         </div>
       </div>
