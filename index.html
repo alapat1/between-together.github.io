@@ -949,6 +949,169 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
+  /* Finger Smash */
+  .fs-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  .fs-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0 12px;
+  }
+  .fs-round-pill {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    padding: 6px 12px;
+    background: var(--bg-card);
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .fs-counters {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .fs-counter {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .fs-counter-me { border-color: rgba(127, 255, 196, 0.3); }
+  .fs-counter-them { border-color: rgba(255, 140, 100, 0.3); }
+  .fs-counter-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin-bottom: 4px;
+  }
+  .fs-counter-me .fs-counter-label { color: var(--mint); }
+  .fs-counter-them .fs-counter-label { color: #FF8C64; }
+  .fs-counter-num {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .fs-tap-area {
+    flex: 1;
+    position: relative;
+    background: var(--bg-card);
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 400px;
+    cursor: pointer;
+  }
+  .fs-tap-area::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(255, 140, 100, 0.18) 0%, rgba(255, 140, 100, 0.05) 50%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .fs-bar-track {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .fs-bar-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, var(--mint) 0%, var(--mint-soft) 100%);
+    opacity: 0.22;
+    transition: height 0.08s linear;
+  }
+  .fs-bar-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 50%;
+    height: 3px;
+    background: var(--text);
+    box-shadow: 0 0 16px rgba(245, 240, 229, 0.6);
+    transition: bottom 0.08s linear;
+  }
+  .fs-tap-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    pointer-events: none;
+    animation: blink 2s infinite;
+  }
+  .fs-overheat {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 60, 60, 0.18);
+    backdrop-filter: blur(6px);
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #FF6B6B;
+    text-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+    pointer-events: none;
+    animation: fsOverheatPulse 0.6s ease-in-out infinite;
+  }
+  @keyframes fsOverheatPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .fs-countdown {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Instrument Serif', 'Bricolage Grotesque', serif;
+    font-style: italic;
+    font-size: 180px;
+    line-height: 1;
+    color: var(--mint);
+    text-shadow: 0 0 60px var(--mint-glow);
+    pointer-events: none;
+    background: rgba(10, 10, 18, 0.55);
+    backdrop-filter: blur(8px);
+  }
+
   /* loading */
   .loading {
     flex: 1;
@@ -1155,7 +1318,12 @@ const TOD_PROMPTS = {
       "what would be your ideal breakfast tomorrow morning?",
       "what's a thing you're irrationally good at?",
       "if you could pick a superpower for one day only, what?",
-      "what's an animal you'd love to have as a pet?"
+      "what's an animal you'd love to have as a pet?",
+      "what's a tv show you've finished and still miss?",
+      "what's your favourite weather and why?",
+      "what's a small win you've had this week?",
+      "if you could steal someone else's accent permanently, whose?",
+      "what's a meal you'd be sad to never eat again?"
     ],
     dare: [
       "do 10 jumping jacks right now",
@@ -1172,7 +1340,12 @@ const TOD_PROMPTS = {
       "show me your most recent screenshot",
       "pull 3 silly faces in 10 seconds",
       "balance something on your head for 20 seconds",
-      "say 'i love you' to the next inanimate object you see"
+      "say 'i love you' to the next inanimate object you see",
+      "send a 5-second voice note of you just laughing",
+      "show me everything in your bag or pockets right now",
+      "type a full sentence with your eyes closed and send it",
+      "take a photo of the most boring thing within arm's reach",
+      "do an exaggerated yawn and stretch for the camera"
     ]
   },
   fun: {
@@ -1191,7 +1364,12 @@ const TOD_PROMPTS = {
       "what's a small thing that gives you irrational joy?",
       "what would your reality tv show be about?",
       "what's a fictional world you'd actually want to live in?",
-      "if you could trade lives with me for a day, what would you do first?"
+      "if you could trade lives with me for a day, what would you do first?",
+      "what's a question you've been curious to ask me but never have?",
+      "what's a fictional couple you've compared us to?",
+      "what's your most embarrassing autocomplete suggestion?",
+      "what's a tiny conspiracy theory you actually believe?",
+      "if our relationship was a movie genre, which one?"
     ],
     dare: [
       "let me pick a song to play on your speakers right now",
@@ -1208,7 +1386,12 @@ const TOD_PROMPTS = {
       "let me write the next thing you text someone",
       "give a 30-second commentary on a random object near you",
       "invent a backstory for a stranger you saw today",
-      "set an alarm with the funniest possible label"
+      "set an alarm with the funniest possible label",
+      "show me what you ate today, photos or detailed description",
+      "let me give you a new nickname for the rest of the game",
+      "write a 6-word story about today and send it to me",
+      "send me a screenshot of your weather right now",
+      "play 20 questions about an object in your room, i'll guess"
     ]
   },
   wild: {
@@ -1227,7 +1410,12 @@ const TOD_PROMPTS = {
       "what's the wildest thing you've thought about doing lately?",
       "what's a small risk you've been considering taking?",
       "what's an unpopular opinion about something we both like?",
-      "what's a thing you'd never actually do but secretly find appealing?"
+      "what's a thing you'd never actually do but secretly find appealing?",
+      "what's a small petty satisfaction you indulge in?",
+      "what's a take you have that you'd never post online?",
+      "what would your dating profile say if it had to be brutally honest?",
+      "what's an attractive trait you think is unfairly distributed?",
+      "what's something in this relationship you've wanted to try but haven't asked?"
     ],
     dare: [
       "show me the last 5 messages you sent to anyone",
@@ -1244,7 +1432,12 @@ const TOD_PROMPTS = {
       "show me your tab graveyard (currently open tabs)",
       "read the most recent comment you wrote anywhere out loud",
       "let me ask 5 yes/no questions, max 3 skips",
-      "play 'two truths and a lie' right now, three statements"
+      "play 'two truths and a lie' right now, three statements",
+      "show me your last 5 google searches",
+      "let me look at your camera roll for 30 seconds",
+      "text a random group chat: 'i had a strange thought today'",
+      "let me see your saved/bookmarks for 30 seconds",
+      "post a low-stakes vague update to your story (i'll choose what)"
     ]
   },
   spicy: {
@@ -1268,7 +1461,12 @@ const TOD_PROMPTS = {
       "what's something about my voice or laugh that gets you?",
       "when do you most want to kiss me?",
       "what's a feeling i give you that's hard to name?",
-      "what's something you've imagined doing with me but haven't said?"
+      "what's something you've imagined doing with me but haven't said?",
+      "what's a moment recently when you really wanted me close?",
+      "what's something about who i am right now that you find sexy?",
+      "what's a small intimate routine you'd want with me?",
+      "what's something you wish i'd do without you having to ask?",
+      "what's a way i look at you that you secretly love?"
     ],
     dare: [
       "tell me three things you genuinely love about me, no filler",
@@ -1290,7 +1488,12 @@ const TOD_PROMPTS = {
       "describe a perfect evening, from the moment i walk in",
       "send a photo of what you're wearing right now",
       "tell me one thing you find attractive about how i think",
-      "say the most flirty thing you can think of right now"
+      "say the most flirty thing you can think of right now",
+      "tell me one thing you wish we were doing right now",
+      "send a voice note of the most flirty thing you've never said aloud",
+      "describe one specific physical detail about me you love",
+      "send a song you'd want playing if i walked in tonight",
+      "describe me as if you're writing a love letter, in three sentences"
     ]
   }
 };
@@ -1651,6 +1854,7 @@ function goHome() {
   state.room = null;
   state.activeGame = null;
   stopPolling();
+  teardownFS();
   unsubscribeAll();
   window.location.hash = '';
   // reset slots
@@ -1952,9 +2156,12 @@ async function startGame(type, rounds) {
   if (!partner) return;
 
   let initialState;
+  let initialPhase;
+  let initialTurn = null;
+
   if (type === 'wyr') {
     const n = rounds || ROUNDS_WYR_DEFAULT;
-    const prompts = pickN(WYR_PROMPTS, n);
+    const prompts = pickWyrPrompts(n);
     initialState = {
       round: 0,
       prompts,
@@ -1962,7 +2169,8 @@ async function startGame(type, rounds) {
       scores: { same: 0, different: 0 },
       history: []
     };
-  } else {
+    initialPhase = 'pick';
+  } else if (type === 'tod') {
     const n = rounds || ROUNDS_TOD_DEFAULT;
     initialState = {
       spice: null,
@@ -1977,6 +2185,19 @@ async function startGame(type, rounds) {
     };
     initialState.scores[me.user_id] = 0;
     initialState.scores[partner.user_id] = 0;
+    initialPhase = 'spice';
+    initialTurn = state.user.id;
+  } else if (type === 'fs') {
+    const n = rounds || 1;
+    initialState = {
+      total_rounds: n,
+      match_round: 0,
+      scores: {},
+      match_winner: null
+    };
+    initialState.scores[me.user_id] = 0;
+    initialState.scores[partner.user_id] = 0;
+    initialPhase = 'countdown';
   }
 
   const { data, error } = await sb
@@ -1984,9 +2205,9 @@ async function startGame(type, rounds) {
     .insert({
       room_id: state.room.id,
       game_type: type,
-      phase: type === 'tod' ? 'spice' : 'pick',
+      phase: initialPhase,
       state: initialState,
-      current_turn_user_id: type === 'tod' ? state.user.id : null
+      current_turn_user_id: initialTurn
     })
     .select()
     .single();
@@ -1997,12 +2218,71 @@ async function startGame(type, rounds) {
   }
   state.activeGame = data;
   state.wyrLastChoiceRound = -1;
+  teardownFS();
   renderRoom();
 }
 
+// ─── Cross-game prompt memory (per room, persisted in localStorage) ───
+function _promptMemKey(code) { return `bt-prompts-${code}`; }
+function getUsedPromptIdxs(code, bucket) {
+  try {
+    const raw = localStorage.getItem(_promptMemKey(code));
+    if (!raw) return [];
+    const obj = JSON.parse(raw);
+    const path = bucket.split('.');
+    let cur = obj;
+    for (const k of path) { cur = cur && cur[k]; }
+    return Array.isArray(cur) ? cur : [];
+  } catch (e) { return []; }
+}
+function addUsedPromptIdxs(code, bucket, idxs) {
+  try {
+    const raw = localStorage.getItem(_promptMemKey(code));
+    const obj = raw ? JSON.parse(raw) : {};
+    const path = bucket.split('.');
+    let cur = obj;
+    for (let i = 0; i < path.length - 1; i++) {
+      if (!cur[path[i]]) cur[path[i]] = {};
+      cur = cur[path[i]];
+    }
+    const last = path[path.length - 1];
+    const existing = Array.isArray(cur[last]) ? cur[last] : [];
+    const merged = Array.from(new Set([...existing, ...idxs]));
+    cur[last] = merged;
+    localStorage.setItem(_promptMemKey(code), JSON.stringify(obj));
+  } catch (e) {}
+}
+function pickFreshIdx(poolLen, usedIdxs) {
+  const available = [];
+  for (let i = 0; i < poolLen; i++) if (!usedIdxs.includes(i)) available.push(i);
+  if (available.length === 0) return Math.floor(Math.random() * poolLen);
+  return available[Math.floor(Math.random() * available.length)];
+}
+function pickFreshIdxs(poolLen, n, usedIdxs) {
+  let available = [];
+  for (let i = 0; i < poolLen; i++) if (!usedIdxs.includes(i)) available.push(i);
+  if (available.length < n) {
+    // ran out, reset and re-pick from full pool
+    available = [];
+    for (let i = 0; i < poolLen; i++) available.push(i);
+  }
+  // shuffle and take n
+  available.sort(() => Math.random() - 0.5);
+  return available.slice(0, n);
+}
+
 function pickN(pool, n) {
+  // legacy path (fallback if no room context); still works
   const shuffled = [...pool].map(p => ({ p, r: Math.random() })).sort((a, b) => a.r - b.r).map(x => x.p);
   return shuffled.slice(0, n);
+}
+
+function pickWyrPrompts(n) {
+  if (!state.room) return pickN(WYR_PROMPTS, n);
+  const used = getUsedPromptIdxs(state.room.code, 'wyr');
+  const idxs = pickFreshIdxs(WYR_PROMPTS.length, n, used);
+  addUsedPromptIdxs(state.room.code, 'wyr', idxs);
+  return idxs.map(i => WYR_PROMPTS[i]);
 }
 
 // ─── WYR rendering ────────────────────────────────────
@@ -2307,14 +2587,17 @@ async function pickSpice(spice) {
 async function pickTOD(pick) {
   const g = state.activeGame;
   const list = TOD_PROMPTS[g.state.spice][pick];
-  const used = g.state.used[g.state.spice][pick] || [];
-  const available = list.map((_, i) => i).filter(i => !used.includes(i));
-  const idx = available.length
-    ? available[Math.floor(Math.random() * available.length)]
-    : Math.floor(Math.random() * list.length);
+  const usedInGame = g.state.used[g.state.spice][pick] || [];
+  const bucket = `tod.${g.state.spice}.${pick}`;
+  const usedAcrossRoom = state.room ? getUsedPromptIdxs(state.room.code, bucket) : [];
+  // combine and pick a fresh one
+  const allUsed = Array.from(new Set([...usedInGame, ...usedAcrossRoom]));
+  const idx = pickFreshIdx(list.length, allUsed);
+  // record in both game state (for show-once-per-game) and room memory (cross-game)
+  if (state.room) addUsedPromptIdxs(state.room.code, bucket, [idx]);
 
   const newUsed = JSON.parse(JSON.stringify(g.state.used));
-  newUsed[g.state.spice][pick] = [...used, idx];
+  newUsed[g.state.spice][pick] = [...usedInGame, idx];
   const newState = { ...g.state, pick, prompt_idx: idx, used: newUsed };
   await sb.from('game_sessions')
     .update({ state: newState, phase: 'prompt' })
@@ -2365,7 +2648,331 @@ async function advanceTodRound() {
     .eq('id', g.id).eq('version', g.version);
 }
 
-// ─── End game card ─────────────────────────────────────
+// ─── Finger Smash ──────────────────────────────────────
+const FS_BASE_TAP_WEIGHT = 1.8;
+const FS_OVERHEAT_LIMIT = 7;
+const FS_OVERHEAT_MS = 1200;
+const FS_MATCH_MS = 30000;
+const FS_BROADCAST_MS = 80;
+
+let _fsCh = null, _fsBroadcastTimer = null, _fsCountdownTimer = null, _fsMatchTimer = null, _fsRoundKey = null;
+
+function resetFSLocal() {
+  state.fsLocal = {
+    phase: 'countdown',
+    countdown: 3,
+    myCount: 0,
+    opponentCount: 0,
+    myTaps: [],
+    overheated: false,
+    linePos: 50,
+    roundWinner: null,
+    endedLocally: false
+  };
+}
+
+function teardownFS() {
+  if (_fsCh) { try { sb.removeChannel(_fsCh); } catch(e) {} _fsCh = null; }
+  if (_fsBroadcastTimer) { clearInterval(_fsBroadcastTimer); _fsBroadcastTimer = null; }
+  if (_fsCountdownTimer) { clearInterval(_fsCountdownTimer); _fsCountdownTimer = null; }
+  if (_fsMatchTimer) { clearTimeout(_fsMatchTimer); _fsMatchTimer = null; }
+  _fsRoundKey = null;
+  state.fsLocal = null;
+}
+
+function subscribeFSChannel() {
+  if (!state.activeGame || state.activeGame.game_type !== 'fs') return;
+  if (_fsCh) { try { sb.removeChannel(_fsCh); } catch(e) {} _fsCh = null; }
+  _fsCh = sb.channel(`fs:${state.activeGame.id}`)
+    .on('broadcast', { event: 'count' }, ({ payload }) => {
+      if (!state.fsLocal || state.fsLocal.phase !== 'playing') return;
+      if (payload.user_id === state.user.id) return;
+      if (payload.round !== state.activeGame.state.match_round) return;
+      state.fsLocal.opponentCount = Math.max(state.fsLocal.opponentCount, payload.count);
+      computeFSLine();
+      paintFSScreen();
+    })
+    .on('broadcast', { event: 'won' }, ({ payload }) => {
+      if (!state.fsLocal || state.fsLocal.endedLocally) return;
+      if (payload.round !== state.activeGame.state.match_round) return;
+      state.fsLocal.endedLocally = true;
+      state.fsLocal.roundWinner = payload.winner_id;
+      state.fsLocal.phase = 'over';
+      stopFSTimers();
+      hostRecordFSRoundWin(payload.winner_id);
+      renderFS();
+    })
+    .subscribe();
+}
+
+function stopFSTimers() {
+  if (_fsBroadcastTimer) { clearInterval(_fsBroadcastTimer); _fsBroadcastTimer = null; }
+  if (_fsCountdownTimer) { clearInterval(_fsCountdownTimer); _fsCountdownTimer = null; }
+  if (_fsMatchTimer) { clearTimeout(_fsMatchTimer); _fsMatchTimer = null; }
+}
+
+function computeFSLine() {
+  if (!state.fsLocal) return;
+  const delta = state.fsLocal.myCount - state.fsLocal.opponentCount;
+  state.fsLocal.linePos = Math.max(0, Math.min(100, 50 + delta * FS_BASE_TAP_WEIGHT));
+  if (state.fsLocal.phase !== 'playing' || state.fsLocal.endedLocally) return;
+  if (state.fsLocal.linePos >= 100) {
+    declareFSRoundWinner(state.user.id);
+  } else if (state.fsLocal.linePos <= 0) {
+    const partner = partnerOf(state.room.members);
+    if (partner) declareFSRoundWinner(partner.user_id);
+  }
+}
+
+function declareFSRoundWinner(winner_id) {
+  if (state.fsLocal.endedLocally) return;
+  state.fsLocal.endedLocally = true;
+  state.fsLocal.roundWinner = winner_id;
+  state.fsLocal.phase = 'over';
+  stopFSTimers();
+  if (_fsCh) {
+    _fsCh.send({
+      type: 'broadcast',
+      event: 'won',
+      payload: { winner_id, round: state.activeGame.state.match_round, ts: Date.now() }
+    });
+  }
+  hostRecordFSRoundWin(winner_id);
+  renderFS();
+}
+
+async function hostRecordFSRoundWin(winner_id) {
+  const isHost = state.room && state.room.created_by === state.user.id;
+  if (!isHost) return;
+  const g = state.activeGame;
+  if (g.phase !== 'playing' && g.phase !== 'countdown') return;
+  const newState = JSON.parse(JSON.stringify(g.state));
+  newState.scores[winner_id] = (newState.scores[winner_id] || 0) + 1;
+  const winsNeeded = Math.ceil(newState.total_rounds / 2);
+  const matchEnded = newState.scores[winner_id] >= winsNeeded;
+  const update = {
+    state: newState,
+    phase: matchEnded ? 'ended' : 'round_done'
+  };
+  if (matchEnded) {
+    newState.match_winner = winner_id;
+    update.ended_at = new Date().toISOString();
+  }
+  await sb.from('game_sessions')
+    .update(update)
+    .eq('id', g.id)
+    .eq('version', g.version);
+}
+
+function onFSTap(e) {
+  if (e && e.cancelable) e.preventDefault();
+  if (!state.fsLocal || state.fsLocal.phase !== 'playing') return;
+  if (state.fsLocal.endedLocally || state.fsLocal.overheated) return;
+
+  const now = Date.now();
+  state.fsLocal.myTaps = state.fsLocal.myTaps.filter(t => now - t < 1000);
+  state.fsLocal.myTaps.push(now);
+
+  if (state.fsLocal.myTaps.length > FS_OVERHEAT_LIMIT) {
+    state.fsLocal.overheated = true;
+    paintFSScreen();
+    setTimeout(() => {
+      if (state.fsLocal) {
+        state.fsLocal.overheated = false;
+        state.fsLocal.myTaps = [];
+        paintFSScreen();
+      }
+    }, FS_OVERHEAT_MS);
+    return;
+  }
+
+  state.fsLocal.myCount++;
+  computeFSLine();
+  paintFSScreen();
+}
+
+function startFSBroadcastLoop() {
+  if (_fsBroadcastTimer) clearInterval(_fsBroadcastTimer);
+  _fsBroadcastTimer = setInterval(() => {
+    if (!_fsCh || !state.fsLocal || state.fsLocal.phase !== 'playing') return;
+    _fsCh.send({
+      type: 'broadcast',
+      event: 'count',
+      payload: {
+        user_id: state.user.id,
+        count: state.fsLocal.myCount,
+        round: state.activeGame.state.match_round
+      }
+    });
+  }, FS_BROADCAST_MS);
+}
+
+function beginFSCountdown() {
+  if (!state.fsLocal) resetFSLocal();
+  state.fsLocal.phase = 'countdown';
+  state.fsLocal.countdown = 3;
+  renderFS();
+  if (_fsCountdownTimer) clearInterval(_fsCountdownTimer);
+  _fsCountdownTimer = setInterval(() => {
+    if (!state.fsLocal) { clearInterval(_fsCountdownTimer); _fsCountdownTimer = null; return; }
+    state.fsLocal.countdown--;
+    if (state.fsLocal.countdown <= 0) {
+      clearInterval(_fsCountdownTimer);
+      _fsCountdownTimer = null;
+      beginFSMatch();
+    } else {
+      renderFS();
+    }
+  }, 1000);
+}
+
+function beginFSMatch() {
+  if (!state.fsLocal) return;
+  state.fsLocal.phase = 'playing';
+  renderFS();
+  startFSBroadcastLoop();
+  if (_fsMatchTimer) clearTimeout(_fsMatchTimer);
+  _fsMatchTimer = setTimeout(() => {
+    if (!state.fsLocal || state.fsLocal.phase !== 'playing' || state.fsLocal.endedLocally) return;
+    const partner = partnerOf(state.room.members);
+    const winner = state.fsLocal.myCount >= state.fsLocal.opponentCount
+      ? state.user.id
+      : (partner ? partner.user_id : state.user.id);
+    declareFSRoundWinner(winner);
+  }, FS_MATCH_MS);
+}
+
+function maybeStartFSRound() {
+  if (!state.activeGame || state.activeGame.game_type !== 'fs') return;
+  if (state.activeGame.phase !== 'countdown' && state.activeGame.phase !== 'playing') return;
+  const roundKey = `${state.activeGame.id}:${state.activeGame.state.match_round}`;
+  if (_fsRoundKey === roundKey) return; // already started this round locally
+  _fsRoundKey = roundKey;
+  stopFSTimers();
+  resetFSLocal();
+  if (!_fsCh) subscribeFSChannel();
+  beginFSCountdown();
+}
+
+async function advanceFSRound() {
+  const g = state.activeGame;
+  const newState = JSON.parse(JSON.stringify(g.state));
+  newState.match_round = (newState.match_round || 0) + 1;
+  await sb.from('game_sessions')
+    .update({ state: newState, phase: 'countdown' })
+    .eq('id', g.id)
+    .eq('version', g.version);
+}
+
+function renderFS() {
+  const body = $('#roomBody');
+  const g = state.activeGame;
+  const me = selfOf(state.room.members);
+  const partner = partnerOf(state.room.members);
+  const myScore = g.state.scores[me.user_id] || 0;
+  const theirScore = partner ? (g.state.scores[partner.user_id] || 0) : 0;
+  const totalRounds = g.state.total_rounds || 1;
+  const roundNum = (g.state.match_round || 0) + 1;
+  const showHeader = g.phase === 'round_done';
+
+  // round-done summary view
+  if (g.phase === 'round_done') {
+    const lastWinner = state.fsLocal && state.fsLocal.roundWinner;
+    const winnerName = lastWinner === me.user_id ? 'you' : (partner ? partner.display_name : 'they');
+    body.innerHTML = `
+      <div class="game-screen">
+        <div class="game-meta-bar">
+          <button class="game-back" id="backToLobby">← lobby</button>
+          <div class="scores">
+            <div class="score-chip">${escapeHtml(me.display_name.slice(0,8))} <span class="num">${myScore}</span></div>
+            <div class="score-chip">${escapeHtml((partner && partner.display_name) ? partner.display_name.slice(0,8) : '–')} <span class="num">${theirScore}</span></div>
+          </div>
+          <div class="game-round">${roundNum}/${totalRounds}</div>
+        </div>
+        <div class="end-card">
+          <div class="end-headline">${escapeHtml(winnerName)} took<br><span class="mint">that round</span></div>
+          <div class="end-stat">match is at <span class="num">${myScore}</span> – <span class="num">${theirScore}</span></div>
+          <div class="end-actions">
+            <button class="btn-primary" id="fsNext">next round <span class="arrow">→</span></button>
+          </div>
+        </div>
+      </div>
+    `;
+    $('#backToLobby').addEventListener('click', () => confirmEndGame());
+    $('#fsNext').addEventListener('click', advanceFSRound);
+    return;
+  }
+
+  // playing / countdown
+  if (!state.fsLocal) maybeStartFSRound();
+
+  body.innerHTML = `
+    <div class="fs-wrap" id="fsWrap">
+      <div class="fs-top">
+        <button class="game-back" id="backToLobby">← lobby</button>
+        <div class="fs-round-pill">round ${roundNum}/${totalRounds}</div>
+      </div>
+      <div class="fs-counters">
+        <div class="fs-counter fs-counter-me">
+          <div class="fs-counter-label">you</div>
+          <div class="fs-counter-num" id="fsMyCount">0</div>
+        </div>
+        <div class="fs-counter fs-counter-them">
+          <div class="fs-counter-label">${escapeHtml((partner && partner.display_name.slice(0,10)) || 'them')}</div>
+          <div class="fs-counter-num" id="fsTheirCount">0</div>
+        </div>
+      </div>
+      <div class="fs-tap-area" id="fsTapArea">
+        <div class="fs-bar-track">
+          <div class="fs-bar-fill" id="fsBarFill"></div>
+          <div class="fs-bar-line" id="fsBarLine"></div>
+        </div>
+        <div class="fs-tap-hint" id="fsTapHint">tap anywhere</div>
+        <div class="fs-overheat" id="fsOverheat">overheated</div>
+        <div class="fs-countdown" id="fsCountdown"></div>
+      </div>
+    </div>
+  `;
+  $('#backToLobby').addEventListener('click', () => confirmEndGame());
+  const tapArea = $('#fsTapArea');
+  tapArea.addEventListener('touchstart', onFSTap, { passive: false });
+  tapArea.addEventListener('mousedown', onFSTap);
+  paintFSScreen();
+}
+
+function paintFSScreen() {
+  if (!state.fsLocal) return;
+  const my = $('#fsMyCount');
+  const their = $('#fsTheirCount');
+  const fill = $('#fsBarFill');
+  const line = $('#fsBarLine');
+  const hint = $('#fsTapHint');
+  const overheat = $('#fsOverheat');
+  const countdown = $('#fsCountdown');
+  if (!my) return;
+
+  my.textContent = state.fsLocal.myCount;
+  their.textContent = state.fsLocal.opponentCount;
+  fill.style.height = state.fsLocal.linePos + '%';
+  line.style.bottom = state.fsLocal.linePos + '%';
+
+  if (state.fsLocal.phase === 'countdown') {
+    countdown.style.display = 'flex';
+    countdown.textContent = state.fsLocal.countdown > 0 ? state.fsLocal.countdown : 'go';
+    hint.style.display = 'none';
+    overheat.style.display = 'none';
+  } else if (state.fsLocal.phase === 'playing') {
+    countdown.style.display = 'none';
+    hint.style.display = state.fsLocal.myCount === 0 ? 'block' : 'none';
+    overheat.style.display = state.fsLocal.overheated ? 'flex' : 'none';
+  } else if (state.fsLocal.phase === 'over') {
+    countdown.style.display = 'none';
+    hint.style.display = 'none';
+    overheat.style.display = 'none';
+  }
+}
+
+
 function renderEndCard() {
   const body = $('#roomBody');
   const g = state.activeGame;
@@ -2382,6 +2989,20 @@ function renderEndCard() {
     statHtml = `
       <div class="end-stat">same <span class="num">${s}</span></div>
       <div class="end-stat">different <span class="num">${d}</span></div>
+    `;
+  } else if (g.game_type === 'fs') {
+    const myScore = g.state.scores[me.user_id] || 0;
+    const theirScore = (partner && g.state.scores[partner.user_id]) || 0;
+    const iWon = g.state.match_winner === me.user_id;
+    const theyWon = partner && g.state.match_winner === partner.user_id;
+    headline = iWon
+      ? `<span class="mint">you</span><br>smashed it`
+      : theyWon
+        ? `<span class="mint">${escapeHtml((partner && partner.display_name.slice(0,12)) || 'they')}</span><br>got the win`
+        : `<span class="mint">match over</span>`;
+    statHtml = `
+      <div class="end-stat">${escapeHtml(me.display_name)} <span class="num">${myScore}</span></div>
+      <div class="end-stat">${escapeHtml((partner && partner.display_name) || '–')} <span class="num">${theirScore}</span></div>
     `;
   } else {
     const myScore = g.state.scores[me.user_id] || 0;
@@ -2409,8 +3030,13 @@ function renderEndCard() {
       </div>
     </div>
   `;
-  $('#playAgain').addEventListener('click', () => startGame(g.game_type, g.state.total_rounds || (g.game_type === 'wyr' ? ROUNDS_WYR_DEFAULT : ROUNDS_TOD_DEFAULT)));
-  $('#backLobby').addEventListener('click', async () => {
+  $('#playAgain').addEventListener('click', () => {
+    teardownFS();
+    const defaults = { wyr: ROUNDS_WYR_DEFAULT, tod: ROUNDS_TOD_DEFAULT, fs: 1 };
+    startGame(g.game_type, g.state.total_rounds || defaults[g.game_type]);
+  });
+  $('#backLobby').addEventListener('click', () => {
+    teardownFS();
     state.activeGame = null;
     renderRoom();
   });
@@ -2424,6 +3050,7 @@ async function confirmEndGame() {
       .update({ ended_at: new Date().toISOString(), phase: 'abandoned' })
       .eq('id', g.id);
   }
+  teardownFS();
   state.activeGame = null;
   renderRoom();
 }
