@@ -1924,7 +1924,39 @@ const TOD_PROMPTS = {
       "what's an 'us' that we should be more often?",
       "what's an 'us' that we don't get enough of?",
       "what's a memory of us that's underrated?",
-      "what's a small thing about you you'd want me to know better?"
+      "what's a small thing about you you'd want me to know better?",
+      "what's something about me that makes you feel desire, specifically?",
+      "what's a physical moment of ours you've replayed recently?",
+      "if i was with you right now, what's the first thing you'd want to do?",
+      "what's something you think about when you're alone that involves me?",
+      "if i called you right now and said 'come over', what would happen?",
+      "what's something about my body you'd spend a long time on?",
+      "what's a thought about me you'd be embarrassed to say out loud?",
+      "what's a physical thing about me that makes you lose focus?",
+      "what would you want to do to me right now if nothing was in the way?",
+      "what's the most turned on you've been by something i did recently?",
+      "what's a specific physical memory of us you'd want to repeat?",
+      "what's something you want from me physically that you haven't asked for?",
+      "what's the most charged moment between us we've never talked about?",
+      "when was the last time you felt pure physical desire for me?",
+      "what's a specific way you want me to touch you?",
+      "where on your body do you most want my hands right now?",
+      "describe the kind of touch from me that would drive you crazy",
+      "what's a physical thing you want from me that you've been too shy to ask?",
+      "what's the most physically attracted you've ever been to me?",
+      "what's something you've imagined me doing to you?",
+      "how long could you go without any physical contact from me before it becomes unbearable?",
+      "describe the last time you thought about me in a physical way",
+      "what would make you feel the most desired by me right now?",
+      "when we're apart, what physical thing about me do you miss most?",
+      "what part of my body do you find yourself staring at?",
+      "what's a physical limit of mine you want to push?",
+      "what's your favourite kind of intimacy with me and why?",
+      "what's a physical sensation of mine you'd want to replay?",
+      "what time of day do you want me most and what are we doing?",
+      "if i asked you to come over tonight with no explanation, what would you be thinking?",
+      "what would you want my first move to be if we were alone right now?",
+      "describe what you'd want from me if we had an entire night with no interruptions"
     ],
     dare: [
       "tell me three things you genuinely love about me, no filler",
@@ -2001,7 +2033,34 @@ const TOD_PROMPTS = {
       "tell me one thing about my body you'd want to map",
       "describe how you'd lean in to kiss me, in detail but tasteful",
       "tell me one thing you want from tonight, even if i can't deliver",
-      "record yourself saying 'i'm yours' in your most-you voice"
+      "record yourself saying 'i'm yours' in your most-you voice",
+      "send a voice note breathing my name once, slowly",
+      "describe in three sentences what you'd do if i walked in right now",
+      "text me something you'd only say if i was sitting right next to you",
+      "tell me one fantasy you've had about us that you've kept to yourself",
+      "describe a specific physical thing you'd want from me tonight",
+      "say the most charged thing you've wanted to say to me, voice note",
+      "describe a kiss you'd want to give me right now, in detail",
+      "tell me a place on my body you think about more than you let on",
+      "say something in your most intimate voice, voice note, no script",
+      "send a voice note of you saying 'i want you' like you mean it",
+      "describe what you'd do with the first ten minutes if i was there",
+      "tell me the thing you find most physically attractive about me, specifically",
+      "describe how you'd wake me up if you could",
+      "describe what you'd want me to do with my hands if i was with you",
+      "send a voice note saying exactly what you want from me tonight",
+      "voice note: describe what you'd do to me first if we were alone",
+      "send me the flirty text you've always wanted to send but haven't",
+      "record a voice note saying exactly where on your body you want me",
+      "describe a specific physical scenario between us in three sentences",
+      "tell me what would make you pull me closer right now, specifically",
+      "record you saying exactly what you'd whisper in my ear right now",
+      "tell me what you'd want me wearing if i knocked on your door tonight",
+      "describe your favourite physical sensation of being close to me",
+      "voice note: tell me what you'd want us to do with a night to ourselves",
+      "describe what you'd do if i walked in and didn't say a word",
+      "tell me one specific physical thing about me you've never said out loud",
+      "send a voice note saying what you'd want the first ten seconds to look like"
     ]
   }
 };
@@ -3430,8 +3489,8 @@ function renderFS() {
     return;
   }
 
-  // playing / countdown
-  if (!state.fsLocal) maybeStartFSRound();
+  // playing / countdown — always check; guard inside handles idempotency
+  maybeStartFSRound();
 
   body.innerHTML = `
     <div class="fs-wrap" id="fsWrap">
@@ -3462,8 +3521,16 @@ function renderFS() {
   `;
   $('#backToLobby').addEventListener('click', () => confirmEndGame());
   const tapArea = $('#fsTapArea');
-  tapArea.addEventListener('touchstart', onFSTap, { passive: false });
-  tapArea.addEventListener('mousedown', onFSTap);
+  let _lastFsTouch = 0;
+  tapArea.addEventListener('touchstart', (e) => {
+    _lastFsTouch = Date.now();
+    onFSTap(e);
+  }, { passive: false });
+  tapArea.addEventListener('mousedown', (e) => {
+    // block ghost click synthesised by mobile browser after touchstart
+    if (Date.now() - _lastFsTouch < 600) return;
+    onFSTap(e);
+  });
   paintFSScreen();
 }
 
