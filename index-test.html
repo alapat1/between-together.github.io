@@ -179,8 +179,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:200;o
 .judge-btn{flex:1;background:var(--bg-card);border:2px solid transparent;border-radius:18px;padding:18px 16px;font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:500;color:var(--text);cursor:pointer;transition:all .2s}
 .judge-btn.did:hover{border-color:var(--mint);color:var(--mint)}
 .judge-btn.didnt:hover{border-color:var(--warn);color:var(--warn)}
-.tod-vignette{position:fixed;inset:0;z-index:25;background:rgba(10,10,18,.82);opacity:0;pointer-events:none;transition:opacity .4s ease}
-.tod-vignette.active{opacity:1}
 .overclock-hold-btn{width:100%;background:var(--bg-card);border:2px solid rgba(127,255,196,.3);border-radius:20px;padding:22px;font-family:'Bricolage Grotesque',sans-serif;font-size:17px;font-weight:600;color:var(--text);cursor:pointer;position:relative;overflow:hidden;user-select:none;-webkit-user-select:none}
 .hold-fill{position:absolute;left:0;top:0;bottom:0;width:0%;background:rgba(127,255,196,.15);transition:width .05s linear}
 .emoji-bar{display:flex;justify-content:center;gap:14px;padding:10px 0}
@@ -1249,7 +1247,7 @@ $('#roomNameSave').addEventListener('click',async()=>{
 
 // ─── overlay ──────────────────────────────────────────────
 function openOverlay(){$('#gameOverlay').classList.add('active');$('#screen-room').classList.add('game-active')}
-function closeOverlay(){$('#gameOverlay').classList.remove('active');$('#screen-room').classList.remove('game-active');$('#gameContent').innerHTML='';const v=$('#todVig');if(v)v.remove()}
+function closeOverlay(){$('#gameOverlay').classList.remove('active');$('#screen-room').classList.remove('game-active');$('#gameContent').innerHTML='';}
 
 // ─── realtime ─────────────────────────────────────────────
 async function unsubscribeAll(){for(const ch of state.channels){try{await sb.removeChannel(ch)}catch(e){}}state.channels=[];state.presence=new Set()}
@@ -1279,7 +1277,7 @@ function subscribeRoom(){
   const presCh=sb.channel(`rm:${rid}:presence`,{config:{presence:{key:state.user.id}}});
   presCh.on('presence',{event:'sync'},()=>{state.presence=new Set(Object.keys(presCh.presenceState()));renderRoomBar()})
     .on('broadcast',{event:'emoji'},({payload})=>{if(payload.user_id!==state.user.id)floatEmoji(payload.em)})
-    .on('broadcast',{event:'fs_ready'},({payload})=>{if(payload.user_id!==state.user.id){_walkPartnerReady=true;checkBothFSReady()}})
+    .on('broadcast',{event:'fs_ready'},({payload})=>{if(payload.user_id!==state.user.id){_walkPartnerReady=true;}})
     .subscribe(async(s)=>{if(s==='SUBSCRIBED')await presCh.track({online_at:new Date().toISOString()})});
   state.channels.push(presCh);
 }
@@ -1419,7 +1417,7 @@ async function refreshWyrRound(){
     const a=moves[0],b=moves[1];const match=a.choice===b.choice;
     ns.scores={same:(ns.scores.same||0)+(match?1:0),different:(ns.scores.different||0)+(match?0:1)};
     ns.history.push({prompt:ns.prompts[round],choices:{[a.user_id]:a.choice,[b.user_id]:b.choice}});
-    const{data,error}=await sb.from('game_sessions').update({state:ns,phase:'reveal'}).eq('id',state.activeGame.id).eq('version',state.activeGame.version).eq('phase','pick').select();
+    const{data,error}=await sb.from('game_sessions').update({state:ns,phase:'reveal'}).eq('id',state.activeGame.id).eq('phase','pick').select();
     if(!error&&data?.length>0)state.activeGame=data[0];
   }
   renderWYR();
@@ -1473,7 +1471,7 @@ async function makeWyrChoice(choice,e){
 async function advanceWyrRound(){
   const g=state.activeGame;const next=g.state.round+1;
   if(next>=g.state.prompts.length){await sb.from('game_sessions').update({ended_at:new Date().toISOString(),phase:'ended'}).eq('id',g.id);return}
-  await sb.from('game_sessions').update({state:{...g.state,round:next},phase:'pick'}).eq('id',g.id).eq('version',g.version);
+  await sb.from('game_sessions').update({state:{...g.state,round:next},phase:'pick'}).eq('id',g.id);
   state._wyrMoves=[];state.wyrLastChoiceRound=-1;
 }
 
@@ -1513,7 +1511,7 @@ function renderTODTheme(){
   const arc=$('#ocArc');const circ=2*Math.PI*52;let _prog=0,_hStart=0,_raf=null;
   function startHold(){_ocHeld=true;_hStart=Date.now();function tick(){if(!_ocHeld)return;_prog=Math.min((Date.now()-_hStart)/800,1);arc.setAttribute('stroke-dasharray',`${_prog*circ} ${circ}`);if(_prog>=1){_ocIdx=(_ocIdx+1)%TOD_THEMES.length;_hStart=Date.now();_prog=0;const t=TOD_THEMES[_ocIdx];$('#themeNameBig').textContent=t.name;$('#themeDescEl').textContent=t.desc;$('#themeBg').style.background=t.color;arc.setAttribute('stroke-dasharray',`0 ${circ}`)}_raf=requestAnimationFrame(tick)}_raf=requestAnimationFrame(tick)}
   function stopHold(){_ocHeld=false;cancelAnimationFrame(_raf);arc.setAttribute('stroke-dasharray',`0 ${circ}`);_prog=0;lockTheme()}
-  async function lockTheme(){const t=TOD_THEMES[_ocIdx];await sb.from('game_sessions').update({state:{...g.state,theme:t.id},phase:'stake'}).eq('id',g.id).eq('version',g.version)}
+  async function lockTheme(){const t=TOD_THEMES[_ocIdx];await sb.from('game_sessions').update({state:{...g.state,theme:t.id},phase:'stake'}).eq('id',g.id)}
   $('#ocBtn').addEventListener('pointerdown',e=>{e.preventDefault();startHold()});
   $('#ocBtn').addEventListener('pointerup',stopHold);$('#ocBtn').addEventListener('pointerleave',()=>{if(_ocHeld)stopHold()});
 }
@@ -1532,7 +1530,7 @@ function renderTODStake(){
     </div>
   </div>`;
   $('#gbk')?.addEventListener('click',confirmEndGame);$('#stakeInput').focus();
-  async function proceed(stake){await sb.from('game_sessions').update({state:{...g.state,stake:stake||null},phase:'pick',current_turn_user_id:g.state.picker_id}).eq('id',g.id).eq('version',g.version)}
+  async function proceed(stake){await sb.from('game_sessions').update({state:{...g.state,stake:stake||null},phase:'pick',current_turn_user_id:g.state.picker_id}).eq('id',g.id)}
   $('#stakeConfirm').addEventListener('click',()=>proceed($('#stakeInput').value.trim()));
   $('#stakeSkip').addEventListener('click',()=>proceed(null));
   $('#stakeInput').addEventListener('keydown',e=>{if(e.key==='Enter')proceed($('#stakeInput').value.trim())});
@@ -1569,7 +1567,7 @@ async function pickTOD(pick){
   const idx=pickFreshIdx(list.length,used);
   if(state.room)addUsedIdxs(state.room.code,`tod.${tier}.${pick}`,[idx]);
   const newUsed=JSON.parse(JSON.stringify(g.state.used));newUsed[tier][pick]=[...(g.state.used[tier][pick]||[]),idx];
-  await sb.from('game_sessions').update({state:{...g.state,pick,prompt_idx:idx,used:newUsed,current_tier:tier},phase:'prompt'}).eq('id',g.id).eq('version',g.version);
+  await sb.from('game_sessions').update({state:{...g.state,pick,prompt_idx:idx,used:newUsed,current_tier:tier},phase:'prompt'}).eq('id',g.id);
 }
 function renderTODPrompt(){
   const g=state.activeGame;const gc=$('#gameContent');
@@ -1592,12 +1590,10 @@ function renderTODPrompt(){
     ${!isPicker&&!isJudge?`<div class="wyr-waiting-pill"><span class="blink-dot"></span>watching ${esc(isPicker?'you':partner?.display_name||'them')}...</div>`:''}
     <div class="emoji-bar">${['😂','🔥','❤️','💀','👏'].map(e=>`<button class="emoji-btn" data-em="${e}">${e}</button>`).join('')}</div>
   </div>`;
-  // Vignette
-  let vig=document.getElementById('todVig');if(!vig){vig=document.createElement('div');vig.id='todVig';vig.className='tod-vignette';document.body.appendChild(vig)}
-  requestAnimationFrame(()=>vig.classList.add('active'));
-  $('#gbk')?.addEventListener('click',()=>{vig.remove();confirmEndGame()});
+  
+  $('#gbk')?.addEventListener('click',confirmEndGame);
   typeText($('#todTxt'),promptText);
-  // Overclock hold done
+  
   const doneBtn=$('#doneBtn');if(doneBtn){
     const fill=$('#doneFill');let _h=false,_s=0,_r=null;
     function sh(){_h=true;_s=Date.now();(function t(){if(!_h)return;const p=Math.min((Date.now()-_s)/600,1);fill.style.width=p*100+'%';if(p>=1){_h=false;todDone();return}_r=requestAnimationFrame(t)})()}
@@ -1605,17 +1601,18 @@ function renderTODPrompt(){
     doneBtn.addEventListener('pointerdown',e=>{e.preventDefault();sh()});
     doneBtn.addEventListener('pointerup',eh);doneBtn.addEventListener('pointerleave',eh);
   }
-  $('#jDid')?.addEventListener('click',()=>{vig.remove();judge('did')});
-  $('#jDidnt')?.addEventListener('click',()=>{vig.remove();judge('didnt')});
+  
+  $('#jDid')?.addEventListener('click',()=>judge('did'));
+  $('#jDidnt')?.addEventListener('click',()=>judge('didnt'));
   $$('.emoji-btn').forEach(b=>b.addEventListener('click',()=>sendEmoji(b.dataset.em)));
 }
 function typeText(el,text){el.innerHTML='';let i=0;const cur=document.createElement('span');cur.className='typing-cursor';el.appendChild(cur);(function step(){if(i<text.length){el.insertBefore(document.createTextNode(text[i]),cur);i++;setTimeout(step,26)}else setTimeout(()=>cur.remove(),1200)})()}
-async function todDone(){await sb.from('game_sessions').update({phase:'judge'}).eq('id',state.activeGame.id).eq('version',state.activeGame.version)}
+async function todDone(){await sb.from('game_sessions').update({phase:'judge'}).eq('id',state.activeGame.id)}
 async function judge(verdict){
   const g=state.activeGame;const ns=JSON.parse(JSON.stringify(g.state));ns.judgment=verdict;
   if(verdict==='did'){const pts=1*(ns.escalation||1);ns.scores[g.state.picker_id]=(ns.scores[g.state.picker_id]||0)+pts;ns.escalation=1}
   else{ns.escalation=Math.min((ns.escalation||1)*2,16)}
-  await sb.from('game_sessions').update({state:ns,phase:'result'}).eq('id',g.id).eq('version',g.version);
+  await sb.from('game_sessions').update({state:ns,phase:'result'}).eq('id',g.id);
   if(verdict==='didnt'){const f=document.createElement('div');f.className='penalty-flash';f.innerHTML=`<div style="font-size:22px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;color:var(--warn)">🔥 penalty doubled</div>`;document.body.appendChild(f);setTimeout(()=>f.remove(),800)}
 }
 function renderTODResult(){
@@ -1638,7 +1635,7 @@ async function advanceTodRound(){
   const partner=partnerOf(state.room.members);
   const newPicker=g.state.picker_id===state.user.id?partner?.user_id:state.user.id;
   const ns={...g.state,round:next,picker_id:newPicker,pick:null,prompt_idx:null,judgment:null};
-  await sb.from('game_sessions').update({state:ns,phase:'pick',current_turn_user_id:newPicker}).eq('id',g.id).eq('version',g.version);
+  await sb.from('game_sessions').update({state:ns,phase:'pick',current_turn_user_id:newPicker}).eq('id',g.id);
 }
 function sendEmoji(em){floatEmoji(em);const pCh=state.channels.find(c=>c.topic?.includes('presence'));pCh?.send({type:'broadcast',event:'emoji',payload:{em,user_id:state.user.id}}).catch(()=>{})}
 function floatEmoji(em){const el=document.createElement('div');el.className='emoji-float';el.textContent=em;el.style.cssText=`left:${20+Math.random()*60}%;bottom:80px;--dx:${(Math.random()-.5)*60}px`;document.body.appendChild(el);setTimeout(()=>el.remove(),1500)}
@@ -1656,6 +1653,7 @@ function teardownFS(){
   if(_fsCh){try{sb.removeChannel(_fsCh)}catch(e){}_fsCh=null}
   [_fsBt,_fsCt,_fsMt,_fsPwt].forEach(t=>{if(t){clearInterval(t);clearTimeout(t)}});
   _fsBt=_fsCt=_fsMt=_fsPwt=null;_fsRoundKey=null;state.fsLocal=null;
+  _walkReady=false;_walkPartnerReady=false;_walkFrame=0; // Added this reset line!
 }
 let _fsRoundKey=null;
 function subscribeFSChannel(){
@@ -1702,7 +1700,7 @@ async function hostRecordFSWin(wid){
   const ns=JSON.parse(JSON.stringify(g.state));ns.scores[wid]=(ns.scores[wid]||0)+1;
   const needed=Math.ceil(ns.total_rounds/2);const ended=ns.scores[wid]>=needed;
   const upd={state:ns,phase:ended?'ended':'round_done'};if(ended){ns.match_winner=wid;upd.ended_at=new Date().toISOString()}
-  await sb.from('game_sessions').update(upd).eq('id',g.id).eq('version',g.version);
+  await sb.from('game_sessions').update(upd).eq('id',g.id);
 }
 function renderFS(){
   const g=state.activeGame;const phase=g.phase;
@@ -1717,6 +1715,15 @@ function renderFS(){
 }
 function renderFSWalk(){
   const gc=$('#gameContent');const frame=FS_WALK[_walkFrame];
+  
+  // NEW: Reliably check the database state for readiness
+  const g = state.activeGame;
+  if (g && g.state && g.state.ready) {
+      if (g.state.ready[state.user.id]) _walkReady = true;
+      const partner = partnerOf(state.room.members);
+      if (partner && g.state.ready[partner.user_id]) _walkPartnerReady = true;
+  }
+
   gc.innerHTML=`<div class="game-screen" style="position:relative;min-height:400px">
     <div class="game-meta-bar"><button class="game-back" id="gbk">← hub</button><div></div></div>
     <div class="fs-walkthrough">
@@ -1729,15 +1736,32 @@ function renderFSWalk(){
   </div>`;
   $('#gbk')?.addEventListener('click',confirmEndGame);
   clearTimeout(_walkAutoTimer);_walkAutoTimer=setTimeout(()=>{if(_walkFrame<FS_WALK.length-1){_walkFrame++;renderFSWalk()}},1800);
-  $('#fsRdy').addEventListener('click',()=>{
+
+  $('#fsRdy').addEventListener('click', async ()=>{
     if(_walkReady)return;_walkReady=true;clearTimeout(_walkAutoTimer);
     localStorage.setItem('bt-fs-seen','1');
+
+    // NEW: Persist ready state securely to the database
+    const g2 = state.activeGame;
+    const ns = JSON.parse(JSON.stringify(g2.state));
+    ns.ready = ns.ready || {};
+    ns.ready[state.user.id] = true;
+
+    const partner = partnerOf(state.room.members);
+    const bothReady = partner && ns.ready[partner.user_id];
+
+    if (bothReady) {
+       await sb.from('game_sessions').update({state: ns, phase: 'countdown'}).eq('id', g2.id);
+    } else {
+       await sb.from('game_sessions').update({state: ns}).eq('id', g2.id);
+    }
+
     const pCh=state.channels.find(c=>c.topic?.includes('presence'));
     pCh?.send({type:'broadcast',event:'fs_ready',payload:{user_id:state.user.id}}).catch(()=>{});
-    renderFSWalk();checkBothFSReady();
+
+    renderFSWalk();
   });
 }
-function checkBothFSReady(){if(_walkReady&&_walkPartnerReady)sb.from('game_sessions').update({phase:'countdown'}).eq('id',state.activeGame.id).eq('version',state.activeGame.version)}
 function beginFSCountdown(){
   if(!state.fsLocal)resetFSLocal();state.fsLocal.phase='countdown';state.fsLocal.countdown=3;renderFSMainScreen();
   _fsCt=setInterval(()=>{if(!state.fsLocal){clearInterval(_fsCt);return}state.fsLocal.countdown--;if(state.fsLocal.countdown<=0){clearInterval(_fsCt);_fsCt=null;beginFSMatch()}else renderFSMainScreen()},1000);
@@ -1855,7 +1879,7 @@ function renderFSRoundDone(){
   $('#gbk')?.addEventListener('click',confirmEndGame);
   $('#fsNxt')?.addEventListener('click',async()=>{
     const ns=JSON.parse(JSON.stringify(g.state));ns.match_round=(ns.match_round||0)+1;
-    await sb.from('game_sessions').update({state:ns,phase:'countdown'}).eq('id',g.id).eq('version',g.version);
+    await sb.from('game_sessions').update({state:ns,phase:'countdown'}).eq('id',g.id);
   });
 }
 
@@ -1894,7 +1918,7 @@ async function confirmEndGame(){
   if(!confirm('leave this game?'))return;
   const g=state.activeGame;
   if(g)await sb.from('game_sessions').update({ended_at:new Date().toISOString(),phase:'abandoned'}).eq('id',g.id);
-  teardownFS();state.activeGame=null;closeOverlay();renderLobby();const v=$('#todVig');if(v)v.remove();
+  teardownFS();state.activeGame=null;closeOverlay();renderLobby();
 }
 
 // ─── copy code ────────────────────────────────────────────
