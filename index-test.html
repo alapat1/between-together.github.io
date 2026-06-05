@@ -1,391 +1,1954 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Clove | Hub</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <style>
-        :root {
-            /* Your Botanical & Modern Palette */
-            --bg-slate: #0F172A;
-            --bg-slate-light: #1E293B;
-            --mint: #A7F3D0;
-            --mint-glow: rgba(167, 243, 208, 0.4);
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            
-            /* AAA Physics Curves */
-            --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            --focus-curve: cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-
-        body {
-            background-color: var(--bg-slate);
-            color: var(--text-main);
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden; /* Prevent web scrolling, make it feel native */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* --- THE SPATIAL ARCHITECTURE --- */
-        
-        #app-container {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transition: filter 1.2s var(--focus-curve), transform 1.2s var(--focus-curve);
-        }
-
-        /* The Masking Class (Applied when connecting/reconnecting) */
-        #app-container.system-waking {
-            filter: blur(12px) brightness(0.7);
-            transform: scale(0.98);
-            pointer-events: none;
-        }
-
-        /* The Persistent Hub Layer */
-        #hub-layer {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
-
-        .status-badge {
-            position: absolute;
-            top: 40px;
-            padding: 8px 16px;
-            background: var(--bg-slate-light);
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            border: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .status-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background-color: var(--text-muted);
-            transition: background-color 0.3s ease;
-        }
-        
-        .status-dot.online { background-color: var(--mint); box-shadow: 0 0 10px var(--mint-glow); }
-        .status-dot.offline { background-color: #EF4444; }
-
-        /* Generative Avatar Blob (Acts as the Game Start Button) */
-        .avatar-blob {
-            width: 120px; height: 120px;
-            background: radial-gradient(circle at 30% 30%, var(--mint), #34D399);
-            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-            animation: breathe 8s ease-in-out infinite alternate;
-            box-shadow: 0 0 40px var(--mint-glow);
-            cursor: pointer;
-            transition: transform 0.2s ease, filter 0.2s ease;
-        }
-
-        .avatar-blob:active {
-            transform: scale(0.95);
-            filter: brightness(1.2);
-        }
-
-        @keyframes breathe {
-            0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: translateY(0); }
-            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translateY(-15px); }
-        }
-
-        /* --- THE GAME OVERLAY & PHYSICS --- */
-
-        #game-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--bg-slate);
-            z-index: 20;
-            display: flex;
-            flex-direction: column;
-            transform: translateY(100%);
-            opacity: 0;
-            pointer-events: none;
-            transition: transform 0.6s var(--spring), opacity 0.4s ease;
-        }
-
-        #game-overlay.active {
-            transform: translateY(0);
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        #fs-arena {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        .tap-zone {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            touch-action: none; /* Prevent browser scrolling while tapping */
-        }
-
-        #opponent-zone { background-color: var(--bg-slate-light); transform: rotate(180deg); }
-        #my-zone { background-color: var(--bg-slate); cursor: pointer; }
-
-        .score-display {
-            font-size: 80px;
-            font-weight: 800;
-            color: rgba(255, 255, 255, 0.1);
-            transition: color 0.1s;
-            user-select: none;
-        }
-
-        .instruction {
-            position: absolute;
-            bottom: 40px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            color: var(--mint);
-            opacity: 0.5;
-            user-select: none;
-        }
-
-        /* The Tension String */
-        #tension-line {
-            position: absolute;
-            top: 50%;
-            left: 0; right: 0;
-            height: 4px;
-            background-color: var(--mint);
-            box-shadow: 0 0 15px var(--mint-glow);
-            transform: translateY(-50%);
-            transition: transform 0.1s linear, border-radius 0.1s linear, height 0.1s linear;
-            z-index: 30;
-            pointer-events: none;
-        }
-
-        #close-game-btn {
-            position: absolute;
-            right: 20px; top: 20px;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: var(--text-muted);
-            border: none;
-            font-size: 14px;
-            z-index: 40;
-            cursor: pointer;
-        }
-
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>between & together</title>
+<meta name="theme-color" content="#0A0A12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0A0A12;--bg-soft:#14141F;--bg-card:#1A1A28;--bg-card-hover:#20202F;
+  --text:#F5F0E5;--text-soft:#9994A0;--text-faint:#5A5563;
+  --mint:#7FFFC4;--mint-soft:#5BE3A8;--mint-deep:#2EA876;--mint-glow:rgba(127,255,196,0.25);
+  --coral:#FF8C64;--coral-deep:#CC6040;--warn:#FF6B6B;--warn-deep:#CC4444;
+}
+html,body{height:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:16px;line-height:1.4;-webkit-font-smoothing:antialiased;position:relative}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:200;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.glow{position:fixed;border-radius:50%;pointer-events:none;z-index:1;filter:blur(80px)}
+.glow-1{width:500px;height:500px;top:30%;left:50%;transform:translate(-50%,-50%);background:var(--mint);opacity:.08;animation:glowPulse 8s ease-in-out infinite}
+.glow-2{width:300px;height:300px;bottom:-100px;left:-100px;background:var(--mint);opacity:.05;animation:glowPulse2 12s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.15)}}
+@keyframes glowPulse2{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+.particles{position:fixed;inset:0;pointer-events:none;z-index:2}
+.particle{position:absolute;background:var(--mint);border-radius:50%}
+@keyframes floatParticle{0%{transform:translate(0,0)}25%{transform:translate(20px,-30px)}50%{transform:translate(-15px,-60px)}75%{transform:translate(25px,-40px)}100%{transform:translate(0,0)}}
+.cursor-dot,.cursor-ring{position:fixed;border-radius:50%;pointer-events:none;z-index:9999}
+.cursor-dot{width:6px;height:6px;background:var(--mint);transform:translate(-50%,-50%);box-shadow:0 0 10px var(--mint)}
+.cursor-ring{width:36px;height:36px;border:1.5px solid var(--mint);transform:translate(-50%,-50%);transition:width .3s,height .3s,background .2s}
+.cursor-ring.hover{width:68px;height:68px;background:var(--mint-glow)}
+@media(hover:none){.cursor-dot,.cursor-ring{display:none}}
+.screen{display:none;position:relative;z-index:10;min-height:100vh;min-height:100dvh;flex-direction:column;padding:24px 22px;max-width:520px;margin:0 auto}
+.screen.active{display:flex}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.wordmark{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-soft);cursor:pointer;user-select:none;transition:transform .6s cubic-bezier(.34,1.56,.64,1),color .3s}
+.wordmark:hover{color:var(--mint)}
+.wordmark.spin{transform:rotate(360deg)}
+.home-main{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px 0;gap:52px}
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center}
+.hero-word{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(46px,13vw,68px);line-height:1;letter-spacing:-.045em;color:var(--text);opacity:0}
+.hero-between{animation:heroIn .9s .2s forwards cubic-bezier(.16,1,.3,1)}
+.hero-together{animation:heroIn .9s .6s forwards cubic-bezier(.16,1,.3,1)}
+.hero-amp{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:clamp(130px,36vw,190px);line-height:.85;color:var(--mint);margin:-14px 0;cursor:pointer;user-select:none;text-shadow:0 0 60px var(--mint-glow);opacity:0;will-change:transform;animation:ampIn 1.2s .4s forwards cubic-bezier(.34,1.56,.64,1),ampBreathe 5s 1.6s infinite ease-in-out;transform-origin:center}
+@keyframes heroIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ampIn{from{opacity:0;transform:scale(.3) rotate(-180deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes ampBreathe{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.06) rotate(-3deg)}}
+.actions{width:100%;display:flex;flex-direction:column;align-items:center;gap:28px;opacity:0;animation:fadeUp 1s 1.1s forwards}
+.recent-rooms{width:100%;opacity:0;animation:fadeUp 1s 1.3s forwards}
+.recent-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px}
+.room-chips{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.room-chips::-webkit-scrollbar{display:none}
+.room-chip-item{flex-shrink:0;background:var(--bg-card);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:10px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px}
+.room-chip-item:hover{border-color:var(--mint)}
+.room-chip-code{font-family:'Geist Mono',monospace;color:var(--mint);font-weight:500;letter-spacing:.2em;font-size:13px}
+.room-chip-meta{font-family:'Geist Mono',monospace;color:var(--text-soft);font-size:10px;letter-spacing:.1em}
+.btn-primary{width:100%;background:var(--mint);color:var(--bg);border:none;padding:22px 28px;font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:600;letter-spacing:-.01em;border-radius:20px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease,background .15s;box-shadow:0 6px 0 var(--mint-deep),0 0 40px var(--mint-glow);display:inline-flex;align-items:center;justify-content:center;gap:10px;user-select:none}
+.btn-primary:hover{background:var(--mint-soft)}
+.btn-primary.pressing,.btn-primary:active{transform:translateY(5px);box-shadow:0 1px 0 var(--mint-deep),0 0 20px var(--mint-glow)}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-primary .arrow{display:inline-block;transition:transform .25s ease;font-size:22px}
+.btn-primary:hover .arrow{transform:translateX(6px)}
+.btn-ghost{background:transparent;color:var(--text-soft);border:1px solid rgba(255,255,255,.12);padding:14px 22px;border-radius:14px;font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-ghost:hover{background:var(--bg-card);color:var(--text)}
+.divider{width:100%;display:flex;align-items:center;gap:14px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-faint)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--text-faint);opacity:.3}
+.code-slots{display:flex;gap:10px;width:100%;justify-content:center}
+.code-slot{flex:1;max-width:72px;height:76px;background:var(--bg-card);border:2px solid transparent;border-radius:18px;font-family:'Geist Mono',monospace;font-size:32px;font-weight:500;color:var(--text);text-align:center;text-transform:uppercase;outline:none;transition:all .2s}
+.code-slot:focus{border-color:var(--mint);background:var(--bg-soft);transform:translateY(-3px);box-shadow:0 0 24px var(--mint-glow)}
+.code-slot.filled{border-color:var(--mint);background:var(--bg-soft);color:var(--mint)}
+.name-main{flex:1;display:flex;flex-direction:column;justify-content:center;gap:32px}
+.name-title{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(36px,9vw,54px);font-weight:600;letter-spacing:-.04em;line-height:1}
+.name-title .mint{color:var(--mint)}
+.name-sub{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--text-soft)}
+.name-input{width:100%;background:var(--bg-card);border:2px solid transparent;border-radius:18px;padding:22px 24px;font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:500;color:var(--text);outline:none;transition:all .2s}
+.name-input::placeholder{color:var(--text-faint)}
+.name-input:focus{border-color:var(--mint);background:var(--bg-soft);box-shadow:0 0 24px var(--mint-glow)}
+.room-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;position:relative}
+.avatar-section{display:flex;align-items:center;gap:8px;z-index:1;position:relative}
+.tether-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.avatar-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;z-index:1}
+.avatar-blob{width:52px;height:52px;border-radius:60% 40% 55% 45%/55% 45% 60% 40%;animation:avatarBreathe 4s ease-in-out infinite;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:15px;font-weight:600;cursor:pointer;transition:filter .4s,box-shadow .3s;position:relative}
+.avatar-blob.me{background:radial-gradient(circle at 40% 40%,var(--mint-soft),var(--mint-deep))}
+.avatar-blob.them{background:radial-gradient(circle at 40% 40%,var(--coral),var(--coral-deep))}
+.avatar-blob.offline{filter:saturate(.2) brightness(.7)}
+.avatar-blob .pdot{position:absolute;bottom:2px;right:2px;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg);background:var(--text-faint)}
+.avatar-blob .pdot.online{background:var(--mint);box-shadow:0 0 6px var(--mint);animation:blink 2s ease-in-out infinite}
+.avatar-name{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-soft);max-width:60px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@keyframes avatarBreathe{0%,100%{border-radius:60% 40% 55% 45%/55% 45% 60% 40%;transform:scale(1)}50%{border-radius:45% 55% 40% 60%/40% 60% 45% 55%;transform:scale(1.04)}}
+@keyframes avatarPulse{0%,100%{box-shadow:0 0 0 0 var(--mint-glow)}50%{box-shadow:0 0 0 16px transparent}}
+.avatar-blob.pulsing{animation:avatarBreathe 4s ease-in-out infinite,avatarPulse .7s ease-out}
+.room-code-tag{display:inline-flex;align-items:center;gap:10px;background:var(--bg-card);padding:10px 16px;border-radius:100px;cursor:pointer;transition:all .15s;border:1px solid rgba(255,255,255,.08)}
+.room-code-tag:hover{border-color:var(--mint)}
+.room-code-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-faint)}
+.room-code-value{font-family:'Geist Mono',monospace;font-size:18px;font-weight:500;letter-spacing:.3em;color:var(--mint)}
+#gameOverlay{position:fixed;inset:0;z-index:20;background:var(--bg);transform:translateY(100%);transition:transform 400ms cubic-bezier(.175,.885,.32,1.275);overflow-y:auto;display:flex;flex-direction:column}
+#gameOverlay.active{transform:translateY(0)}
+#screen-room.game-active{transform:scale(.95) translateY(-10px);filter:blur(3px);transition:all 400ms ease}
+.overlay-inner{flex:1;display:flex;flex-direction:column;padding:24px 22px;max-width:520px;margin:0 auto;width:100%;min-height:100vh;min-height:100dvh}
+.hub-main{flex:1;display:flex;flex-direction:column;gap:18px}
+.hub-title{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(36px,10vw,52px);font-weight:600;letter-spacing:-.04em;line-height:1}
+.hub-title .mint{color:var(--mint)}
+.hub-waiting{background:var(--bg-card);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.wait-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--mint);display:inline-flex;align-items:center;gap:8px}
+.wait-label::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint);animation:blink 2s ease-in-out infinite}
+.wait-line{font-size:16px;line-height:1.45;color:var(--text)}
+.wait-tip{font-size:13px;color:var(--text-soft)}
+.games-list{display:flex;flex-direction:column;gap:14px}
+.game-card{background:var(--bg-card);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:22px;text-align:left;width:100%;font-family:inherit;color:inherit;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:border-color .2s;cursor:pointer;user-select:none}
+.game-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 100% 0%,var(--mint-glow),transparent 50%);opacity:0;transition:opacity .3s;pointer-events:none}
+.game-card:hover,.game-card:hover::after{border-color:var(--mint)}
+.game-card:hover::after{opacity:1}
+.game-card.pressing{transform:scale(.97);box-shadow:0 2px 0 rgba(0,0,0,.5)}
+.game-card.is-disabled{opacity:.45}
+.game-card-title{font-size:24px;font-weight:600;letter-spacing:-.025em;line-height:1.1}
+.game-card-desc{font-size:14px;color:var(--text-soft);line-height:1.4}
+.round-picker{display:flex;gap:8px;margin-top:12px}
+.round-chip{flex:1;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);color:var(--text);padding:12px 6px;border-radius:14px;font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.round-chip:hover:not(:disabled){background:rgba(127,255,196,.08);border-color:var(--mint);color:var(--mint);transform:translateY(-2px)}
+.round-chip:disabled{opacity:.5;cursor:not-allowed}
+.round-chip-custom{border-style:dashed;font-size:11px}
+.wyr-split{position:relative;flex:1;display:flex;flex-direction:column;border-radius:22px;overflow:hidden;min-height:400px}
+.wyr-zone{flex:1;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;padding:24px;transition:background .2s,box-shadow .2s}
+.wyr-zone-a{background:rgba(127,255,196,.05);border-bottom:1px solid rgba(255,255,255,.06)}
+.wyr-zone-b{background:rgba(255,140,100,.05)}
+.wyr-zone.picked-you{background:rgba(127,255,196,.18);box-shadow:inset 0 0 40px var(--mint-glow)}
+.wyr-zone.picked-them{background:rgba(255,140,100,.18)}
+.wyr-zone.picked-both{background:rgba(127,255,196,.25);box-shadow:inset 0 0 60px var(--mint-glow)}
+.wyr-option-text{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(20px,5vw,26px);font-weight:500;letter-spacing:-.02em;line-height:1.3;text-align:center;pointer-events:none;max-width:90%}
+.wyr-option-tags{position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:6px;min-height:20px}
+.wyr-zone-label{position:absolute;top:10px;left:0;right:0;text-align:center;font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-faint);opacity:.6}
+.wyr-question-pill{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;background:rgba(10,10,18,.8);backdrop-filter:blur(12px);border-radius:100px;padding:10px 20px;max-width:88%;text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:500;line-height:1.35;border:1px solid rgba(255,255,255,.12);white-space:normal;pointer-events:none}
+.wyr-waiting-pill{text-align:center;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--text-soft);margin:12px 0;min-height:16px}
+.blink-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--mint);margin-right:8px;vertical-align:middle;animation:blink 1.4s ease-in-out infinite}
+.reveal-banner{text-align:center;padding:14px 20px;border-radius:16px;font-family:'Bricolage Grotesque',sans-serif;font-size:17px;font-weight:600;background:var(--bg-card);border:1px solid rgba(127,255,196,.3);opacity:0;animation:bannerIn .5s .2s forwards;margin-top:8px}
+.reveal-banner.match{background:rgba(127,255,196,.12);color:var(--mint);border-color:var(--mint)}
+@keyframes bannerIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.scores{display:flex;gap:10px}
+.score-chip{background:var(--bg-card);padding:8px 14px;border-radius:100px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-soft);display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.06)}
+.score-chip .num{color:var(--mint);font-weight:500}
+.game-screen{flex:1;display:flex;flex-direction:column;gap:14px;padding-top:4px}
+.game-meta-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.game-back{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--text-soft);background:transparent;border:none;cursor:pointer;padding:6px 0}
+.game-back:hover{color:var(--mint)}
+.game-round{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--text-faint)}
+.pick-tag{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.22em;text-transform:uppercase;padding:4px 9px;border-radius:100px;background:rgba(127,255,196,.15);color:var(--mint)}
+.tod-theme-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;position:relative;overflow:hidden;border-radius:22px;background:var(--bg-card);padding:32px}
+.tod-theme-bg{position:absolute;inset:0;opacity:.2;pointer-events:none;border-radius:22px;transition:background .5s ease}
+.theme-display{text-align:center;position:relative;z-index:1}
+.theme-name-big{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(36px,9vw,52px);font-weight:700;letter-spacing:-.04em;line-height:1;margin-bottom:8px;color:var(--text)}
+.theme-desc{font-size:14px;color:var(--text-soft);line-height:1.45;max-width:260px;text-align:center}
+.overclock-ring{width:120px;height:120px;position:relative;cursor:pointer;user-select:none;z-index:1}
+.overclock-ring svg{position:absolute;inset:0;width:100%;height:100%}
+.overclock-btn{position:absolute;inset:8px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.overclock-theme-name{font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:600;color:var(--mint)}
+.overclock-btn-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint)}
+.hold-instruction{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--text-faint);z-index:1}
+.stake-screen{flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px}
+.stake-title{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(28px,7vw,38px);font-weight:600;letter-spacing:-.03em;line-height:1.15}
+.stake-title .mint{color:var(--mint)}
+.stake-input{width:100%;background:var(--bg-card);border:2px solid transparent;border-radius:18px;padding:20px 22px;font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:500;color:var(--text);outline:none;transition:all .2s}
+.stake-input::placeholder{color:var(--text-faint)}
+.stake-input:focus{border-color:var(--mint);background:var(--bg-soft);box-shadow:0 0 24px var(--mint-glow)}
+.stake-banner{background:rgba(127,255,196,.08);border:1px solid rgba(127,255,196,.2);border-radius:14px;padding:12px 18px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--mint);text-align:center}
+.tod-turn-banner{text-align:center;padding:20px;background:var(--bg-card);border-radius:18px;border:1px solid rgba(255,255,255,.08)}
+.tod-turn-banner .who{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-soft);margin-bottom:8px}
+.tod-turn-banner .what{font-size:22px;font-weight:600;letter-spacing:-.02em}
+.tod-pick{display:flex;gap:14px;margin:8px 0 16px}
+.tod-pick-btn{flex:1;background:var(--bg-card);border:2px solid transparent;border-radius:22px;padding:34px 20px;font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:600;color:var(--text);cursor:pointer;transition:all .2s;letter-spacing:-.02em}
+.tod-pick-btn:hover{background:var(--bg-card-hover);border-color:var(--mint);transform:translateY(-2px)}
+.tod-prompt-box{background:var(--bg-card);border:1px solid var(--mint);border-radius:24px;padding:28px 24px;box-shadow:0 0 40px var(--mint-glow);position:relative}
+.tod-prompt-tag{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--mint);margin-bottom:12px}
+.tod-prompt-text{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(20px,5.5vw,26px);font-weight:500;letter-spacing:-.02em;line-height:1.3;min-height:65px}
+.typing-cursor{display:inline-block;width:3px;height:1em;background:var(--mint);vertical-align:text-bottom;margin-left:2px;animation:blink 1s steps(2) infinite}
+.tod-judge{display:flex;gap:12px;margin-top:14px}
+.judge-btn{flex:1;background:var(--bg-card);border:2px solid transparent;border-radius:18px;padding:18px 16px;font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:500;color:var(--text);cursor:pointer;transition:all .2s}
+.judge-btn.did:hover{border-color:var(--mint);color:var(--mint)}
+.judge-btn.didnt:hover{border-color:var(--warn);color:var(--warn)}
+.tod-vignette{position:fixed;inset:0;z-index:25;background:rgba(10,10,18,.82);opacity:0;pointer-events:none;transition:opacity .4s ease}
+.tod-vignette.active{opacity:1}
+.overclock-hold-btn{width:100%;background:var(--bg-card);border:2px solid rgba(127,255,196,.3);border-radius:20px;padding:22px;font-family:'Bricolage Grotesque',sans-serif;font-size:17px;font-weight:600;color:var(--text);cursor:pointer;position:relative;overflow:hidden;user-select:none;-webkit-user-select:none}
+.hold-fill{position:absolute;left:0;top:0;bottom:0;width:0%;background:rgba(127,255,196,.15);transition:width .05s linear}
+.emoji-bar{display:flex;justify-content:center;gap:14px;padding:10px 0}
+.emoji-btn{font-size:22px;cursor:pointer;background:none;border:none;padding:8px;border-radius:50%;transition:transform .15s;line-height:1;user-select:none}
+.emoji-btn:active{transform:scale(1.4)}
+.emoji-float{position:fixed;font-size:28px;pointer-events:none;z-index:9998;animation:emojiFloat 1.5s ease-out forwards}
+@keyframes emojiFloat{0%{opacity:1;transform:translateY(0) translateX(0)}100%{opacity:0;transform:translateY(-200px) translateX(var(--dx,0px))}}
+.penalty-flash{position:fixed;inset:0;z-index:9997;display:flex;align-items:center;justify-content:center;pointer-events:none;animation:penaltyFade .8s ease-out forwards}
+@keyframes penaltyFade{0%{background:rgba(255,107,107,.2)}100%{background:transparent}}
+.escalation-badge{background:rgba(255,107,107,.12);border:1px solid var(--warn);border-radius:100px;padding:6px 14px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--warn);display:inline-block}
+.end-card{background:var(--bg-card);border:1px solid var(--mint);border-radius:24px;padding:32px 26px;text-align:center;box-shadow:0 0 40px var(--mint-glow)}
+.end-headline{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(32px,8vw,44px);font-weight:600;letter-spacing:-.04em;margin-bottom:20px;line-height:1}
+.end-headline .mint{color:var(--mint)}
+.end-stat{font-size:16px;color:var(--text-soft);margin:6px 0}
+.end-stat .num{color:var(--mint);font-weight:600}
+.end-actions{display:flex;gap:12px;margin-top:24px;flex-direction:column}
+/* FS */
+.fs-wrap{flex:1;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.fs-top{display:flex;justify-content:space-between;align-items:center;padding:4px 0 12px}
+.fs-round-pill{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--text-soft);padding:6px 12px;background:var(--bg-card);border-radius:100px;border:1px solid rgba(255,255,255,.08)}
+.fs-counters{display:flex;gap:12px;margin-bottom:12px}
+.fs-counter{flex:1;background:var(--bg-card);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px 16px;display:flex;flex-direction:column;align-items:center}
+.fs-counter-me{border-color:rgba(127,255,196,.3)}
+.fs-counter-them{border-color:rgba(255,140,100,.3)}
+.fs-counter-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-soft);margin-bottom:4px}
+.fs-counter-me .fs-counter-label{color:var(--mint)}
+.fs-counter-them .fs-counter-label{color:var(--coral)}
+.fs-counter-num{font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:600;letter-spacing:-.03em;line-height:1}
+.fs-tap-area{flex:1;position:relative;background:var(--bg-card);border-radius:24px;overflow:hidden;border:1px solid rgba(255,255,255,.08);touch-action:none;-webkit-tap-highlight-color:transparent;min-height:340px;cursor:pointer}
+.fs-string-wrap{position:absolute;left:0;right:0;pointer-events:none;z-index:2;transition:bottom .08s linear}
+.fs-string{height:4px;background:var(--text);transition:height .1s,border-radius .1s,background .2s}
+.fs-tap-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-soft);pointer-events:none;animation:blink 2s infinite;white-space:nowrap}
+.fs-overheat{position:absolute;inset:0;z-index:6;display:none;align-items:center;justify-content:center;background:rgba(255,60,60,.18);backdrop-filter:blur(6px);font-family:'Bricolage Grotesque',sans-serif;font-size:26px;font-weight:700;color:var(--warn);pointer-events:none;animation:fsOvhPulse .6s ease-in-out infinite}
+@keyframes fsOvhPulse{0%,100%{opacity:1}50%{opacity:.6}}
+.fs-frozen{position:absolute;inset:0;z-index:6;display:none;align-items:center;justify-content:center;background:rgba(74,158,255,.15);backdrop-filter:blur(6px);font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:700;color:#4A9EFF;pointer-events:none}
+.fs-countdown{position:absolute;inset:0;z-index:7;display:none;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-style:italic;font-size:180px;line-height:1;color:var(--mint);text-shadow:0 0 60px var(--mint-glow);background:rgba(10,10,18,.55);backdrop-filter:blur(8px)}
+.turbo-badge{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:8;background:var(--mint);color:var(--bg);font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:6px 14px;border-radius:100px;font-weight:600;white-space:nowrap}
+.fs-powerup{position:absolute;z-index:4;width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:50%;pointer-events:none;font-size:22px;animation:pwrAppear .3s cubic-bezier(.34,1.56,.64,1) forwards,pwrPulse 1s ease-in-out infinite}
+@keyframes pwrAppear{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+@keyframes pwrPulse{0%,100%{box-shadow:0 0 0 0 currentColor}50%{box-shadow:0 0 0 8px transparent}}
+.fs-powerup.bomb{background:rgba(255,107,107,.15);border:3px solid var(--warn);color:var(--warn)}
+.fs-powerup.turbo{background:rgba(127,255,196,.2);border:3px solid var(--mint);color:var(--mint)}
+.fs-powerup.freeze{width:48px;height:48px;border-radius:4px;background:rgba(74,158,255,.2);border:3px solid #4A9EFF;color:#4A9EFF;font-size:18px}
+.fs-walkthrough{position:absolute;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:32px;border-radius:24px}
+.fs-walk-icon{font-size:68px;animation:wlkBounce 1s ease-in-out infinite}
+@keyframes wlkBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.fs-walk-text{font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em;text-align:center}
+.fs-walk-sub{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-soft);text-align:center}
+.fs-walk-dots{display:flex;gap:8px;justify-content:center}
+.fs-walk-dot{width:8px;height:8px;border-radius:50%;background:var(--bg-card);transition:background .3s}
+.fs-walk-dot.active{background:var(--mint)}
+.fs-ready-btn{width:100%;background:var(--bg-card);border:2px solid rgba(127,255,196,.3);border-radius:20px;padding:18px;font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:600;color:var(--text);cursor:pointer;transition:all .2s}
+.fs-ready-btn.ready{border-color:var(--mint);background:rgba(127,255,196,.1);color:var(--mint)}
+.modal-backdrop{position:fixed;inset:0;z-index:9000;background:rgba(10,10,18,.7);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px;animation:modalFade .2s ease-out}
+.modal-backdrop[hidden]{display:none}
+@keyframes modalFade{from{opacity:0}to{opacity:1}}
+.modal-card{background:var(--bg-card);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:26px 22px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:18px;animation:modalRise .25s cubic-bezier(.16,1,.3,1)}
+@keyframes modalRise{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-soft)}
+.modal-input{width:100%;background:var(--bg);border:2px solid transparent;border-radius:14px;padding:16px 18px;font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:500;color:var(--text);outline:none;transition:all .2s}
+.modal-input::placeholder{color:var(--text-faint)}
+.modal-input:focus{border-color:var(--mint);box-shadow:0 0 24px var(--mint-glow)}
+.modal-actions{display:flex;gap:10px}
+.modal-actions .btn-ghost,.modal-actions .btn-primary{flex:1;min-width:0;padding:14px 18px;font-size:15px}
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--bg-card);border:1px solid var(--mint);color:var(--text);padding:12px 22px;border-radius:100px;font-size:13px;font-weight:500;z-index:9998;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;box-shadow:0 0 24px var(--mint-glow)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{border-color:var(--warn);box-shadow:0 0 24px rgba(255,107,107,.25)}
+.loading{flex:1;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-soft)}
+.loading::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--mint);margin-right:10px;animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:380px){.screen{padding:20px 16px}.code-slot{max-width:60px;height:68px;font-size:26px}}
+</style>
 </head>
 <body>
-
-    <div id="app-container" class="system-waking">
-        
-        <div id="hub-layer">
-            <div class="status-badge">
-                <div id="connection-dot" class="status-dot"></div>
-                <span id="connection-text">Syncing...</span>
-            </div>
-
-            <div class="avatar-blob" id="start-btn"></div>
-            
-            <h2 style="margin-top: 40px; font-weight: 400;">The Flatmates Hub</h2>
-            <p style="color: var(--text-muted); margin-top: 8px;">Tap the core to start Finger Smash</p>
-        </div>
-
-        <div id="game-overlay">
-            <div id="fs-arena">
-                <div id="opponent-zone" class="tap-zone">
-                    <span class="score-display" id="opponent-score">0</span>
-                </div>
-                
-                <div id="tension-line"></div>
-                
-                <div id="my-zone" class="tap-zone">
-                    <span class="score-display" id="my-score">0</span>
-                    <p class="instruction">TAP RAPIDLY</p>
-                </div>
-            </div>
-            
-            <button id="close-game-btn" onclick="endGame()">End Match</button>
-        </div>
-
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+<div class="particles" id="particles"></div>
+<div class="cursor-dot"></div>
+<div class="cursor-ring"></div>
+<div class="toast" id="toast"></div>
+<div class="modal-backdrop" id="nameEditModal" hidden>
+  <div class="modal-card">
+    <div class="modal-label">change your name</div>
+    <input type="text" class="modal-input" id="nameEditInput" maxlength="40" placeholder="your name"/>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="nameEditCancel">cancel</button>
+      <button class="btn-primary" id="nameEditSave">save <span class="arrow">→</span></button>
     </div>
+  </div>
+</div>
+<div class="modal-backdrop" id="roomNameModal" hidden>
+  <div class="modal-card">
+    <div class="modal-label">give this room a name</div>
+    <input type="text" class="modal-input" id="roomNameInput" maxlength="30" placeholder="me + aishu"/>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="roomNameSkip">skip</button>
+      <button class="btn-primary" id="roomNameSave">save <span class="arrow">→</span></button>
+    </div>
+  </div>
+</div>
+<section class="screen screen-home active" id="screen-home">
+  <div class="top-bar"><span class="wordmark" id="wordmark">b&amp;t</span></div>
+  <div class="home-main">
+    <div class="hero">
+      <span class="hero-word hero-between">between</span>
+      <span class="hero-amp" id="ampChar">&amp;</span>
+      <span class="hero-word hero-together">together</span>
+    </div>
+    <div class="actions">
+      <button class="btn-primary" id="createBtn">open a room <span class="arrow">→</span></button>
+      <div class="divider">or</div>
+      <div class="code-slots" id="codeSlots">
+        <input class="code-slot" maxlength="1" inputmode="text" autocapitalize="characters" aria-label="code 1"/>
+        <input class="code-slot" maxlength="1" inputmode="text" autocapitalize="characters" aria-label="code 2"/>
+        <input class="code-slot" maxlength="1" inputmode="text" autocapitalize="characters" aria-label="code 3"/>
+        <input class="code-slot" maxlength="1" inputmode="text" autocapitalize="characters" aria-label="code 4"/>
+      </div>
+    </div>
+    <div class="recent-rooms" id="recentRooms" style="display:none">
+      <div class="recent-label">your rooms</div>
+      <div class="room-chips" id="roomChips"></div>
+    </div>
+  </div>
+</section>
+<section class="screen screen-name" id="screen-name">
+  <div class="top-bar"><span class="wordmark">b&amp;t</span></div>
+  <div class="name-main">
+    <div><div class="name-sub" id="nameSub">about to open a room</div><h1 class="name-title">what should they<br>call <span class="mint">you</span>?</h1></div>
+    <input type="text" class="name-input" id="nameInput" placeholder="your name" maxlength="40" autocomplete="given-name"/>
+    <button class="btn-primary" id="nameContinue">continue <span class="arrow">→</span></button>
+  </div>
+</section>
+<section class="screen screen-room" id="screen-room">
+  <div class="room-bar" id="roomBar">
+    <button class="room-code-tag" id="codeTag" type="button">
+      <div><div class="room-code-label">room</div><div class="room-code-value" id="codeValue">────</div></div>
+    </button>
+    <div class="avatar-section" id="avatarSection">
+      <div class="avatar-wrap">
+        <div class="avatar-blob me" id="myBlob"></div>
+        <div class="avatar-name" id="myName"></div>
+      </div>
+      <svg class="tether-svg" viewBox="0 0 160 52" preserveAspectRatio="none" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0">
+        <line id="tetherLine" x1="30" y1="26" x2="130" y2="26" stroke="var(--mint)" stroke-width="1.5" stroke-dasharray="4 3" opacity="0" style="transition:opacity .8s ease"/>
+      </svg>
+      <div class="avatar-wrap">
+        <div class="avatar-blob them" id="themBlob"></div>
+        <div class="avatar-name" id="themName">─</div>
+      </div>
+    </div>
+  </div>
+  <div id="hubBody" class="hub-main"></div>
+</section>
+<div id="gameOverlay">
+  <div class="overlay-inner" id="overlayInner">
+    <div id="gameContent"></div>
+  </div>
+</div>
 
-    <script>
-        // --- 1. SUPABASE INITIALIZATION --- //
-        
-        // REPLACE THESE WITH YOUR ACTUAL KEYS
-        const SUPABASE_URL = 'https://zfbahckiiytuebejahia.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_qQfnibwTWXmjqJalCiurEg_ayJHALxH';
-        
-        // Only initialize if keys are present (prevents crash on local testing)
-        let supabase = null;
-        if(SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        }
+<script>
+const WYR_PROMPTS = [
+  ["live without music", "live without movies"],
+  ["have the power to fly", "have the power to be invisible"],
+  ["always know what someone is thinking", "always know what someone is feeling"],
+  ["never use social media again", "never watch a movie or show again"],
+  ["only eat sweet food forever", "only eat savoury food forever"],
+  ["travel back to your past", "travel into your future"],
+  ["have unlimited money but no privacy", "unlimited privacy but only what you have now"],
+  ["live in a city forever", "live in the countryside forever"],
+  ["always be 10 minutes late", "always be 20 minutes early"],
+  ["be famous for something embarrassing", "be unknown but very wealthy"],
+  ["lose all your photos", "lose all your messages"],
+  ["only listen to one artist forever", "shuffle a library you never pick"],
+  ["always tell the truth", "always have to lie"],
+  ["have a personal chef", "have a personal driver"],
+  ["live without coffee", "live without tea"],
+  ["read someone's mind for an hour", "control their actions for a minute"],
+  ["wear pajamas to work every day", "wear formal clothes every day"],
+  ["teleport only to places you've been", "fly but only when alone"],
+  ["have a rewind button for 30 seconds", "a pause button for 10 minutes"],
+  ["eat your favourite meal once a year", "a meh meal whenever you want"],
+  ["live in a treehouse", "live in a houseboat"],
+  ["give up your phone for a year", "give up tv and films for a year"],
+  ["learn every language", "play every instrument"],
+  ["always know who's calling", "always know who's texting"],
+  ["own a private jet", "own a private island"],
+  ["never feel embarrassed", "never feel jealous"],
+  ["sleep 4 hours and feel rested", "sleep 10 hours and feel tired"],
+  ["wear one outfit forever (you pick)", "wear a random outfit every day"],
+  ["find true love but be poor", "find wealth but be lonely"],
+  ["always feel hungry", "always feel full"],
+  ["live in summer year round", "live in winter year round"],
+  ["read every book ever written", "watch every film ever made"],
+  ["be able to talk to animals", "be able to talk to plants"],
+  ["never get sick", "never get hurt"],
+  ["lose your sense of taste", "lose your sense of smell"],
+  ["relive your favourite day forever", "always get a brand new amazing day"],
+  ["be famous on instagram with 10m followers", "be respected by your idol but unknown"],
+  ["work 4 days for less money", "work 6 days for more"],
+  ["dance when you hear music involuntarily", "sing when you hear someone talking"],
+  ["live in space", "live underwater"],
+  ["have 1 million now", "1 thousand every week for life"],
+  ["a year alone on a beautiful island", "a year crammed in a city with everyone"],
+  ["forget your favourite film's ending", "forget your favourite song's lyrics"],
+  ["always be the smartest in the room", "always be the funniest in the room"],
+  ["eat only cold food", "eat only hot food"],
+  ["undo any decision once", "predict one outcome perfectly"],
+  ["own a bookshop", "own a coffee shop"],
+  ["give up cheese", "give up chocolate"],
+  ["always be cold", "always be hot"],
+  ["live in a noisy city forever", "live in silence forever"],
+  ["control time", "control gravity"],
+  ["only eat home-cooked food", "only eat restaurant food"],
+  ["perfect memory but feel everything 10x", "forget half your life but feel calm"],
+  ["skip work guilt-free anytime", "never commute again"],
+  ["dance at every party", "sing at every karaoke"],
+  ["always know the weather", "always know the time without checking"],
+  ["live a long normal life", "live a short exciting one"],
+  ["have a personal stylist", "have a personal therapist"],
+  ["be early to everything", "be the last one to arrive"],
+  ["meet everyone you'll ever love now", "meet them at random over time"],
+  ["always have a perfect singing voice", "be a perfect dancer"],
+  ["live without sleep but feel rested", "sleep normally but need 10 hours"],
+  ["have a private chef who'll cook anything", "be able to teleport to any restaurant"],
+  ["always know one secret about everyone you meet", "have nobody ever be able to lie to you"],
+  ["eat the same meal three times a day forever", "never eat the same thing twice"],
+  ["have a pet that can talk", "have a pet that can fly"],
+  ["own every book ever written", "remember every word you've ever read"],
+  ["lose your sense of touch", "lose your sense of taste"],
+  ["travel only by walking", "travel only by boat"],
+  ["always feel well-rested", "always feel calm"],
+  ["spend a year living in your favourite city", "spend a year exploring a new city each week"],
+  ["only listen to instrumental music", "only listen to songs with lyrics"],
+  ["write a song that becomes huge", "write a book that becomes famous"],
+  ["have unlimited free flights but only economy", "limited flights but always business"],
+  ["never have to cook again", "never have to clean again"],
+  ["wake up an hour earlier every day", "stay up an hour later every night"],
+  ["only watch movies in black and white", "only watch movies without sound"],
+  ["live in a world with no internet", "live in a world with no books"],
+  ["always know what someone wants from you", "never have to explain yourself"]
+];
 
-        // --- 2. GLOBAL STATE --- //
-        const state = {
-            threadId: 'test-thread-001', 
-            channel: null,
-            gameActive: false,
-            myScore: 0,
-            opponentScore: 0
-        };
+const TOD_PROMPTS = {
+  easy: {
+    truth: [
+      "what's a song you'd put on if you wanted to feel cool?",
+      "what's the most useless skill you have?",
+      "what's a snack you can't stop eating lately?",
+      "what's a movie you'd watch on repeat without getting bored?",
+      "what's something you find very funny that nobody else does?",
+      "what's the dumbest thing you'd buy if money didn't matter?",
+      "what's a hill you'd die on about a tv show?",
+      "what's a habit you have that even you find weird?",
+      "what's something you secretly enjoy that you pretend you don't?",
+      "what's a small thing that always makes you smile?",
+      "what's your most-played song this week?",
+      "what would be your ideal breakfast tomorrow morning?",
+      "what's a thing you're irrationally good at?",
+      "if you could pick a superpower for one day only, what?",
+      "what's an animal you'd love to have as a pet?",
+      "what's a tv show you've finished and still miss?",
+      "what's your favourite weather and why?",
+      "what's a small win you've had this week?",
+      "if you could steal someone else's accent permanently, whose?",
+      "what's a meal you'd be sad to never eat again?",
+      "what's a song stuck in your head this week?",
+      "what's the last show you binged?",
+      "what's a movie you'd watch with anyone, anytime?",
+      "what's a small thing you find oddly satisfying?",
+      "what's a takeout order you make too often?",
+      "what's something on your phone you check every morning?",
+      "what's a chore you actually don't mind?",
+      "what's a chore you actively dread?",
+      "what's your favourite kind of cake?",
+      "if you could only drink one beverage forever, which?",
+      "what's a holiday you'd want to spend in pajamas?",
+      "what's a weird snack combination you stand by?",
+      "what's a pet name you'd use for me other than my name?",
+      "what's a smell that instantly puts you in a good mood?",
+      "what's a sound that instantly relaxes you?",
+      "what's a small purchase you're really happy you made?",
+      "what's a podcast or youtube channel you'd recommend?",
+      "what's a niche subject you could talk about for an hour?",
+      "what's a question you wish people asked more?",
+      "what's a thing you find effortlessly hard?",
+      "what's a weather you'd want to wake up to every day?",
+      "what's a season you wish was longer?",
+      "what's a tradition you'd want us to start?",
+      "what's an item of clothing you wear too much?",
+      "what's a small luxury you treat yourself to?",
+      "what's a topic you could rant about indefinitely?",
+      "what's a piece of advice you ignore but probably shouldn't?",
+      "what's a number you find pleasing for no reason?",
+      "what's a colour you keep being drawn to lately?",
+      "what's a fictional character you'd want to meet?",
+      "what's a meal you can make in your sleep?",
+      "what's a meal you wish you could make?",
+      "what's a song you'd add to our shared playlist right now?",
+      "what's something you've watched recently that surprised you?",
+      "what's a fact you bring up too often at parties?",
+      "what's an item in your kitchen you couldn't live without?",
+      "what's a piece of furniture you'd want for our future home?",
+      "what's a city you'd want to visit next?",
+      "what's a part of your routine you actually love?",
+      "what's something you do that makes you laugh at yourself?",
+      "what's a habit you picked up from a friend?",
+      "what's a question you'd ask your future self?",
+      "what's a meme that's never not funny to you?",
+      "what's a small skill you wish you had?",
+      "what's a sport you'd want to learn?",
+      "what's a board game you'd want to play with me right now?",
+      "what's a tv show you watched as a kid that holds up?",
+      "what's a song you'd dance to in a kitchen?",
+      "what's the best gift you've received recently?",
+      "what's a quote you keep coming back to?"
+    ],
+    dare: [
+      "do 10 jumping jacks right now",
+      "speak in a british accent until your next turn",
+      "send the dumbest selfie you can make to a random contact",
+      "sing the chorus of any song, full commitment",
+      "tell a joke and laugh at it before the punchline",
+      "eat or drink with your wrong hand until your next turn",
+      "say 'red lorry yellow lorry' three times fast",
+      "dance for 15 seconds, music optional",
+      "do your best impression of a celebrity for 20 seconds",
+      "make up a 3-line jingle about your phone",
+      "text 'hi from a parallel universe' to a random contact",
+      "show me your most recent screenshot",
+      "pull 3 silly faces in 10 seconds",
+      "balance something on your head for 20 seconds",
+      "say 'i love you' to the next inanimate object you see",
+      "send a 5-second voice note of you just laughing",
+      "show me everything in your bag or pockets right now",
+      "type a full sentence with your eyes closed and send it",
+      "take a photo of the most boring thing within arm's reach",
+      "do an exaggerated yawn and stretch for the camera",
+      "send me an emoji that describes your mood right now",
+      "take a selfie with the most serious expression you can",
+      "text the next person on your contacts list a single wave emoji",
+      "show me three random items on your desk or table",
+      "do 10 squats right now",
+      "invent a new dance move and demonstrate for 10 seconds",
+      "spell your name backwards out loud, fast",
+      "read a sentence in slow motion",
+      "hum a song until i guess it",
+      "count down from 20 in any language you know",
+      "send me a poem written in the next 30 seconds",
+      "invent a fake band name and a song title for it",
+      "take a 5-second video of you spinning slowly",
+      "impersonate someone we both know",
+      "say 'she sells seashells' three times fast",
+      "invent a new word and use it in a sentence",
+      "send me a haiku about the meal you ate today",
+      "show me a random photo from a year ago",
+      "say 'good morning' in five different ways",
+      "take a photo of the most colourful thing nearby",
+      "give yourself a one-minute pep talk out loud",
+      "do a fake commercial for a random object for 15 seconds",
+      "show me your phone's battery percentage and last app opened",
+      "read 'i am a normal human' in a robot voice",
+      "sing your name as if it were a famous song",
+      "do any magic trick you know",
+      "invent a celebrity gossip headline and read it dramatically",
+      "talk like a pirate until your next turn",
+      "show me what's in your fridge from 3 feet away",
+      "write me a 4-line poem about the room you're in",
+      "send the funniest gif you can find in 30 seconds",
+      "balance a small object on the back of your hand for 10 seconds",
+      "yawn loudly for 10 seconds",
+      "say the alphabet in a southern accent",
+      "send me a screenshot of your phone's home screen",
+      "text 'remember that time' to a random contact, no follow up",
+      "do a 10-second interpretive dance about your day",
+      "take a photo with weird lighting",
+      "read out the lyrics of any song without singing them",
+      "invent a fake superpower and show me how it works",
+      "show me a hidden talent, even a tiny one",
+      "say your favourite word three times with different inflections",
+      "do your worst impression of a british person",
+      "shout 'i am the captain now' in your most heroic voice",
+      "send a voice note saying 'today is a good day' five ways",
+      "show me a photo of something blue near you",
+      "record yourself singing the alphabet",
+      "say a sentence backwards",
+      "invent a slogan for your morning routine",
+      "send a 3-second voice note that captures your current vibe"
+    ]
+  },
+  fun: {
+    truth: [
+      "who's a fictional character you'd actually be friends with?",
+      "what's a superpower that sounds cool but would be annoying?",
+      "if you could swap lives with anyone for a day, who?",
+      "what's something everyone seems to love that you find boring?",
+      "what's a food combination you love that nobody else gets?",
+      "if you could only listen to one album forever, which one?",
+      "what's a small thing you spend way too much money on?",
+      "what would you name a pet you got tomorrow?",
+      "what's a hobby you'd start if you had unlimited free time?",
+      "what's the weirdest dream you can remember right now?",
+      "if you could only eat one cuisine for a month, which?",
+      "what's a small thing that gives you irrational joy?",
+      "what would your reality tv show be about?",
+      "what's a fictional world you'd actually want to live in?",
+      "if you could trade lives with me for a day, what would you do first?",
+      "what's a question you've been curious to ask me but never have?",
+      "what's a fictional couple you've compared us to?",
+      "what's your most embarrassing autocomplete suggestion?",
+      "what's a tiny conspiracy theory you actually believe?",
+      "if our relationship was a movie genre, which one?",
+      "if your life had a soundtrack, what's the opening song?",
+      "what's a movie sequel you secretly enjoyed?",
+      "if you had to live in any decade's aesthetic, which?",
+      "what's a city you wouldn't want to live in?",
+      "what's a household item you've broken and never replaced?",
+      "what's a small revenge you've taken that you don't regret?",
+      "what's a kid show you'd still watch unironically?",
+      "what would you spend $100 on right now, no thinking?",
+      "what's a job title that sounds appealing even if you can't do it?",
+      "what's a fashion trend you secretly love?",
+      "what's a fashion trend you'd happily kill?",
+      "what's a thing you've googled to settle an argument?",
+      "if you got famous tomorrow, what would it be for?",
+      "what's a weird animal fact you know?",
+      "if you could only watch one director's films, who?",
+      "what's a country you'd want to road-trip across?",
+      "what's a small habit of mine you've copied?",
+      "what's a small habit of mine you'd want to copy?",
+      "what's a meal we should make together?",
+      "what's a trip you'd plan if money wasn't an issue?",
+      "what's a tv show finale you actually loved?",
+      "what's a tv show finale you hated?",
+      "what's a board game you used to play obsessively?",
+      "what's a hobby you tried and dropped?",
+      "what's a hobby you wish you stuck with?",
+      "who would play me in a movie of our lives?",
+      "who would play you in that same movie?",
+      "what's a moment recently when you laughed too hard?",
+      "what's a movie you've cried at unexpectedly?",
+      "what's a song that gets you in a specific mood instantly?",
+      "what's an opinion of mine you've come around to?",
+      "what's an opinion of mine you still disagree with?",
+      "if you had a free month with no obligations, what would you do?",
+      "what's an item you'd put on display in our place?",
+      "what's a job interview question you wish was asked more?",
+      "if you owned a small business, what would it sell?",
+      "what's the best meal you've eaten recently?",
+      "what's a small adventure we should have this week?",
+      "what would your villain origin story be?",
+      "what's a small superpower you wish you had at home?",
+      "if you wrote a memoir, what's the title?",
+      "what's a saying you don't really agree with?",
+      "what's a saying that always feels right?",
+      "what's a thing you're surprisingly bad at?",
+      "what's a movie quote you reference too often?",
+      "what's a place you'd want to be right now if you could teleport?",
+      "what's a fictional weapon you'd want to own, just for show?",
+      "what's a hot take about our city or town?",
+      "what's a snack we should always have stocked?",
+      "what would your perfect saturday morning look like?"
+    ],
+    dare: [
+      "let me pick a song to play on your speakers right now",
+      "show me the last 5 emojis you used",
+      "show me your most-used app this week",
+      "text 'i'm doing fine, why?' to a random contact",
+      "let me write your status or bio for the next hour",
+      "scroll to a random photo in your camera roll and describe it dramatically",
+      "take a selfie pulling the weirdest face possible",
+      "say the next sentence you say in a movie trailer voice",
+      "share your home screen with me",
+      "send a voice note in your worst attempted accent",
+      "text a friend a fake plot twist about your day",
+      "let me write the next thing you text someone",
+      "give a 30-second commentary on a random object near you",
+      "invent a backstory for a stranger you saw today",
+      "set an alarm with the funniest possible label",
+      "show me what you ate today, photos or detailed description",
+      "let me give you a new nickname for the rest of the game",
+      "write a 6-word story about today and send it to me",
+      "send me a screenshot of your weather right now",
+      "play 20 questions about an object in your room, i'll guess",
+      "text three random contacts a single question mark",
+      "show me the weirdest photo in your camera roll",
+      "read me the next email you have to send",
+      "give a 30-second lecture on the word i'll send",
+      "let me name your next 3 wifi networks",
+      "type a paragraph using only your nose",
+      "send me a riddle you make up on the spot",
+      "show me your most-followed account and explain why",
+      "let me pick a random opinion and you defend it for a minute",
+      "show me a screenshot of your last group chat",
+      "pose like a statue for 15 seconds",
+      "text 'i had an idea' to a random contact, no follow-up",
+      "record a 10-second podcast intro about your day",
+      "send a voice note in 3 different fake accents",
+      "invent a backstory for a random emoji",
+      "let me set your phone wallpaper for the day",
+      "text me one word that describes me right now",
+      "take a photo of something within 3 feet that's red",
+      "read the next text you'll send in a movie villain voice",
+      "record yourself counting backwards from 10 dramatically",
+      "show me three apps you'd delete if forced to choose",
+      "recommend a song based on my last 3 messages",
+      "invent a tagline for your favourite chair",
+      "send a one-sentence weather report in a news anchor voice",
+      "show me what's in your most-used emoji recently",
+      "record a fake commercial for your toothbrush",
+      "tell a joke in slow motion",
+      "show me one notification you've ignored",
+      "take a 5-second video of you trying to look mysterious",
+      "balance a phone on your head for 15 seconds",
+      "text your most recent contact 'weird question'",
+      "read me your last sent message in a confused voice",
+      "invent a name for an imaginary band based on the room you're in",
+      "say 'wow that's interesting' in 5 different ways",
+      "send me a horoscope you make up for me",
+      "record yourself doing a fake interview about your day",
+      "show me the most random photo you've sent in a chat",
+      "take a picture of your shoes",
+      "let me write a one-line tweet for you to post",
+      "type a message using only one finger and send it",
+      "invent a tagline for a fake perfume called 'monday'",
+      "read the next text you send in slow motion",
+      "show me your last 3 sent stickers or gifs",
+      "shout the most enthusiastic compliment about your pillow",
+      "record a voice note explaining a simple concept like you're stalling",
+      "impersonate a youtube tutorial for 20 seconds",
+      "invent a fake news headline about us",
+      "send a one-line bedtime story to a contact",
+      "record yourself trying to sound like the sea",
+      "text a random contact 'wait i forgot the question'"
+    ]
+  },
+  wild: {
+    truth: [
+      "what's a small lie everyone tells that you wish people stopped?",
+      "what's a take you have that would lose you friends?",
+      "what's something everyone is supposed to enjoy that you don't?",
+      "who's a celebrity you find genuinely annoying?",
+      "what's a quirk of mine you secretly find funny?",
+      "what's something you'd never admit you google?",
+      "if i had your phone for a day, what's the one thing i'd be surprised by?",
+      "what's something i do that confuses you, in a good or bad way?",
+      "what's a small opinion you hold that sounds wild out loud?",
+      "what's a recent thought you've had that you wouldn't say out loud?",
+      "what's a controversial food opinion you stand by?",
+      "what's the wildest thing you've thought about doing lately?",
+      "what's a small risk you've been considering taking?",
+      "what's an unpopular opinion about something we both like?",
+      "what's a thing you'd never actually do but secretly find appealing?",
+      "what's a small petty satisfaction you indulge in?",
+      "what's a take you have that you'd never post online?",
+      "what would your dating profile say if it had to be brutally honest?",
+      "what's an attractive trait you think is unfairly distributed?",
+      "what's something in this relationship you've wanted to try but haven't asked?",
+      "what's a take you held strongly that you've completely changed on?",
+      "what's a small white lie you tell on the regular?",
+      "what's a thing you find attractive in people that you can't explain?",
+      "what's a small thing about modern life that genuinely annoys you?",
+      "what's a habit of mine that you've quietly accepted?",
+      "what's an opinion of mine that surprises you?",
+      "what's a topic where you think i'm completely wrong?",
+      "what's a part of your personality you'd want to dial up?",
+      "what's a part of you you'd want to dial down?",
+      "what's a recent moment where i annoyed you, even a little?",
+      "what's a recent moment where you annoyed yourself?",
+      "what's a guilty pleasure you'd defend in public?",
+      "what's a 'trend' you fall for every single time?",
+      "what's a thing you do alone that you'd be slightly embarrassed about?",
+      "what's an unpopular take on something everyone else loves?",
+      "what's a tiny thing about me that you'd never want to change?",
+      "what's a thing you've judged someone for that you've also done?",
+      "what's a piece of feedback you'd give me but haven't?",
+      "what's a small lie i've told that you didn't push back on?",
+      "what's something about our generation that genuinely worries you?",
+      "what's an industry or job you secretly think is overrated?",
+      "what's a habit you'd want me to drop?",
+      "what's a habit of mine you'd want me to do more of?",
+      "what's a movie or show you secretly think is overrated?",
+      "what's a meal everyone seems to love that you find boring?",
+      "what's a moment we had recently where you bit your tongue?",
+      "what's a thing you've spent money on that you regret?",
+      "what's a small 'betrayal' you've committed, no big deal?",
+      "what's the most reckless thing you've done in the last month?",
+      "what's the most boring thing you've done in the last month?",
+      "what's a feeling you have that you don't bring up enough?",
+      "what's a person from your life i've not heard much about?",
+      "what's a friend group dynamic that's slightly toxic but fun?",
+      "what's a hot take about parenting, kids, or families?",
+      "what's something you find genuinely scary about adulthood?",
+      "what's a small dream you have that you haven't told me?",
+      "what's a thing that would happen this year that would mark it as good?",
+      "what's a thing you'd want to be richer for, besides obvious stuff?",
+      "what's a number you keep coming back to, money or otherwise?",
+      "what would shock me most about your search history this week?",
+      "what's a small petty rule you secretly follow?",
+      "what's a person you've stopped following for petty reasons?",
+      "what's a small win this year you haven't told me about?",
+      "what's a low-stakes lie everyone in our life believes?",
+      "what's a habit of yours that you've never explained to me?",
+      "what's an unspoken thing about us that should be spoken?",
+      "what would make our next week 10% better, specifically?",
+      "what's a fear of mine you think i overstate?",
+      "what's a strength of mine i underestimate?",
+      "what's a thing i do that you've been quietly admiring?"
+    ],
+    dare: [
+      "show me the last 5 messages you sent to anyone",
+      "show me your search history from today",
+      "open photos, pick a random shot, describe it like breaking news",
+      "let me post one thing on your story, i'll behave",
+      "send any random emoji to 3 contacts and read replies aloud later",
+      "read the last meme you saved as if it's a serious announcement",
+      "record a 10-second voice note about your love for socks",
+      "show me the contact you've saved with the funniest name",
+      "freestyle rap for 20 seconds about whatever you're looking at",
+      "let me ask 3 yes/no questions, no skipping",
+      "let me pick a contact and text them 'thinking of you'",
+      "show me your tab graveyard, all currently open tabs",
+      "read the most recent comment you wrote anywhere out loud",
+      "let me ask 5 yes/no questions, max 3 skips",
+      "play 'two truths and a lie' right now, three statements",
+      "show me your last 5 google searches",
+      "let me look at your camera roll for 30 seconds",
+      "text a random group chat 'i had a strange thought today'",
+      "let me see your saved/bookmarks for 30 seconds",
+      "post a low-stakes vague update to your story, i'll choose what",
+      "show me your most embarrassing search this month",
+      "read me the last 3 voice notes you've received",
+      "read me the most recent text from your most chaotic contact",
+      "let me read the next text someone sends you out loud",
+      "show me the 3 oldest unread messages in your inbox",
+      "show me a photo you almost deleted but didn't",
+      "let me look at your screen time stats for today",
+      "record yourself reading your last sent text in a different voice",
+      "show me what your phone's 'for you' recommendations look like",
+      "show me the bookmark you visit most often",
+      "read me the most recent comment you got on anything",
+      "let me write the next message you send, one line",
+      "show me your photos from exactly one month ago",
+      "show me a screenshot you've kept that you don't even know why",
+      "let me pick a random photo from your camera roll and you describe it",
+      "show me a saved meme you no longer find funny",
+      "show me the most recent thing you've copy-pasted",
+      "play the song you currently have on loop",
+      "show me the most recent shared note, anything you've kept",
+      "let me look at your recent files for 20 seconds",
+      "tell me one small lie you've told today",
+      "play the voice memo you've never listened back to",
+      "show me what you typed in the search bar that you cleared",
+      "read me the next message you draft in a romantic voice",
+      "record a 10-second confession about a small thing",
+      "show me your last 3 saved or bookmarked posts",
+      "read me the worst joke you've sent anyone this week",
+      "show me the most embarrassing screenshot in your gallery",
+      "tell me a thing about yourself you wouldn't say to a stranger",
+      "share the song that comes up first if you shuffle your library",
+      "show me your laptop or computer's open tabs right now",
+      "show me your last calendar invite",
+      "let me read 3 of your sent dms in a row, my pick",
+      "record yourself reading the most cringe text you sent this year",
+      "show me 3 things saved to your downloads folder",
+      "tell me the worst piece of advice you've given recently",
+      "let me send a 2-word message from your phone to a friend",
+      "read me the longest text you sent this month",
+      "show me your most-used reaction emoji in any chat",
+      "let me see the contact you've muted, if any",
+      "text 'i had a thought, ignore this' to the next person who texts you",
+      "show me a screenshot that says nothing about you out of context",
+      "tell me a small petty grudge you've held this year",
+      "record yourself reading an awkward dm in a news anchor voice",
+      "let me look at your last 3 google searches",
+      "show me a friend's text that always makes you laugh",
+      "read me a chat where you're being dramatic",
+      "tell me a thing you've judged me for, even small",
+      "show me what you texted yourself last (if you do that)",
+      "let me look at your most recent shared playlist"
+    ]
+  },
+  spicy: {
+    truth: [
+      "what's something about me you find unexpectedly attractive?",
+      "what's a small thing i do that you love?",
+      "if you had to write a vow about me right now, what's the first line?",
+      "what's something we should do more of together?",
+      "what's a side of you that you'd want me to see more of?",
+      "what's something you've wanted to say to me but haven't yet?",
+      "what's the most underrated thing about being with me?",
+      "what would make this evening perfect if we were together right now?",
+      "what's something you'd want me to do more of?",
+      "if i described you in one word to a stranger, what should it be?",
+      "when do you find me most irresistible?",
+      "what's a moment with me that replays in your head when we're apart?",
+      "what's something about how i look that you think about often?",
+      "what's your favorite way for me to look at you?",
+      "when do you feel closest to me?",
+      "if we had a whole day just to ourselves, what would you want to do first?",
+      "what's something about my voice or laugh that gets you?",
+      "when do you most want to kiss me?",
+      "what's a feeling i give you that's hard to name?",
+      "what's something you've imagined doing with me but haven't said?",
+      "what's a moment recently when you really wanted me close?",
+      "what's something about who i am right now that you find sexy?",
+      "what's a small intimate routine you'd want with me?",
+      "what's something you wish i'd do without you having to ask?",
+      "what's a way i look at you that you secretly love?",
+      "what's something about me that makes you feel like you got lucky?",
+      "when you think of 'us' in your head, what's the first picture?",
+      "what's a small thing i do that makes you feel chosen?",
+      "when do i look the most like myself, in your eyes?",
+      "what's a moment with me that felt cinematic?",
+      "what's a small intimate gesture you wish was a thing between us?",
+      "what would make a tuesday with me feel like a weekend?",
+      "what's the most attractive thing you've heard me say?",
+      "what's a way i make you feel that you haven't named yet?",
+      "what's an evening with me you'd want to relive in detail?",
+      "what's a moment in the next week you're already looking forward to?",
+      "what's something i do unconsciously that you find attractive?",
+      "what's a way i hold or touch you that you remember vividly?",
+      "what's a memory of us you'd put in a frame?",
+      "what's the most attractive thing about how we argue?",
+      "what's a way i look at you that you wish photos could capture?",
+      "what's a small ritual we have that means more than you've said?",
+      "what's a phrase i say that you'd miss if i stopped?",
+      "what's a sound i make, laugh or voice or anything, that gets you?",
+      "what's an outfit of mine that always works on you?",
+      "what's an outfit of mine i wear too rarely?",
+      "what's a part of my face you'd zoom into if you could?",
+      "what's a part of my body you find unexpectedly beautiful?",
+      "what's a kiss of ours you'd live in?",
+      "what's a kind of touch from me you want more of?",
+      "what's a moment when you wanted to say something but didn't?",
+      "what's something i'd be flattered to hear that you haven't said?",
+      "what's a way i show up for you that you don't acknowledge enough?",
+      "what's a fantasy you've had about a random tuesday with me?",
+      "what's a moment from our story you'd want to write a song about?",
+      "when do you most miss me when we're apart?",
+      "when do you feel most alive with me?",
+      "what's a side of you you only show me?",
+      "what's a side of me you wish you saw more?",
+      "what's a future image of us that you carry in your head?",
+      "what's the most attractive thing about my mind?",
+      "what's something you've been wanting to do with me when we're alone?",
+      "what's a kind of date with me you've been quietly hoping for?",
+      "what's a way i could make you melt in one sentence?",
+      "what's something you'd want me to wear, just for you?",
+      "what's something you'd want to wear, just for me?",
+      "what's a quiet moment with me you'd choose over any loud one?",
+      "what would you want me to whisper if i was beside you right now?",
+      "what's a song you'd want playing when i walk into a room?",
+      "what's a place we should sneak away to for an afternoon?",
+      "what's a way i look at you that you can feel before you see?",
+      "what's an 'us' that we should be more often?",
+      "what's an 'us' that we don't get enough of?",
+      "what's a memory of us that's underrated?",
+      "what's a small thing about you you'd want me to know better?",
+      "what's something about me that makes you feel desire, specifically?",
+      "what's a physical moment of ours you've replayed recently?",
+      "if i was with you right now, what's the first thing you'd want to do?",
+      "what's something you think about when you're alone that involves me?",
+      "if i called you right now and said 'come over', what would happen?",
+      "what's something about my body you'd spend a long time on?",
+      "what's a thought about me you'd be embarrassed to say out loud?",
+      "what's a physical thing about me that makes you lose focus?",
+      "what would you want to do to me right now if nothing was in the way?",
+      "what's the most turned on you've been by something i did recently?",
+      "what's a specific physical memory of us you'd want to repeat?",
+      "what's something you want from me physically that you haven't asked for?",
+      "what's the most charged moment between us we've never talked about?",
+      "when was the last time you felt pure physical desire for me?",
+      "what's a specific way you want me to touch you?",
+      "where on your body do you most want my hands right now?",
+      "describe the kind of touch from me that would drive you crazy",
+      "what's a physical thing you want from me that you've been too shy to ask?",
+      "what's the most physically attracted you've ever been to me?",
+      "what's something you've imagined me doing to you?",
+      "how long could you go without any physical contact from me before it becomes unbearable?",
+      "describe the last time you thought about me in a physical way",
+      "what would make you feel the most desired by me right now?",
+      "when we're apart, what physical thing about me do you miss most?",
+      "what part of my body do you find yourself staring at?",
+      "what's a physical limit of mine you want to push?",
+      "what's your favourite kind of intimacy with me and why?",
+      "what's a physical sensation of mine you'd want to replay?",
+      "what time of day do you want me most and what are we doing?",
+      "if i asked you to come over tonight with no explanation, what would you be thinking?",
+      "what would you want my first move to be if we were alone right now?",
+      "describe what you'd want from me if we had an entire night with no interruptions"
+    ],
+    dare: [
+      "tell me three things you genuinely love about me, no filler",
+      "compliment me for 60 seconds straight, no repeats",
+      "send a voice note saying something only i'd understand",
+      "plan our next perfect date right now, in detail",
+      "describe me to a stranger in 30 seconds",
+      "send me a photo of you exactly as you are right now",
+      "share a song that reminds you of me and tell me why",
+      "write a 4-line poem about us, on the spot",
+      "say one thing you want from tonight or tomorrow with me",
+      "describe your favorite version of me, in your own words",
+      "record a voice note in your most flirty tone",
+      "tell me what you'd want to do if we had the next 24 hours together",
+      "describe how you'd kiss me if we were together right now",
+      "tell me one thing you've imagined doing with me",
+      "text me one line as if you were trying to win me over",
+      "send a voice note saying my name three different ways",
+      "describe a perfect evening, from the moment i walk in",
+      "send a photo of what you're wearing right now",
+      "tell me one thing you find attractive about how i think",
+      "say the most flirty thing you can think of right now",
+      "tell me one thing you wish we were doing right now",
+      "send a voice note of the most flirty thing you've never said aloud",
+      "describe one specific physical detail about me you love",
+      "send a song you'd want playing if i walked in tonight",
+      "describe me as if you're writing a love letter, in three sentences",
+      "tell me three things you want from me tonight, no thinking",
+      "send me a photo that's 'just me as i am right now'",
+      "write a one-line note you'd leave on my pillow",
+      "record a voice note like you're inviting me over",
+      "say one thing you'd want me to do without you asking",
+      "tell me a kind of evening with me you'd want this week",
+      "send me a song that captures how you feel about me right now",
+      "text me a sentence that you'd only say to me",
+      "record a voice note saying 'come here' in three different ways",
+      "tell me one detail about me you've been thinking about today",
+      "send a 4-line poem about a moment with me",
+      "describe what you'd want me to do if i came over right now",
+      "send me a photo of something only i'd recognize",
+      "tell me one thing you want to whisper to me later",
+      "record yourself saying a compliment like you mean it",
+      "send me a list of three small things you love about my hands",
+      "describe a perfect morning with me from your point of view",
+      "tell me one thing that makes you nervous about us, kindly",
+      "send a song you'd dance to in a kitchen with me",
+      "tell me one thing you'd want me to do that you've held back from asking",
+      "describe how you'd want to be greeted next time we see each other",
+      "send me a one-line note as if you wrote it on a napkin",
+      "record a voice note saying my name like a wish",
+      "describe the version of me you write about in a journal",
+      "tell me one thing you find ridiculously attractive about me",
+      "tell me a place we've never been that you want to take me to",
+      "send a song you want playing the next time we kiss",
+      "describe a specific look of mine that wrecks you, in three sentences",
+      "tell me one thing i did this week that you replayed in your head",
+      "write a one-line love letter with no extra words",
+      "send me a photo that says 'thinking of you'",
+      "tell me a kind of touch from me that you want more of",
+      "record a voice note in the voice you use only with me",
+      "describe how you'd want to fall asleep next to me tonight",
+      "send me a song you've been hearing as 'our song' lately",
+      "describe how you'd want a morning with me to start, slowly",
+      "tell me one detail of mine that's tattooed in your mind",
+      "send a one-sentence text you'd want to wake up to",
+      "write a one-line vow on the spot",
+      "describe a slow dance with me, even if it's just words",
+      "tell me one moment with me you'd freeze in time",
+      "send me an emoji combo that means 'i want you'",
+      "record a voice note like you're trying to convince me to stay",
+      "describe what you'd want from a stolen ten minutes with me",
+      "send me a photo of where you are right now, made romantic in your caption",
+      "tell me one thing about your body you want me to notice more",
+      "tell me one thing about my body you'd want to map",
+      "describe how you'd lean in to kiss me, in detail but tasteful",
+      "tell me one thing you want from tonight, even if i can't deliver",
+      "record yourself saying 'i'm yours' in your most-you voice",
+      "send a voice note breathing my name once, slowly",
+      "describe in three sentences what you'd do if i walked in right now",
+      "text me something you'd only say if i was sitting right next to you",
+      "tell me one fantasy you've had about us that you've kept to yourself",
+      "describe a specific physical thing you'd want from me tonight",
+      "say the most charged thing you've wanted to say to me, voice note",
+      "describe a kiss you'd want to give me right now, in detail",
+      "tell me a place on my body you think about more than you let on",
+      "say something in your most intimate voice, voice note, no script",
+      "send a voice note of you saying 'i want you' like you mean it",
+      "describe what you'd do with the first ten minutes if i was there",
+      "tell me the thing you find most physically attractive about me, specifically",
+      "describe how you'd wake me up if you could",
+      "describe what you'd want me to do with my hands if i was with you",
+      "send a voice note saying exactly what you want from me tonight",
+      "voice note: describe what you'd do to me first if we were alone",
+      "send me the flirty text you've always wanted to send but haven't",
+      "record a voice note saying exactly where on your body you want me",
+      "describe a specific physical scenario between us in three sentences",
+      "tell me what would make you pull me closer right now, specifically",
+      "record you saying exactly what you'd whisper in my ear right now",
+      "tell me what you'd want me wearing if i knocked on your door tonight",
+      "describe your favourite physical sensation of being close to me",
+      "voice note: tell me what you'd want us to do with a night to ourselves",
+      "describe what you'd do if i walked in and didn't say a word",
+      "tell me one specific physical thing about me you've never said out loud",
+      "send a voice note saying what you'd want the first ten seconds to look like"
+    ]
+  }
+};
+</script>
+<script>
+const SUPABASE_URL='https://zfbahckiiytuebejahia.supabase.co';
+const SUPABASE_KEY='sb_publishable_qQfnibwTWXmjqJalCiurEg_ayJHALxH';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,storageKey:'bt-auth'}});
+const FS_BASE_TAP_WEIGHT=1.8,FS_OVERHEAT_LIMIT=7,FS_OVERHEAT_MS=1500,FS_MATCH_MS=30000,FS_BROADCAST_MS=80;
+const TOD_THEMES=[
+  {id:'casual',name:'Casual',desc:'light, fun, nothing too deep',color:'rgba(127,255,196,.15)',tiers:['easy','easy','fun','fun','wild','wild','wild']},
+  {id:'playful',name:'Playful',desc:'more energy, more laughs, getting warmer',color:'rgba(74,158,255,.15)',tiers:['fun','fun','wild','wild','spicy','spicy','spicy']},
+  {id:'intense',name:'Intense',desc:'no warmup. straight to the good stuff',color:'rgba(255,140,100,.15)',tiers:['wild','wild','spicy','spicy','spicy','spicy','spicy']},
+  {id:'unfiltered',name:'Unfiltered',desc:'all the way in. no going back',color:'rgba(255,107,107,.15)',tiers:['spicy','spicy','spicy','spicy','spicy','spicy','spicy']},
+];
 
-        // UI References
-        const appContainer = document.getElementById('app-container');
-        const connDot = document.getElementById('connection-dot');
-        const connText = document.getElementById('connection-text');
-        
-        // --- 3. LIFECYCLE & CONNECTION MANAGER --- //
-        
-        function connectToHub() {
-            if (!supabase) {
-                console.warn("No Supabase keys found. Running in Local Offline Mode.");
-                connText.innerText = "Offline Mode";
-                connDot.className = "status-dot online";
-                appContainer.classList.remove('system-waking');
-                return;
-            }
+// ─── utils ───────────────────────────────────────────────
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c])}
+function show(id){$$('.screen').forEach(s=>s.classList.remove('active'));$('#'+id).classList.add('active')}
+function toast(msg,isErr){const t=$('#toast');t.textContent=msg;t.classList.toggle('err',!!isErr);t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2400)}
+function genCode(){const c='ABCDEFGHJKMNPQRSTUVWXYZ';let r='';for(let i=0;i<4;i++)r+=c[Math.floor(Math.random()*c.length)];return r}
+function partnerOf(m){return m&&state.user?m.find(x=>x.user_id!==state.user.id)||null:null}
+function selfOf(m){return m&&state.user?m.find(x=>x.user_id===state.user.id)||null:null}
+function timeAgo(ts){const s=Math.floor((Date.now()-ts)/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago'}
 
-            console.log("Initiating connection to thread:", state.threadId);
-            connText.innerText = "Syncing...";
-            connDot.className = "status-dot"; 
+// ─── room history ─────────────────────────────────────────
+function getRoomHistory(){try{return JSON.parse(localStorage.getItem('bt-room-history'))||[]}catch(e){return[]}}
+function saveRoomHistory(arr){try{localStorage.setItem('bt-room-history',JSON.stringify(arr.slice(0,10)))}catch(e){}}
+function rememberRoom(code,userId,partnerName,displayName){
+  const arr=getRoomHistory().filter(r=>r.code!==code);
+  arr.unshift({code,userId,partnerName:partnerName||'',displayName:displayName||'',lastPlayed:Date.now()});
+  saveRoomHistory(arr);
+}
+function getRememberedRoom(code){return getRoomHistory().find(r=>r.code===code)||null}
+function renderRecentRooms(){
+  const arr=getRoomHistory();const wrap=$('#recentRooms');
+  if(!arr.length){wrap.style.display='none';return}
+  wrap.style.display='block';
+  $('#roomChips').innerHTML=arr.map(r=>{
+    const label=r.displayName||r.partnerName||r.code;
+    return`<button class="room-chip-item" data-code="${r.code}"><span class="room-chip-code">${r.code}</span><span class="room-chip-meta">${esc(label)} · ${timeAgo(r.lastPlayed)}</span></button>`;
+  }).join('');
+  $$('.room-chip-item').forEach(chip=>chip.addEventListener('click',()=>startFlow({type:'join',code:chip.dataset.code})));
+}
 
-            state.channel = supabase.channel(`thread:${state.threadId}`);
+// ─── state ────────────────────────────────────────────────
+const state={user:null,profile:null,pendingAction:null,room:null,presence:new Set(),activeGame:null,channels:[],fsLocal:null,wyrLastChoiceRound:-1,_wyrMoves:null};
 
-            // Listen for opponent taps
-            state.channel.on('broadcast', { event: 'fs_tap' }, (payload) => {
-                state.opponentScore = payload.payload.score;
-                document.getElementById('opponent-score').innerText = state.opponentScore;
-                updatePhysics();
-            });
+// ─── background ───────────────────────────────────────────
+(function(){
+  const el=$('#particles');
+  for(let i=0;i<22;i++){const p=document.createElement('div');p.className='particle';const sz=1+Math.random()*3;p.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:${.2+Math.random()*.4};animation:floatParticle ${20+Math.random()*30}s ${-Math.random()*30}s linear infinite`;el.appendChild(p)}
+  if(window.matchMedia('(hover: hover)').matches){
+    const dot=$('.cursor-dot'),ring=$('.cursor-ring');let mx=-100,my=-100,rx=-100,ry=-100;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px'});
+    (function follow(){rx+=(mx-rx)*.15;ry+=(my-ry)*.15;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(follow)})();
+    document.addEventListener('mouseover',e=>{if(e.target.closest('button,input,.wordmark,.hero-amp,.room-code-tag,.game-card,.wyr-zone,.avatar-blob,.round-chip'))ring.classList.add('hover');else ring.classList.remove('hover')});
+  }
+})();
 
-            // Subscribing handles the UI masking
-            state.channel.subscribe((status) => {
-                if (status === 'SUBSCRIBED') {
-                    console.log("Connected. Dropping the mask.");
-                    connText.innerText = "Connected";
-                    connDot.className = "status-dot online";
-                    appContainer.classList.remove('system-waking');
-                }
-                if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-                    connText.innerText = "Offline";
-                    connDot.className = "status-dot offline";
-                }
-            });
-        }
+// ─── home wiring ──────────────────────────────────────────
+const slots=$$('.code-slot');
+slots.forEach((slot,i)=>{
+  slot.addEventListener('input',e=>{
+    let v=e.target.value.toUpperCase().replace(/[^A-Z]/g,'');e.target.value=v;
+    if(v){slot.classList.add('filled');if(i<slots.length-1)slots[i+1].focus();else if(slots.every(s=>s.value))startFlow({type:'join',code:slots.map(s=>s.value).join('')})}
+    else slot.classList.remove('filled');
+  });
+  slot.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!slot.value&&i>0){slots[i-1].focus();slots[i-1].value='';slots[i-1].classList.remove('filled')}});
+});
+$('#createBtn').addEventListener('pointerdown',function(){this.classList.add('pressing')});
+$('#createBtn').addEventListener('pointerup',function(){this.classList.remove('pressing');startFlow({type:'create'})});
+$('#createBtn').addEventListener('pointerleave',function(){this.classList.remove('pressing')});
+let _wTaps=0;
+$('#wordmark').addEventListener('click',()=>{_wTaps++;if(_wTaps>=5){$('#wordmark').classList.add('spin');setTimeout(()=>$('#wordmark').classList.remove('spin'),600);_wTaps=0}});
+$('#ampChar').addEventListener('click',()=>{const a=$('#ampChar');const d=Math.random()*720-360;a.style.transition='transform .7s cubic-bezier(.34,1.56,.64,1)';a.style.transform=`scale(1.1) rotate(${d}deg)`;setTimeout(()=>{a.style.transform='';setTimeout(()=>a.style.transition='',700)},700)});
 
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') {
-                console.log("App minimized. Severing WebSocket.");
-                if (state.channel && supabase) supabase.removeAllChannels();
-                appContainer.classList.add('system-waking');
-                connText.innerText = "Suspended";
-                connDot.className = "status-dot";
-            } else if (document.visibilityState === 'visible') {
-                console.log("App visible. Reconnecting.");
-                connectToHub();
-            }
-        });
+// ─── prompt memory ────────────────────────────────────────
+function _pmKey(code){return`bt-prompts-${code}`}
+function getUsedIdxs(code,bucket){try{const r=JSON.parse(localStorage.getItem(_pmKey(code)));if(!r)return[];let c=r;for(const k of bucket.split('.')){c=c&&c[k]}return Array.isArray(c)?c:[]}catch(e){return[]}}
+function addUsedIdxs(code,bucket,idxs){try{const raw=localStorage.getItem(_pmKey(code));const obj=raw?JSON.parse(raw):{};const p=bucket.split('.');let c=obj;for(let i=0;i<p.length-1;i++){if(!c[p[i]])c[p[i]]={};c=c[p[i]]}const last=p[p.length-1];c[last]=Array.from(new Set([...(Array.isArray(c[last])?c[last]:[]),...idxs]));localStorage.setItem(_pmKey(code),JSON.stringify(obj))}catch(e){}}
+function pickFreshIdx(len,used){const av=[];for(let i=0;i<len;i++)if(!used.includes(i))av.push(i);return av.length?av[Math.floor(Math.random()*av.length)]:Math.floor(Math.random()*len)}
+function pickFreshIdxs(len,n,used){let av=[];for(let i=0;i<len;i++)if(!used.includes(i))av.push(i);if(av.length<n){for(let i=0;i<len;i++)if(!av.includes(i))av.push(i)}av.sort(()=>Math.random()-.5);return av.slice(0,n)}
+function pickWyrPrompts(n){if(!state.room)return WYR_PROMPTS.sort(()=>Math.random()-.5).slice(0,n);const used=getUsedIdxs(state.room.code,'wyr');const idxs=pickFreshIdxs(WYR_PROMPTS.length,n,used);addUsedIdxs(state.room.code,'wyr',idxs);return idxs.map(i=>WYR_PROMPTS[i])}
+function getTODTier(theme,round){const t=TOD_THEMES.find(x=>x.id===theme)||TOD_THEMES[0];return t.tiers[Math.min(round,t.tiers.length-1)]||'spicy'}
 
-        // Delay first boot slightly for visual effect
-        setTimeout(connectToHub, 500);
+// ─── auth ─────────────────────────────────────────────────
+async function startFlow(action){
+  state.pendingAction=action;
+  if(action.type==='join'){const{data:room,error}=await sb.from('rooms').select('id,code').eq('code',action.code).maybeSingle();if(error||!room){toast('no room with that code',true);slots.forEach(s=>{s.value='';s.classList.remove('filled')});slots[0]&&slots[0].focus();return}}
+  const{data:{user}}=await sb.auth.getUser();
+  if(user){state.user=user;const{data:prof}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();if(prof){state.profile=prof;proceedAfterAuth();return}}
+  goToNameScreen();
+}
+function goToNameScreen(){$('#nameSub').textContent=state.pendingAction.type==='create'?'about to open a room':`joining ${state.pendingAction.code||''}`;show('screen-name');setTimeout(()=>$('#nameInput').focus(),200)}
+$('#nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#nameContinue').click()});
+$('#nameContinue').addEventListener('click',async()=>{
+  const name=$('#nameInput').value.trim();if(!name){toast('need a name');return}
+  const btn=$('#nameContinue');btn.disabled=true;btn.innerHTML='one sec<span class="arrow">·</span>';
+  try{
+    let user=state.user;
+    if(!user){const{data,error}=await sb.auth.signInAnonymously();if(error)throw error;user=data.user;state.user=user}
+    const{data:prof,error:pErr}=await sb.from('profiles').upsert({id:user.id,display_name:name}).select('*').single();
+    if(pErr)throw pErr;state.profile=prof;proceedAfterAuth();
+  }catch(e){console.error(e);toast('something went wrong',true);btn.disabled=false;btn.innerHTML='continue <span class="arrow">→</span>'}
+});
+async function proceedAfterAuth(){state.pendingAction.type==='create'?createRoom():joinRoom(state.pendingAction.code)}
 
-        // --- 4. GAME ENGINE (FINGER SMASH) --- //
+// ─── room create / join / load ────────────────────────────
+async function createRoom(){
+  show('screen-room');$('#hubBody').innerHTML='<div class="loading">opening a room</div>';
+  let code,room,attempt=0;
+  while(attempt<5){code=genCode();const{data,error}=await sb.from('rooms').insert({code,created_by:state.user.id}).select().single();if(!error){room=data;break}if(error.code!=='23505'){toast('could not open room',true);return goHome()}attempt++}
+  if(!room){toast('could not open room',true);return goHome()}
+  const{error:mErr}=await sb.from('room_members').insert({room_id:room.id,user_id:state.user.id,role:'host'});
+  if(mErr){toast('could not open room',true);return goHome()}
+  window.location.hash='/r/'+room.code;await loadRoom(room.code);
+}
+async function joinRoom(code){
+  show('screen-room');$('#hubBody').innerHTML='<div class="loading">slipping into the room</div>';
+  const mem=getRememberedRoom(code);
+  const{data:room,error}=await sb.from('rooms').select('id,code').eq('code',code).maybeSingle();
+  if(error||!room){
+    if(mem&&mem.userId===state.user?.id){$('#hubBody').innerHTML='<div class="loading">reconnecting</div>';setTimeout(()=>joinRoom(code),3000);return}
+    toast('no room with that code',true);return goHome();
+  }
+  const{data:existing}=await sb.from('room_members').select('user_id').eq('room_id',room.id).eq('user_id',state.user.id).maybeSingle();
+  if(!existing){
+    const{error:jErr}=await sb.from('room_members').insert({room_id:room.id,user_id:state.user.id,role:'guest'});
+    if(jErr){
+      const{data:retry}=await sb.from('room_members').select('user_id').eq('room_id',room.id).eq('user_id',state.user.id).maybeSingle();
+      if(!retry){toast(jErr.message?.includes('full')?'that room is full':'could not join',true);return goHome()}
+    }
+  }
+  window.location.hash='/r/'+room.code;await loadRoom(room.code);
+}
+async function loadRoom(code){
+  const{data:room,error}=await sb.from('rooms').select('id,code,created_by,created_at,is_persistent,display_name').eq('code',code).maybeSingle();
+  if(error||!room){
+    const mem=getRememberedRoom(code);
+    if(mem&&mem.userId===state.user?.id){$('#hubBody').innerHTML='<div class="loading">reconnecting</div>';setTimeout(()=>loadRoom(code),3000);return}
+    toast('that room is gone',true);return goHome();
+  }
+  const{data:members}=await sb.from('room_members').select('user_id,role,joined_at').eq('room_id',room.id);
+  const ids=(members||[]).map(m=>m.user_id);let pm={};
+  if(ids.length){const{data:profs}=await sb.from('profiles').select('id,display_name').in('id',ids);(profs||[]).forEach(p=>{pm[p.id]=p.display_name})}
+  state.room={...room,members:(members||[]).map(m=>({...m,display_name:pm[m.user_id]||'...'}))};
+  const partner=partnerOf(state.room.members);
+  if(partner&&!room.display_name&&room.created_by!==state.user.id)setTimeout(showRoomNameModal,800);
+  rememberRoom(code,state.user.id,(partner?.display_name)||'',room.display_name||'');
+  renderRecentRooms();
+  const{data:activeGame}=await sb.from('game_sessions').select('*').eq('room_id',room.id).is('ended_at',null).maybeSingle();
+  state.activeGame=activeGame||null;
+  await unsubscribeAll();subscribeRoom();startPolling();startKeepAlive();renderHub();
+}
+function goHome(){
+  state.room=null;state.activeGame=null;stopPolling();stopKeepAlive();teardownFS();unsubscribeAll();closeOverlay();
+  window.location.hash='';slots.forEach(s=>{s.value='';s.classList.remove('filled')});renderRecentRooms();show('screen-home');
+}
+function showRoomNameModal(){$('#roomNameModal').hidden=false;$('#roomNameInput').focus()}
+$('#roomNameSkip').addEventListener('click',()=>{$('#roomNameModal').hidden=true});
+$('#roomNameSave').addEventListener('click',async()=>{
+  const name=$('#roomNameInput').value.trim();$('#roomNameModal').hidden=true;
+  if(!name||!state.room)return;
+  await sb.from('rooms').update({display_name:name}).eq('id',state.room.id);
+  state.room.display_name=name;const partner=partnerOf(state.room.members);
+  rememberRoom(state.room.code,state.user.id,(partner?.display_name)||'',name);renderRecentRooms();
+});
 
-        const gameOverlay = document.getElementById('game-overlay');
-        const tensionLine = document.getElementById('tension-line');
-        const myZone = document.getElementById('my-zone');
-        const myScoreEl = document.getElementById('my-score');
-        const opponentScoreEl = document.getElementById('opponent-score');
+// ─── overlay ──────────────────────────────────────────────
+function openOverlay(){$('#gameOverlay').classList.add('active');$('#screen-room').classList.add('game-active')}
+function closeOverlay(){$('#gameOverlay').classList.remove('active');$('#screen-room').classList.remove('game-active');$('#gameContent').innerHTML='';const v=$('#todVig');if(v)v.remove()}
 
-        // Start Game
-        document.getElementById('start-btn').addEventListener('click', () => {
-            state.gameActive = true;
-            state.myScore = 0;
-            state.opponentScore = 0;
-            myScoreEl.innerText = '0';
-            opponentScoreEl.innerText = '0';
-            updatePhysics();
-            
-            gameOverlay.classList.add('active');
-            appContainer.style.transform = 'scale(0.95)'; // Depth effect
-        });
+// ─── realtime ─────────────────────────────────────────────
+async function unsubscribeAll(){for(const ch of state.channels){try{await sb.removeChannel(ch)}catch(e){}}state.channels=[];state.presence=new Set()}
+function subscribeRoom(){
+  if(!state.room)return;
+  const rid=state.room.id;
+  const memCh=sb.channel(`rm:${rid}:members`).on('postgres_changes',{event:'*',schema:'public',table:'room_members',filter:`room_id=eq.${rid}`},async()=>{
+    const{data:members}=await sb.from('room_members').select('user_id,role,joined_at').eq('room_id',rid);
+    const ids=(members||[]).map(m=>m.user_id);const pm={};(state.room.members||[]).forEach(m=>pm[m.user_id]=m.display_name);
+    const miss=ids.filter(id=>!pm[id]);
+    if(miss.length){const{data:profs}=await sb.from('profiles').select('id,display_name').in('id',miss);(profs||[]).forEach(p=>{pm[p.id]=p.display_name})}
+    state.room.members=(members||[]).map(m=>({...m,display_name:pm[m.user_id]||'...'}));renderHub();renderRoomBar();
+  }).subscribe();
+  state.channels.push(memCh);
+  const gameCh=sb.channel(`rm:${rid}:games`).on('postgres_changes',{event:'*',schema:'public',table:'game_sessions',filter:`room_id=eq.${rid}`},async(payload)=>{
+    if(payload.eventType==='DELETE'){if(state.activeGame?.id===payload.old.id){state.activeGame=null;closeOverlay();renderHub()}return}
+    const row=payload.new;
+    if(row.ended_at){if(state.activeGame?.id===row.id){state.activeGame=row;renderGameContent()}return}
+    if(!state.activeGame||state.activeGame.version<=row.version){state.activeGame=row;renderGameContent()}
+  }).subscribe();
+  state.channels.push(gameCh);
+  const wyrCh=sb.channel(`rm:${rid}:wyr`).on('postgres_changes',{event:'INSERT',schema:'public',table:'wyr_moves'},async(payload)=>{
+    if(state.activeGame?.game_type!=='wyr'||payload.new.game_id!==state.activeGame.id)return;
+    await refreshWyrRound();
+  }).subscribe();
+  state.channels.push(wyrCh);
+  const presCh=sb.channel(`rm:${rid}:presence`,{config:{presence:{key:state.user.id}}});
+  presCh.on('presence',{event:'sync'},()=>{state.presence=new Set(Object.keys(presCh.presenceState()));renderRoomBar()})
+    .on('broadcast',{event:'emoji'},({payload})=>{if(payload.user_id!==state.user.id)floatEmoji(payload.em)})
+    .on('broadcast',{event:'fs_ready'},({payload})=>{if(payload.user_id!==state.user.id){_walkPartnerReady=true;checkBothFSReady()}})
+    .subscribe(async(s)=>{if(s==='SUBSCRIBED')await presCh.track({online_at:new Date().toISOString()})});
+  state.channels.push(presCh);
+}
 
-        // End Game
-        window.endGame = function() {
-            state.gameActive = false;
-            gameOverlay.classList.remove('active');
-            appContainer.style.transform = 'scale(1)';
-            console.log(`Match Ended. ${state.myScore} - ${state.opponentScore}`);
-        };
+// ─── polling / keep-alive ─────────────────────────────────
+let _pollTimer=null,_kaTimer=null;
+function startPolling(){if(_pollTimer)clearInterval(_pollTimer);_pollTimer=setInterval(syncRoomState,4000)}
+function stopPolling(){if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null}}
+function startKeepAlive(){stopKeepAlive();_kaTimer=setInterval(async()=>{if(!state.room||!partnerOf(state.room.members))return;try{await sb.from('rooms').update({last_active_at:new Date().toISOString()}).eq('id',state.room.id)}catch(e){}},55000)}
+function stopKeepAlive(){if(_kaTimer){clearInterval(_kaTimer);_kaTimer=null}}
+async function ensureChannelsAlive(){if(!state.room)return;const dead=state.channels.some(ch=>['closed','errored','leaving','left'].includes(ch.state));if(dead){await unsubscribeAll();subscribeRoom()}}
+async function syncRoomState(){
+  if(!state.room)return;
+  try{
+    const{data:game}=await sb.from('game_sessions').select('*').eq('room_id',state.room.id).is('ended_at',null).maybeSingle();
+    if(!game&&state.activeGame&&!state.activeGame.ended_at){state.activeGame=null;renderGameContent();return}
+    if(game){if(!state.activeGame||game.id!==state.activeGame.id||game.version>state.activeGame.version){state.activeGame=game;renderGameContent()}if(game.game_type==='wyr')await refreshWyrRound()}
+    const{data:members}=await sb.from('room_members').select('user_id,role,joined_at').eq('room_id',state.room.id);
+    if(members){const ids=members.map(m=>m.user_id);const pm={};(state.room.members||[]).forEach(m=>pm[m.user_id]=m.display_name);const miss=ids.filter(id=>!pm[id]);if(miss.length){const{data:profs}=await sb.from('profiles').select('id,display_name').in('id',miss);(profs||[]).forEach(p=>{pm[p.id]=p.display_name})}const before=JSON.stringify(state.room.members.map(m=>m.user_id).sort());state.room.members=members.map(m=>({...m,display_name:pm[m.user_id]||'...'}));if(before!==JSON.stringify(ids.sort())){renderHub();renderRoomBar()}}
+  }catch(e){console.debug('sync err',e)}
+}
+document.addEventListener('visibilitychange',async()=>{
+  if(document.visibilityState!=='visible'||!state.room)return;
+  try{await sb.auth.getSession()}catch(e){}
+  await ensureChannelsAlive();syncRoomState();
+});
+window.addEventListener('online',async()=>{if(!state.room)return;try{await sb.auth.getSession()}catch(e){}await ensureChannelsAlive();syncRoomState()});
 
-        // Tap Logic (Pointerdown for speed/weight)
-        myZone.addEventListener('pointerdown', (e) => {
-            if (!state.gameActive) return;
-            
-            state.myScore++;
-            myScoreEl.innerText = state.myScore;
-            
-            // Flash effect
-            myScoreEl.style.color = 'rgba(255,255,255,0.8)';
-            setTimeout(() => myScoreEl.style.color = 'rgba(255,255,255,0.1)', 100);
+// ─── hub ──────────────────────────────────────────────────
+function renderHub(){
+  if(!state.room)return;
+  renderRoomBar();
+  if(state.activeGame){openOverlay();renderGameContent()}
+  else{closeOverlay();renderLobby()}
+}
+function renderRoomBar(){
+  if(!state.room)return;
+  $('#codeValue').textContent=state.room.code;
+  const me=selfOf(state.room.members);const partner=partnerOf(state.room.members);
+  if(me){$('#myBlob').textContent=me.display_name.charAt(0).toUpperCase();$('#myName').textContent=me.display_name}
+  if(partner){
+    const online=state.presence.has(partner.user_id);
+    $('#themBlob').textContent=partner.display_name.charAt(0).toUpperCase();
+    $('#themBlob').classList.toggle('offline',!online);$('#themName').textContent=partner.display_name;
+    $('#tetherLine').style.opacity=online?'.5':'0';
+    // presence dot
+    let dot=$('#themBlob .pdot');if(!dot){dot=document.createElement('div');dot.className='pdot';$('#themBlob').appendChild(dot)}
+    dot.classList.toggle('online',online);
+  } else {$('#themBlob').textContent='?';$('#themName').textContent='─';$('#tetherLine').style.opacity='0'}
+  let mdot=$('#myBlob .pdot');if(!mdot){mdot=document.createElement('div');mdot.className='pdot online';$('#myBlob').appendChild(mdot)}
+}
+function renderLobby(){
+  const partner=partnerOf(state.room.members);const hp=!!partner;
+  $('#hubBody').innerHTML=`
+    <h1 class="hub-title">${hp?`<span class="mint">together</span><br>now what?`:`room\'s <span class="mint">open</span><br>send the code`}</h1>
+    ${!hp?`<div class="hub-waiting"><div class="wait-label">waiting</div><div class="wait-line">share <strong style="color:var(--mint);font-family:'Geist Mono',monospace;letter-spacing:.25em">${state.room.code}</strong> with the other one</div><div class="wait-tip">tap the code above to copy</div></div>`:''}
+    <div class="games-list">
+      <div class="game-card${!hp?' is-disabled':''}">
+        <div class="game-card-title">would you rather</div>
+        <div class="game-card-desc">both pick, then reveal together. agree or diverge.</div>
+        <div class="round-picker">
+          <button class="round-chip" data-game="wyr" data-rounds="5" ${!hp?'disabled':''}>5</button>
+          <button class="round-chip" data-game="wyr" data-rounds="10" ${!hp?'disabled':''}>10</button>
+          <button class="round-chip" data-game="wyr" data-rounds="20" ${!hp?'disabled':''}>20</button>
+          <button class="round-chip round-chip-custom" data-game="wyr" data-rounds="custom" ${!hp?'disabled':''}>custom</button>
+        </div>
+      </div>
+      <div class="game-card${!hp?' is-disabled':''}">
+        <div class="game-card-title">truth or dare</div>
+        <div class="game-card-desc">take turns, pick your poison, the other one judges.</div>
+        <div class="round-picker">
+          <button class="round-chip" data-game="tod" data-rounds="6" ${!hp?'disabled':''}>6</button>
+          <button class="round-chip" data-game="tod" data-rounds="12" ${!hp?'disabled':''}>12</button>
+          <button class="round-chip" data-game="tod" data-rounds="20" ${!hp?'disabled':''}>20</button>
+          <button class="round-chip round-chip-custom" data-game="tod" data-rounds="custom" ${!hp?'disabled':''}>custom</button>
+        </div>
+      </div>
+      <div class="game-card${!hp?' is-disabled':''}">
+        <div class="game-card-title">finger smash</div>
+        <div class="game-card-desc">tap your screen as fast as you can. push the line into their side.</div>
+        <div class="round-picker">
+          <button class="round-chip" data-game="fs" data-rounds="1" ${!hp?'disabled':''}>quick</button>
+          <button class="round-chip" data-game="fs" data-rounds="3" ${!hp?'disabled':''}>best of 3</button>
+        </div>
+      </div>
+    </div>`;
+  $$('.game-card').forEach(c=>{
+    c.addEventListener('pointerdown',()=>c.classList.add('pressing'));
+    c.addEventListener('pointerup',()=>c.classList.remove('pressing'));
+    c.addEventListener('pointerleave',()=>c.classList.remove('pressing'));
+  });
+  $$('.round-chip').forEach(chip=>chip.addEventListener('click',()=>{
+    const g=chip.dataset.game,r=chip.dataset.rounds;
+    if(r==='custom'){const max=g==='wyr'?80:100;const n=parseInt(prompt(`how many rounds? (2–${max})`,g==='wyr'?'10':'10'));if(isNaN(n)||n<2||n>max){toast(`enter 2–${max}`,true);return}const rounds=g==='tod'&&n%2!==0?n+1:n;if(g==='tod'&&rounds!==n)toast(`rounded to ${rounds}`);startGame(g,rounds)}
+    else startGame(g,parseInt(r));
+  }));
+}
 
-            if (state.channel && state.channel.state === 'joined') {
-                state.channel.send({
-                    type: 'broadcast',
-                    event: 'fs_tap',
-                    payload: { score: state.myScore }
-                });
-            }
-            
-            updatePhysics();
-        });
+// ─── game start ───────────────────────────────────────────
+async function startGame(type,rounds){
+  const me=selfOf(state.room.members);const partner=partnerOf(state.room.members);if(!partner)return;
+  let initialState,initialPhase,initialTurn=null;
+  if(type==='wyr'){
+    const n=rounds||7;initialState={round:0,prompts:pickWyrPrompts(n),total_rounds:n,scores:{same:0,different:0},history:[]};initialPhase='pick';
+  }else if(type==='tod'){
+    const n=rounds||6;
+    initialState={theme:null,round:0,total_rounds:n,picker_id:state.user.id,pick:null,prompt_idx:null,judgment:null,
+      used:{easy:{truth:[],dare:[]},fun:{truth:[],dare:[]},wild:{truth:[],dare:[]},spicy:{truth:[],dare:[]}},
+      scores:{[me.user_id]:0,[partner.user_id]:0},escalation:1,stake:null};
+    initialPhase='theme';initialTurn=state.user.id;
+  }else{
+    const n=rounds||1;initialState={total_rounds:n,match_round:0,scores:{[me.user_id]:0,[partner.user_id]:0},match_winner:null};initialPhase='walkthrough';
+  }
+  const{data,error}=await sb.from('game_sessions').insert({room_id:state.room.id,game_type:type,phase:initialPhase,state:initialState,current_turn_user_id:initialTurn}).select().single();
+  if(error){toast('could not start',true);return}
+  state.activeGame=data;state.wyrLastChoiceRound=-1;state._wyrMoves=null;teardownFS();openOverlay();renderGameContent();
+}
 
-        // Tension String Math
-        function updatePhysics() {
-            const totalTaps = state.myScore + state.opponentScore;
-            if (totalTaps === 0) {
-                tensionLine.style.transform = `translateY(-50%)`;
-                tensionLine.style.borderRadius = `0px`;
-                return;
-            }
+// ─── game router ──────────────────────────────────────────
+function renderGameContent(){
+  if(!state.activeGame)return;
+  const g=state.activeGame;
+  if(g.ended_at){renderEndCard();return}
+  if(g.game_type==='wyr')renderWYR();
+  else if(g.game_type==='tod')renderTOD();
+  else if(g.game_type==='fs')renderFS();
+}
 
-            const ratio = state.myScore / totalTaps;
-            const offset = (ratio - 0.5) * -300; 
-            const stretch = Math.abs(ratio - 0.5) * 100;
-            
-            tensionLine.style.transform = `translateY(calc(-50% + ${offset}px))`;
-            
-            if (ratio > 0.5) {
-                tensionLine.style.borderRadius = `50% 50% 0 0 / ${stretch}px ${stretch}px 0 0`;
-                tensionLine.style.height = `${Math.max(1, 4 - (stretch/20))}px`;
-            } else {
-                tensionLine.style.borderRadius = `0 0 50% 50% / 0 0 ${stretch}px ${stretch}px`;
-                tensionLine.style.height = `${Math.max(1, 4 - (stretch/20))}px`;
-            }
-        }
-    </script>
+// ─── WYR ──────────────────────────────────────────────────
+async function refreshWyrRound(){
+  if(!state.activeGame||state.activeGame.game_type!=='wyr')return;
+  const round=state.activeGame.state.round;
+  const{data:moves}=await sb.from('wyr_moves').select('user_id,choice,round').eq('game_id',state.activeGame.id).eq('round',round);
+  state._wyrMoves=moves||[];
+  if(state.activeGame.phase==='pick'&&(moves||[]).length>=2){
+    const ns=JSON.parse(JSON.stringify(state.activeGame.state));
+    const a=moves[0],b=moves[1];const match=a.choice===b.choice;
+    ns.scores={same:(ns.scores.same||0)+(match?1:0),different:(ns.scores.different||0)+(match?0:1)};
+    ns.history.push({prompt:ns.prompts[round],choices:{[a.user_id]:a.choice,[b.user_id]:b.choice}});
+    const{data,error}=await sb.from('game_sessions').update({state:ns,phase:'reveal'}).eq('id',state.activeGame.id).eq('version',state.activeGame.version).eq('phase','pick').select();
+    if(!error&&data?.length>0)state.activeGame=data[0];
+  }
+  renderWYR();
+}
+function renderWYR(){
+  const gc=$('#gameContent');const g=state.activeGame;
+  const round=g.state.round;const prompt=g.state.prompts[round];
+  const me=selfOf(state.room.members);const partner=partnerOf(state.room.members);
+  const moves=state._wyrMoves||[];
+  const myMove=moves.find(m=>m.user_id===me.user_id);
+  const theirMove=moves.find(m=>m.user_id===partner?.user_id);
+  const isReveal=g.phase==='reveal';
+  let banner='',waitMsg='';
+  if(isReveal&&myMove&&theirMove){const match=myMove.choice===theirMove.choice;banner=`<div class="reveal-banner${match?' match':''}">${match?'✦ same pick':'different picks'}</div>`}
+  if(!myMove&&!theirMove)waitMsg='both thinking...';
+  else if(myMove&&!theirMove)waitMsg='<span class="blink-dot"></span>waiting for them';
+  else if(!myMove&&theirMove)waitMsg='<span class="blink-dot"></span>they picked — your turn';
+  const zA=['wyr-zone','wyr-zone-a',...(myMove?.choice===0?['picked-you']:[]),...(theirMove?.choice===0?['picked-them']:[]),...(myMove?.choice===0&&theirMove?.choice===0?['picked-both']:[])].join(' ');
+  const zB=['wyr-zone','wyr-zone-b',...(myMove?.choice===1?['picked-you']:[]),...(theirMove?.choice===1?['picked-them']:[]),...(myMove?.choice===1&&theirMove?.choice===1?['picked-both']:[])].join(' ');
+  const tagsA=[],tagsB=[];
+  if(myMove){(myMove.choice===0?tagsA:tagsB).push('<span class="pick-tag">you</span>')}
+  if(theirMove){const tn=esc(partner?.display_name||'them');(theirMove.choice===0?tagsA:tagsB).push(`<span class="pick-tag">${tn}</span>`)}
+  const dis=myMove||isReveal?'data-disabled="1"':'';
+  gc.innerHTML=`<div class="game-screen">
+    <div class="game-meta-bar">
+      <button class="game-back" id="gbk">← hub</button>
+      <div class="scores"><div class="score-chip">same <span class="num">${g.state.scores.same||0}</span></div><div class="score-chip">diff <span class="num">${g.state.scores.different||0}</span></div></div>
+      <div class="game-round">${round+1}/${g.state.prompts.length}</div>
+    </div>
+    <div class="wyr-split" id="wyrSplit">
+      <div class="${zA}" id="zA" ${dis}><div class="wyr-zone-label">option a</div><div class="wyr-option-text">${esc(prompt[0])}</div><div class="wyr-option-tags">${tagsA.join('')}</div></div>
+      <div class="wyr-question-pill">${esc(prompt[0])} <span style="color:var(--mint)">or</span> ${esc(prompt[1])}?</div>
+      <div class="${zB}" id="zB" ${dis}><div class="wyr-zone-label">option b</div><div class="wyr-option-text">${esc(prompt[1])}</div><div class="wyr-option-tags">${tagsB.join('')}</div></div>
+    </div>
+    ${banner||`<div class="wyr-waiting-pill">${waitMsg}</div>`}
+    ${isReveal?`<button class="btn-primary" id="wyrNext">${round+1>=g.state.prompts.length?'see how it went':'next round'} <span class="arrow">→</span></button>`:''}
+  </div>`;
+  ['zA','zB'].forEach((id,idx)=>{const z=$('#'+id);if(!z||z.dataset.disabled)return;let _lft=0;z.addEventListener('touchstart',e=>{_lft=Date.now();makeWyrChoice(idx,e)},{passive:false});z.addEventListener('mousedown',e=>{if(Date.now()-_lft<600)return;makeWyrChoice(idx,e)})});
+  $('#wyrNext')?.addEventListener('click',advanceWyrRound);
+  $('#gbk')?.addEventListener('click',confirmEndGame);
+  if(!state._wyrMoves)refreshWyrRound();
+}
+async function makeWyrChoice(choice,e){
+  if(e?.cancelable)e.preventDefault();
+  const g=state.activeGame;const round=g.state.round;
+  if(state.wyrLastChoiceRound===round)return;state.wyrLastChoiceRound=round;
+  const{error}=await sb.from('wyr_moves').insert({game_id:g.id,user_id:state.user.id,round,choice});
+  if(error&&error.code!=='23505'){toast('could not register',true);state.wyrLastChoiceRound=-1;return}
+  await refreshWyrRound();
+}
+async function advanceWyrRound(){
+  const g=state.activeGame;const next=g.state.round+1;
+  if(next>=g.state.prompts.length){await sb.from('game_sessions').update({ended_at:new Date().toISOString(),phase:'ended'}).eq('id',g.id);return}
+  await sb.from('game_sessions').update({state:{...g.state,round:next},phase:'pick'}).eq('id',g.id).eq('version',g.version);
+  state._wyrMoves=[];state.wyrLastChoiceRound=-1;
+}
+
+// ─── TOD ──────────────────────────────────────────────────
+function renderTOD(){
+  const p=state.activeGame.phase;
+  if(p==='theme')renderTODTheme();
+  else if(p==='stake')renderTODStake();
+  else if(p==='pick')renderTODPick();
+  else if(p==='prompt'||p==='judge')renderTODPrompt();
+  else if(p==='result')renderTODResult();
+}
+let _ocIdx=0,_ocHeld=false,_ocTimer=null;
+function renderTODTheme(){
+  const g=state.activeGame;const gc=$('#gameContent');
+  const isMaster=g.current_turn_user_id===state.user.id;
+  const theme=TOD_THEMES[_ocIdx];
+  gc.innerHTML=`<div class="game-screen">
+    <div class="game-meta-bar"><button class="game-back" id="gbk">← hub</button><div></div></div>
+    <div class="tod-theme-screen" id="themeScreen">
+      <div class="tod-theme-bg" id="themeBg" style="background:${theme.color}"></div>
+      <div class="theme-display" style="position:relative;z-index:1">
+        <div class="theme-name-big" id="themeNameBig">${theme.name}</div>
+        <div class="theme-desc" id="themeDescEl">${theme.desc}</div>
+      </div>
+      ${isMaster?`
+        <div class="overclock-ring" id="ocRing">
+          <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6"/><circle id="ocArc" cx="60" cy="60" r="52" fill="none" stroke="var(--mint)" stroke-width="6" stroke-dasharray="0 327" stroke-linecap="round" transform="rotate(-90 60 60)" style="transition:stroke-dasharray .05s linear"/></svg>
+          <button class="overclock-btn" id="ocBtn"><div class="overclock-theme-name">hold</div><div class="overclock-btn-label">to cycle</div></button>
+        </div>
+        <div class="hold-instruction">hold to cycle · release to lock in</div>
+      `:`<div class="wyr-waiting-pill"><span class="blink-dot"></span>they're choosing the vibe</div>`}
+    </div>
+  </div>`;
+  $('#gbk')?.addEventListener('click',confirmEndGame);
+  if(!isMaster)return;
+  const arc=$('#ocArc');const circ=2*Math.PI*52;let _prog=0,_hStart=0,_raf=null;
+  function startHold(){_ocHeld=true;_hStart=Date.now();function tick(){if(!_ocHeld)return;_prog=Math.min((Date.now()-_hStart)/800,1);arc.setAttribute('stroke-dasharray',`${_prog*circ} ${circ}`);if(_prog>=1){_ocIdx=(_ocIdx+1)%TOD_THEMES.length;_hStart=Date.now();_prog=0;const t=TOD_THEMES[_ocIdx];$('#themeNameBig').textContent=t.name;$('#themeDescEl').textContent=t.desc;$('#themeBg').style.background=t.color;arc.setAttribute('stroke-dasharray',`0 ${circ}`)}_raf=requestAnimationFrame(tick)}_raf=requestAnimationFrame(tick)}
+  function stopHold(){_ocHeld=false;cancelAnimationFrame(_raf);arc.setAttribute('stroke-dasharray',`0 ${circ}`);_prog=0;lockTheme()}
+  async function lockTheme(){const t=TOD_THEMES[_ocIdx];await sb.from('game_sessions').update({state:{...g.state,theme:t.id},phase:'stake'}).eq('id',g.id).eq('version',g.version)}
+  $('#ocBtn').addEventListener('pointerdown',e=>{e.preventDefault();startHold()});
+  $('#ocBtn').addEventListener('pointerup',stopHold);$('#ocBtn').addEventListener('pointerleave',()=>{if(_ocHeld)stopHold()});
+}
+function renderTODStake(){
+  const g=state.activeGame;const gc=$('#gameContent');
+  const t=TOD_THEMES.find(x=>x.id===g.state.theme)||TOD_THEMES[0];
+  gc.innerHTML=`<div class="game-screen">
+    <div class="game-meta-bar"><button class="game-back" id="gbk">← hub</button><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mint)">${t.name}</span></div>
+    <div class="stake-screen">
+      <h2 class="stake-title">what does the <span class="mint">loser</span> owe?</h2>
+      <input type="text" class="stake-input" id="stakeInput" placeholder="loser makes dinner..." maxlength="60"/>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="stakeSkip">skip</button>
+        <button class="btn-primary" id="stakeConfirm">set stakes <span class="arrow">→</span></button>
+      </div>
+    </div>
+  </div>`;
+  $('#gbk')?.addEventListener('click',confirmEndGame);$('#stakeInput').focus();
+  async function proceed(stake){await sb.from('game_sessions').update({state:{...g.state,stake:stake||null},phase:'pick',current_turn_user_id:g.state.picker_id}).eq('id',g.id).eq('version',g.version)}
+  $('#stakeConfirm').addEventListener('click',()=>proceed($('#stakeInput').value.trim()));
+  $('#stakeSkip').addEventListener('click',()=>proceed(null));
+  $('#stakeInput').addEventListener('keydown',e=>{if(e.key==='Enter')proceed($('#stakeInput').value.trim())});
+}
+function renderTODPick(){
+  const g=state.activeGame;const gc=$('#gameContent');
+  const me=selfOf(state.room.members);const partner=partnerOf(state.room.members);
+  const isPicker=g.state.picker_id===state.user.id;
+  const tier=getTODTier(g.state.theme,g.state.round);
+  const tierEmoji={easy:'⬛',fun:'🟦',wild:'🟧',spicy:'🟥'};
+  gc.innerHTML=`<div class="game-screen">
+    <div class="game-meta-bar">
+      <button class="game-back" id="gbk">← hub</button>
+      <div class="scores"><div class="score-chip">${esc(me.display_name.slice(0,8))} <span class="num">${g.state.scores[me.user_id]||0}</span></div><div class="score-chip">${esc((partner?.display_name||'–').slice(0,8))} <span class="num">${g.state.scores[partner?.user_id]||0}</span></div></div>
+      <div class="game-round">${g.state.round+1}/${g.state.total_rounds||6}</div>
+    </div>
+    ${g.state.stake?`<div class="stake-banner">🏆 ${esc(g.state.stake)}</div>`:''}
+    ${g.state.escalation>1?`<div class="escalation-badge">🔥 penalty ×${g.state.escalation} active</div>`:''}
+    <div class="tod-turn-banner">
+      <div class="who">${isPicker?'your turn':'their turn'}</div>
+      <div class="what">${isPicker?`pick <span style="color:var(--mint)">truth</span> or <span style="color:var(--mint)">dare</span>`:`${esc(partner?.display_name||'they')} is choosing`}</div>
+    </div>
+    <div style="text-align:center;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">${tierEmoji[tier]||''} ${tier}</div>
+    ${isPicker?`<div class="tod-pick"><button class="tod-pick-btn" id="pickT">truth</button><button class="tod-pick-btn" id="pickD">dare</button></div>`:''}
+  </div>`;
+  $('#gbk')?.addEventListener('click',confirmEndGame);
+  $('#pickT')?.addEventListener('click',()=>pickTOD('truth'));
+  $('#pickD')?.addEventListener('click',()=>pickTOD('dare'));
+}
+async function pickTOD(pick){
+  const g=state.activeGame;const tier=getTODTier(g.state.theme,g.state.round);
+  const list=TOD_PROMPTS[tier][pick];
+  const used=Array.from(new Set([...(g.state.used[tier][pick]||[]),...(state.room?getUsedIdxs(state.room.code,`tod.${tier}.${pick}`):[])]));
+  const idx=pickFreshIdx(list.length,used);
+  if(state.room)addUsedIdxs(state.room.code,`tod.${tier}.${pick}`,[idx]);
+  const newUsed=JSON.parse(JSON.stringify(g.state.used));newUsed[tier][pick]=[...(g.state.used[tier][pick]||[]),idx];
+  await sb.from('game_sessions').update({state:{...g.state,pick,prompt_idx:idx,used:newUsed,current_tier:tier},phase:'prompt'}).eq('id',g.id).eq('version',g.version);
+}
+function renderTODPrompt(){
+  const g=state.activeGame;const gc=$('#gameContent');
+  const me=selfOf(state.room.members);const partner=partnerOf(state.room.members);
+  const isPicker=g.state.picker_id===state.user.id;
+  const tier=g.state.current_tier||getTODTier(g.state.theme,g.state.round);
+  const promptText=TOD_PROMPTS[tier][g.state.pick][g.state.prompt_idx];
+  const isJudge=g.phase==='judge';
+  gc.innerHTML=`<div class="game-screen">
+    <div class="game-meta-bar">
+      <button class="game-back" id="gbk">← hub</button>
+      <div class="scores"><div class="score-chip">${esc(me.display_name.slice(0,8))} <span class="num">${g.state.scores[me.user_id]||0}</span></div><div class="score-chip">${esc((partner?.display_name||'–').slice(0,8))} <span class="num">${g.state.scores[partner?.user_id]||0}</span></div></div>
+      <div class="game-round">${g.state.round+1}/${g.state.total_rounds||6}</div>
+    </div>
+    ${g.state.stake?`<div class="stake-banner">🏆 ${esc(g.state.stake)}</div>`:''}
+    <div class="tod-prompt-box" id="todBox"><div class="tod-prompt-tag">${g.state.pick} · ${tier}</div><div class="tod-prompt-text" id="todTxt"></div></div>
+    ${isPicker&&!isJudge?`<button class="overclock-hold-btn" id="doneBtn"><div class="hold-fill" id="doneFill"></div>hold to confirm done</button>`:''}
+    ${!isPicker&&isJudge?`<div class="tod-judge"><button class="judge-btn did" id="jDid">they did it</button><button class="judge-btn didnt" id="jDidnt">they didn't</button></div>`:''}
+    ${isPicker&&isJudge?`<div class="wyr-waiting-pill"><span class="blink-dot"></span>${esc(partner?.display_name||'they')} is judging</div>`:''}
+    ${!isPicker&&!isJudge?`<div class="wyr-waiting-pill"><span class="blink-dot"></span>watching ${esc(isPicker?'you':partner?.display_name||'them')}...</div>`:''}
+    <div class="emoji-bar">${['😂','🔥','❤️','💀','👏'].map(e=>`<button class="emoji-btn" data-em="${e}">${e}</button>`).join('')}</div>
+  </div>`;
+  // Vignette
+  let vig=document.getElementById('todVig');if(!vig){vig=document.createElement('div');vig.id='todVig';vig.className='tod-vignette';document.body.appendChild(vig)}
+  requestAnimationFrame(()=>vig.classList.add('active'));
+  $('#gbk')?.addEventListener('click',()=>{vig.remove();confirmEndGame()});
+  typeText($('#todTxt'),promptText);
+  // Overclock hold done
+  const doneBtn=$('#doneBtn');if(doneBtn){
+    const fill=$('#doneFill');let _h=false,_s=0,_r=null;
+    function sh(){_h=true;_s=Date.now();(function t(){if(!_h)return;const p=Math.min((Date.now()-_s)/600,1);fill.style.width=p*100+'%';if(p>=1){_h=false;todDone();return}_r=requestAnimationFrame(t)})()}
+    function eh(){_h=false;cancelAnimationFrame(_r);fill.style.width='0%'}
+    doneBtn.addEventListener('pointerdown',e=>{e.preventDefault();sh()});
+    doneBtn.addEventListener('pointerup',eh);doneBtn.addEventListener('pointerleave',eh);
+  }
+  $('#jDid')?.addEventListener('click',()=>{vig.remove();judge('did')});
+  $('#jDidnt')?.addEventListener('click',()=>{vig.remove();judge('didnt')});
+  $$('.emoji-btn').forEach(b=>b.addEventListener('click',()=>sendEmoji(b.dataset.em)));
+}
+function typeText(el,text){el.innerHTML='';let i=0;const cur=document.createElement('span');cur.className='typing-cursor';el.appendChild(cur);(function step(){if(i<text.length){el.insertBefore(document.createTextNode(text[i]),cur);i++;setTimeout(step,26)}else setTimeout(()=>cur.remove(),1200)})()}
+async function todDone(){await sb.from('game_sessions').update({phase:'judge'}).eq('id',state.activeGame.id).eq('version',state.activeGame.version)}
+async function judge(verdict){
+  const g=state.activeGame;const ns=JSON.parse(JSON.stringify(g.state));ns.judgment=verdict;
+  if(verdict==='did'){const pts=1*(ns.escalation||1);ns.scores[g.state.picker_id]=(ns.scores[g.state.picker_id]||0)+pts;ns.escalation=1}
+  else{ns.escalation=Math.min((ns.escalation||1)*2,16)}
+  await sb.from('game_sessions').update({state:ns,phase:'result'}).eq('id',g.id).eq('version',g.version);
+  if(verdict==='didnt'){const f=document.createElement('div');f.className='penalty-flash';f.innerHTML=`<div style="font-size:22px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;color:var(--warn)">🔥 penalty doubled</div>`;document.body.appendChild(f);setTimeout(()=>f.remove(),800)}
+}
+function renderTODResult(){
+  const g=state.activeGame;const gc=$('#gameContent');
+  const me=selfOf(state.room.members);const partner=partnerOf(state.room.members);const did=g.state.judgment==='did';
+  gc.innerHTML=`<div class="game-screen">
+    <div class="game-meta-bar"><button class="game-back" id="gbk">← hub</button><div class="scores"><div class="score-chip">${esc(me.display_name.slice(0,8))} <span class="num">${g.state.scores[me.user_id]||0}</span></div><div class="score-chip">${esc((partner?.display_name||'–').slice(0,8))} <span class="num">${g.state.scores[partner?.user_id]||0}</span></div></div><div class="game-round">${g.state.round+1}/${g.state.total_rounds||6}</div></div>
+    <div class="reveal-banner${did?' match':''}"> ${did?'✦ point scored':'couldn\'t do it'}</div>
+    ${g.state.escalation>1?`<div class="escalation-badge" style="margin-top:8px">🔥 next penalty ×${g.state.escalation}</div>`:''}
+    <button class="btn-primary" id="todNext">${g.state.round+1>=(g.state.total_rounds||6)?'see how it went':'next round'} <span class="arrow">→</span></button>
+    <div class="emoji-bar">${['😂','🔥','❤️','💀','👏'].map(e=>`<button class="emoji-btn" data-em="${e}">${e}</button>`).join('')}</div>
+  </div>`;
+  $('#gbk')?.addEventListener('click',confirmEndGame);
+  $('#todNext')?.addEventListener('click',advanceTodRound);
+  $$('.emoji-btn').forEach(b=>b.addEventListener('click',()=>sendEmoji(b.dataset.em)));
+}
+async function advanceTodRound(){
+  const g=state.activeGame;const next=g.state.round+1;const total=g.state.total_rounds||6;
+  if(next>=total){await sb.from('game_sessions').update({ended_at:new Date().toISOString(),phase:'ended'}).eq('id',g.id);return}
+  const partner=partnerOf(state.room.members);
+  const newPicker=g.state.picker_id===state.user.id?partner?.user_id:state.user.id;
+  const ns={...g.state,round:next,picker_id:newPicker,pick:null,prompt_idx:null,judgment:null};
+  await sb.from('game_sessions').update({state:ns,phase:'pick',current_turn_user_id:newPicker}).eq('id',g.id).eq('version',g.version);
+}
+function sendEmoji(em){floatEmoji(em);const pCh=state.channels.find(c=>c.topic?.includes('presence'));pCh?.send({type:'broadcast',event:'emoji',payload:{em,user_id:state.user.id}}).catch(()=>{})}
+function floatEmoji(em){const el=document.createElement('div');el.className='emoji-float';el.textContent=em;el.style.cssText=`left:${20+Math.random()*60}%;bottom:80px;--dx:${(Math.random()-.5)*60}px`;document.body.appendChild(el);setTimeout(()=>el.remove(),1500)}
+
+// ─── Finger Smash ─────────────────────────────────────────
+let _fsCh=null,_fsBt=null,_fsCt=null,_fsMt=null,_fsPwt=null;
+let _walkFrame=0,_walkReady=false,_walkPartnerReady=false,_walkAutoTimer=null;
+const FS_WALK=[
+  {icon:'👆',text:'tap as fast as you can',sub:'every tap pushes the line toward their side'},
+  {icon:'💣',text:'watch out for the bomb',sub:'tap it and you overheat — keep your eyes open'},
+  {icon:'⚡🧊',text:'powerups change everything',sub:'turbo doubles your taps · freeze stops them cold'},
+];
+function resetFSLocal(){state.fsLocal={phase:'countdown',countdown:3,myCount:0,opponentCount:0,myTaps:[],overheated:false,frozen:false,linePos:50,roundWinner:null,endedLocally:false,turboRemaining:0,powerups:[],_pwId:0}}
+function teardownFS(){
+  if(_fsCh){try{sb.removeChannel(_fsCh)}catch(e){}_fsCh=null}
+  [_fsBt,_fsCt,_fsMt,_fsPwt].forEach(t=>{if(t){clearInterval(t);clearTimeout(t)}});
+  _fsBt=_fsCt=_fsMt=_fsPwt=null;_fsRoundKey=null;state.fsLocal=null;
+}
+let _fsRoundKey=null;
+function subscribeFSChannel(){
+  if(!state.activeGame||state.activeGame.game_type!=='fs')return;
+  if(_fsCh){try{sb.removeChannel(_fsCh)}catch(e){}_fsCh=null}
+  _fsCh=sb.channel(`fs:${state.activeGame.id}`)
+    .on('broadcast',{event:'count'},({payload})=>{
+      if(!state.fsLocal||state.fsLocal.phase!=='playing'||payload.user_id===state.user.id)return;
+      if(payload.round!==state.activeGame.state.match_round)return;
+      state.fsLocal.opponentCount=Math.max(state.fsLocal.opponentCount,payload.count);
+      computeFSLine();paintFS();
+    })
+    .on('broadcast',{event:'won'},({payload})=>{
+      if(!state.fsLocal||state.fsLocal.endedLocally||payload.round!==state.activeGame.state.match_round)return;
+      state.fsLocal.endedLocally=true;state.fsLocal.roundWinner=payload.winner_id;state.fsLocal.phase='over';
+      stopFSTimers();hostRecordFSWin(payload.winner_id);renderGameContent();
+    })
+    .on('broadcast',{event:'sabotage'},({payload})=>{
+      if(payload.target_id!==state.user.id||!state.fsLocal||state.fsLocal.frozen)return;
+      state.fsLocal.frozen=true;paintFS();setTimeout(()=>{if(state.fsLocal)state.fsLocal.frozen=false;paintFS()},2000);
+    })
+    .subscribe();
+}
+function stopFSTimers(){[_fsBt,_fsCt,_fsMt,_fsPwt].forEach(t=>{clearInterval(t);clearTimeout(t)});_fsBt=_fsCt=_fsMt=_fsPwt=null}
+function computeFSLine(){
+  if(!state.fsLocal)return;
+  const delta=state.fsLocal.myCount-state.fsLocal.opponentCount;
+  state.fsLocal.linePos=Math.max(0,Math.min(100,50+delta*FS_BASE_TAP_WEIGHT));
+  if(state.fsLocal.phase!=='playing'||state.fsLocal.endedLocally)return;
+  const partner=partnerOf(state.room.members);
+  if(state.fsLocal.linePos>=100)declareFSWin(state.user.id);
+  else if(state.fsLocal.linePos<=0&&partner)declareFSWin(partner.user_id);
+}
+function declareFSWin(wid){
+  if(state.fsLocal.endedLocally)return;
+  state.fsLocal.endedLocally=true;state.fsLocal.roundWinner=wid;state.fsLocal.phase='over';
+  stopFSTimers();
+  _fsCh?.send({type:'broadcast',event:'won',payload:{winner_id:wid,round:state.activeGame.state.match_round,ts:Date.now()}}).catch(()=>{});
+  hostRecordFSWin(wid);renderGameContent();
+}
+async function hostRecordFSWin(wid){
+  if(!state.room||state.room.created_by!==state.user.id)return;
+  const g=state.activeGame;
+  const ns=JSON.parse(JSON.stringify(g.state));ns.scores[wid]=(ns.scores[wid]||0)+1;
+  const needed=Math.ceil(ns.total_rounds/2);const ended=ns.scores[wid]>=needed;
+  const upd={state:ns,phase:ended?'ended':'round_done'};if(ended){ns.match_winner=wid;upd.ended_at=new Date().toISOString()}
+  await sb.from('game_sessions').update(upd).eq('id',g.id).eq('version',g.version);
+}
+function renderFS(){
+  const g=state.activeGame;const phase=g.phase;
+  if(phase==='walkthrough'){
+    if(!_fsCh)subscribeFSChannel();
+    renderFSWalk();return;
+  }
+  if(phase==='round_done'){renderFSRoundDone();return}
+  const rk=`${g.id}:${g.state.match_round}`;
+  if(_fsRoundKey!==rk){_fsRoundKey=rk;stopFSTimers();resetFSLocal();if(!_fsCh)subscribeFSChannel();beginFSCountdown()}
+  renderFSMainScreen();
+}
+function renderFSWalk(){
+  const gc=$('#gameContent');const frame=FS_WALK[_walkFrame];
+  gc.innerHTML=`<div class="game-screen" style="position:relative;min-height:400px">
+    <div class="game-meta-bar"><button class="game-back" id="gbk">← hub</button><div></div></div>
+    <div class="fs-walkthrough">
+      <div class="fs-walk-icon">${frame.icon}</div>
+      <div class="fs-walk-text">${frame.text}</div>
+      <div class="fs-walk-sub">${frame.sub}</div>
+      <div class="fs-walk-dots">${FS_WALK.map((_,i)=>`<div class="fs-walk-dot${i===_walkFrame?' active':''}"></div>`).join('')}</div>
+      <button class="${_walkReady?'fs-ready-btn ready':'fs-ready-btn'}" id="fsRdy">${_walkReady?'✓ ready — waiting for them':'tap when ready →'}</button>
+    </div>
+  </div>`;
+  $('#gbk')?.addEventListener('click',confirmEndGame);
+  clearTimeout(_walkAutoTimer);_walkAutoTimer=setTimeout(()=>{if(_walkFrame<FS_WALK.length-1){_walkFrame++;renderFSWalk()}},1800);
+  $('#fsRdy').addEventListener('click',()=>{
+    if(_walkReady)return;_walkReady=true;clearTimeout(_walkAutoTimer);
+    localStorage.setItem('bt-fs-seen','1');
+    const pCh=state.channels.find(c=>c.topic?.includes('presence'));
+    pCh?.send({type:'broadcast',event:'fs_ready',payload:{user_id:state.user.id}}).catch(()=>{});
+    renderFSWalk();checkBothFSReady();
+  });
+}
+function checkBothFSReady(){if(_walkReady&&_walkPartnerReady)sb.from('game_sessions').update({phase:'countdown'}).eq('id',state.activeGame.id).eq('version',state.activeGame.version)}
+function beginFSCountdown(){
+  if(!state.fsLocal)resetFSLocal();state.fsLocal.phase='countdown';state.fsLocal.countdown=3;renderFSMainScreen();
+  _fsCt=setInterval(()=>{if(!state.fsLocal){clearInterval(_fsCt);return}state.fsLocal.countdown--;if(state.fsLocal.countdown<=0){clearInterval(_fsCt);_fsCt=null;beginFSMatch()}else renderFSMainScreen()},1000);
+}
+function beginFSMatch(){
+  if(!state.fsLocal)return;state.fsLocal.phase='playing';renderFSMainScreen();
+  _fsBt=setInterval(()=>{if(!_fsCh||!state.fsLocal||state.fsLocal.phase!=='playing')return;_fsCh.send({type:'broadcast',event:'count',payload:{user_id:state.user.id,count:state.fsLocal.myCount,round:state.activeGame.state.match_round}}).catch(()=>{})},FS_BROADCAST_MS);
+  spawnPwrLoop();
+  _fsMt=setTimeout(()=>{
+    if(!state.fsLocal||state.fsLocal.phase!=='playing'||state.fsLocal.endedLocally)return;
+    const partner=partnerOf(state.room.members);
+    declareFSWin(state.fsLocal.myCount>=state.fsLocal.opponentCount?state.user.id:(partner?.user_id||state.user.id));
+  },FS_MATCH_MS);
+}
+function spawnPwrLoop(){
+  if(_fsPwt)clearInterval(_fsPwt);
+  function trySpawn(){
+    if(!state.fsLocal||state.fsLocal.phase!=='playing')return;
+    if(state.fsLocal.powerups.filter(p=>p.active).length>=2)return;
+    const tapArea=$('#fsTA');if(!tapArea)return;
+    const rect=tapArea.getBoundingClientRect();const m=64,bw=56;
+    const x=m+Math.random()*(rect.width-m*2-bw);const y=m+Math.random()*(rect.height-m*2-bw);
+    const types=['bomb','turbo','freeze'];const type=types[Math.floor(Math.random()*types.length)];
+    const id=state.fsLocal._pwId++;
+    const el=document.createElement('div');el.className=`fs-powerup ${type}`;
+    el.style.cssText=`left:${x}px;top:${y}px`;
+    el.innerHTML=type==='bomb'?'💣':type==='turbo'?'⚡':'❄';el.id=`pw${id}`;
+    tapArea.appendChild(el);
+    const pu={id,type,x:x+28,y:y+28,active:true,el};
+    state.fsLocal.powerups.push(pu);
+    setTimeout(()=>{if(pu.active){pu.active=false;el.style.opacity='0';setTimeout(()=>el.remove(),300);state.fsLocal.powerups=state.fsLocal.powerups.filter(p=>p.id!==id)}},3000);
+  }
+  _fsPwt=setInterval(trySpawn,Math.random()*4000+6000);setTimeout(trySpawn,2500);
+}
+function hitPowerup(cx,cy){
+  if(!state.fsLocal)return null;
+  for(const pu of state.fsLocal.powerups){if(!pu.active)continue;const dx=cx-pu.x,dy=cy-pu.y;if(Math.sqrt(dx*dx+dy*dy)<38)return pu}return null;
+}
+function onFSTap(cx,cy){
+  if(!state.fsLocal||state.fsLocal.phase!=='playing'||state.fsLocal.endedLocally)return;
+  const pu=hitPowerup(cx,cy);
+  if(pu){
+    pu.active=false;pu.el.remove();state.fsLocal.powerups=state.fsLocal.powerups.filter(p=>p.id!==pu.id);
+    if(pu.type==='bomb'){if(!state.fsLocal.overheated){state.fsLocal.overheated=true;paintFS();navigator.vibrate?.([50,100,50]);setTimeout(()=>{if(state.fsLocal)state.fsLocal.overheated=false;paintFS()},1500)}}
+    else if(pu.type==='turbo'){state.fsLocal.turboRemaining=5}
+    else{const p=partnerOf(state.room.members);p&&_fsCh?.send({type:'broadcast',event:'sabotage',payload:{type:'freeze',target_id:p.user_id}}).catch(()=>{})}
+    return;
+  }
+  if(state.fsLocal.frozen||state.fsLocal.overheated)return;
+  const now=Date.now();
+  state.fsLocal.myTaps=state.fsLocal.myTaps.filter(t=>now-t<1000);state.fsLocal.myTaps.push(now);
+  if(state.fsLocal.myTaps.length>FS_OVERHEAT_LIMIT){if(!state.fsLocal.overheated){state.fsLocal.overheated=true;paintFS();setTimeout(()=>{if(state.fsLocal){state.fsLocal.overheated=false;state.fsLocal.myTaps=[]}paintFS()},FS_OVERHEAT_MS)}return}
+  const bonus=state.fsLocal.turboRemaining>0?2:1;
+  state.fsLocal.myCount+=bonus;
+  if(state.fsLocal.turboRemaining>0){state.fsLocal.turboRemaining--;if(state.fsLocal.turboRemaining===0){$('#fsTurbo')?.remove()}}
+  computeFSLine();paintFS();
+}
+function renderFSMainScreen(){
+  const gc=$('#gameContent');const g=state.activeGame;const me=selfOf(state.room.members);const partner=partnerOf(state.room.members);
+  const myS=g.state.scores[me.user_id]||0;const thS=partner?(g.state.scores[partner.user_id]||0):0;
+  gc.innerHTML=`<div class="game-screen fs-wrap">
+    <div class="fs-top"><button class="game-back" id="gbk">← hub</button><div class="fs-round-pill">round ${(g.state.match_round||0)+1}/${g.state.total_rounds}</div></div>
+    <div class="fs-counters">
+      <div class="fs-counter fs-counter-me"><div class="fs-counter-label">you</div><div class="fs-counter-num" id="fsMy">${state.fsLocal?.myCount||0}</div></div>
+      <div class="fs-counter fs-counter-them"><div class="fs-counter-label">${esc((partner?.display_name||'them').slice(0,10))}</div><div class="fs-counter-num" id="fsTheir">${state.fsLocal?.opponentCount||0}</div></div>
+    </div>
+    <div class="fs-tap-area" id="fsTA">
+      <div class="fs-string-wrap" id="fsSW" style="bottom:${state.fsLocal?.linePos||50}%"><div class="fs-string" id="fsStr"></div></div>
+      <div class="fs-tap-hint" id="fsHint">tap anywhere</div>
+      <div class="fs-overheat" id="fsOvh">overheated 🔥</div>
+      <div class="fs-frozen" id="fsFrz">frozen ❄️</div>
+      <div class="fs-countdown" id="fsCd"></div>
+    </div>
+  </div>`;
+  $('#gbk')?.addEventListener('click',confirmEndGame);
+  const ta=$('#fsTA');let _lft=0;
+  ta.addEventListener('touchstart',e=>{e.preventDefault();_lft=Date.now();const t=e.touches[0];onFSTap(t.clientX,t.clientY)},{passive:false});
+  ta.addEventListener('mousedown',e=>{if(Date.now()-_lft<600)return;onFSTap(e.clientX,e.clientY)});
+  paintFS();
+}
+function paintFS(){
+  const my=$('#fsMy'),their=$('#fsTheir'),sw=$('#fsSW'),str=$('#fsStr'),hint=$('#fsHint'),ovh=$('#fsOvh'),frz=$('#fsFrz'),cd=$('#fsCd');
+  if(!my||!state.fsLocal)return;
+  my.textContent=state.fsLocal.myCount;their.textContent=state.fsLocal.opponentCount;
+  // Tension string physics
+  const lp=state.fsLocal.linePos;
+  if(sw)sw.style.bottom=lp+'%';
+  if(str){
+    const dev=Math.abs(lp/100-.5)*2;const h=4+dev*10;
+    str.style.height=h+'px';str.style.borderRadius=lp>50?`${Math.floor(dev*60)}% ${Math.floor(dev*60)}% 0 0`:`0 0 ${Math.floor(dev*60)}% ${Math.floor(dev*60)}%`;
+    if(lp>58)str.style.background=`color-mix(in srgb, var(--mint) ${Math.floor(dev*100)}%, var(--text))`;
+    else if(lp<42)str.style.background=`color-mix(in srgb, var(--warn) ${Math.floor(dev*100)}%, var(--text))`;
+    else str.style.background='var(--text)';
+  }
+  const ta=$('#fsTA');
+  if(ta){const lf=Math.max(0,(50-lp)/50);ta.style.boxShadow=`inset 0 0 ${Math.floor(lf*80)}px rgba(255,107,107,${(lf*.45).toFixed(2)})`}
+  if(state.fsLocal.phase==='countdown'){cd&&(cd.style.display='flex');if(cd)cd.textContent=state.fsLocal.countdown>0?state.fsLocal.countdown:'go!';hint&&(hint.style.display='none');ovh&&(ovh.style.display='none')}
+  else if(state.fsLocal.phase==='playing'){cd&&(cd.style.display='none');hint&&(hint.style.display=state.fsLocal.myCount===0?'block':'none');ovh&&(ovh.style.display=state.fsLocal.overheated?'flex':'none');frz&&(frz.style.display=state.fsLocal.frozen?'flex':'none')}
+  else{cd&&(cd.style.display='none');hint&&(hint.style.display='none');ovh&&(ovh.style.display='none')}
+  // Turbo badge
+  let tb=$('#fsTurbo');if(state.fsLocal.turboRemaining>0){if(!tb){tb=document.createElement('div');tb.className='turbo-badge';tb.id='fsTurbo';$('#fsTA')?.appendChild(tb)}tb.textContent=`⚡ turbo ×${state.fsLocal.turboRemaining}`}else if(tb)tb.remove();
+}
+function renderFSRoundDone(){
+  const gc=$('#gameContent');const g=state.activeGame;const me=selfOf(state.room.members);const partner=partnerOf(state.room.members);
+  const myS=g.state.scores[me.user_id]||0;const thS=partner?(g.state.scores[partner.user_id]||0):0;
+  const wid=state.fsLocal?.roundWinner;const wn=wid===me.user_id?'you':(partner?partner.display_name:'they');
+  gc.innerHTML=`<div class="game-screen">
+    <div class="game-meta-bar"><button class="game-back" id="gbk">← hub</button><div class="scores"><div class="score-chip">${esc(me.display_name.slice(0,8))} <span class="num">${myS}</span></div><div class="score-chip">${esc((partner?.display_name||'–').slice(0,8))} <span class="num">${thS}</span></div></div></div>
+    <div class="end-card">
+      <div class="end-headline">${esc(wn)}<br><span class="mint">won that round</span></div>
+      <div class="end-stat">score: <span class="num">${myS}</span> – <span class="num">${thS}</span></div>
+      <div class="end-actions"><button class="btn-primary" id="fsNxt">next round <span class="arrow">→</span></button></div>
+    </div>
+  </div>`;
+  $('#gbk')?.addEventListener('click',confirmEndGame);
+  $('#fsNxt')?.addEventListener('click',async()=>{
+    const ns=JSON.parse(JSON.stringify(g.state));ns.match_round=(ns.match_round||0)+1;
+    await sb.from('game_sessions').update({state:ns,phase:'countdown'}).eq('id',g.id).eq('version',g.version);
+  });
+}
+
+// ─── end card ─────────────────────────────────────────────
+function renderEndCard(){
+  const gc=$('#gameContent');const g=state.activeGame;const me=selfOf(state.room.members);const partner=partnerOf(state.room.members);
+  let headline='',statHtml='';
+  if(g.game_type==='wyr'){
+    const s=g.state.scores.same||0,d=g.state.scores.different||0;
+    headline=s>d?'mostly<br><span class="mint">same page</span>':d>s?'mostly<br><span class="mint">different</span>':'<span class="mint">tied up</span>';
+    statHtml=`<div class="end-stat">same <span class="num">${s}</span></div><div class="end-stat">different <span class="num">${d}</span></div>`;
+  }else if(g.game_type==='fs'){
+    const ms=g.state.scores[me.user_id]||0,ts=partner?(g.state.scores[partner.user_id]||0):0;
+    const iWon=g.state.match_winner===me.user_id;
+    headline=iWon?'<span class="mint">you</span><br>smashed it':`<span class="mint">${esc((partner?.display_name||'they').slice(0,12))}</span><br>got the win`;
+    statHtml=`<div class="end-stat">${esc(me.display_name)} <span class="num">${ms}</span></div><div class="end-stat">${esc(partner?.display_name||'–')} <span class="num">${ts}</span></div>`;
+  }else{
+    const ms=g.state.scores[me.user_id]||0,ts=partner?(g.state.scores[partner.user_id]||0):0;
+    headline=ms>ts?'<span class="mint">you</span><br>showed up':ts>ms?`<span class="mint">${esc((partner?.display_name||'they').slice(0,12))}</span><br>showed up`:'<span class="mint">dead heat</span>';
+    statHtml=`<div class="end-stat">${esc(me.display_name)} <span class="num">${ms}</span></div><div class="end-stat">${esc(partner?.display_name||'–')} <span class="num">${ts}</span></div>`;
+    if(g.state.stake)statHtml+=`<div class="stake-banner" style="margin-top:12px">🏆 ${esc(g.state.stake)}</div>`;
+  }
+  gc.innerHTML=`<div class="game-screen"><div class="end-card">
+    <div class="end-headline">${headline}</div>
+    ${statHtml}
+    <div class="end-actions">
+      <button class="btn-primary" id="playAgain">play again <span class="arrow">→</span></button>
+      <button class="btn-ghost" id="backLobby">back to room</button>
+    </div>
+  </div></div>`;
+  [$('#myBlob'),$('#themBlob')].forEach(b=>{if(b){b.classList.add('pulsing');setTimeout(()=>b.classList.remove('pulsing'),800)}});
+  $('#playAgain').addEventListener('click',()=>{teardownFS();const defs={wyr:7,tod:6,fs:1};startGame(g.game_type,g.state.total_rounds||defs[g.game_type])});
+  $('#backLobby').addEventListener('click',()=>{teardownFS();state.activeGame=null;closeOverlay();renderLobby()});
+}
+async function confirmEndGame(){
+  if(!confirm('leave this game?'))return;
+  const g=state.activeGame;
+  if(g)await sb.from('game_sessions').update({ended_at:new Date().toISOString(),phase:'abandoned'}).eq('id',g.id);
+  teardownFS();state.activeGame=null;closeOverlay();renderLobby();const v=$('#todVig');if(v)v.remove();
+}
+
+// ─── copy code ────────────────────────────────────────────
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#codeTag')||!state.room)return;
+  navigator.clipboard.writeText(state.room.code).then(()=>{const cv=$('#codeValue');const o=cv.textContent;cv.textContent='copied';setTimeout(()=>cv.textContent=o,1200)}).catch(()=>toast('could not copy'));
+});
+
+// ─── name editor ──────────────────────────────────────────
+$('#myBlob').addEventListener('click',()=>{if(!state.profile)return;$('#nameEditModal').hidden=false;$('#nameEditInput').value=state.profile.display_name||'';setTimeout(()=>$('#nameEditInput').focus(),50)});
+$('#nameEditCancel').addEventListener('click',()=>$('#nameEditModal').hidden=true);
+$('#nameEditModal').addEventListener('click',e=>{if(e.target.id==='nameEditModal')$('#nameEditModal').hidden=true});
+$('#nameEditSave').addEventListener('click',async()=>{
+  const name=$('#nameEditInput').value.trim();if(!name){toast('need a name');return}
+  if(name===state.profile.display_name){$('#nameEditModal').hidden=true;return}
+  const btn=$('#nameEditSave');btn.disabled=true;
+  try{const{data,error}=await sb.from('profiles').update({display_name:name}).eq('id',state.user.id).select().single();if(error)throw error;
+    state.profile=data;if(state.room?.members)state.room.members=state.room.members.map(m=>m.user_id===state.user.id?{...m,display_name:name}:m);
+    $('#nameEditModal').hidden=true;renderRoomBar();toast('name updated');
+  }catch(e){toast('could not save',true)}finally{btn.disabled=false}
+});
+$('#nameEditInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#nameEditSave').click();if(e.key==='Escape')$('#nameEditModal').hidden=true});
+
+// ─── routing ──────────────────────────────────────────────
+window.addEventListener('hashchange',handleHash);
+async function handleHash(){
+  const m=window.location.hash.match(/^#\/r\/([A-Z]{4})$/i);
+  if(!m){if(state.room){state.room=null;state.activeGame=null;stopPolling();stopKeepAlive();teardownFS();unsubscribeAll();closeOverlay()}renderRecentRooms();show('screen-home');return}
+  const code=m[1].toUpperCase();
+  let{data:{user}}=await sb.auth.getUser();
+  if(!user){try{const{data:r}=await sb.auth.refreshSession();if(r?.user)user=r.user}catch(e){}}
+  if(!user){slots.forEach((s,i)=>{s.value=code[i]||'';if(s.value)s.classList.add('filled')});show('screen-home');return}
+  state.user=user;
+  const mem=getRememberedRoom(code);
+  if(mem&&mem.userId===user.id){
+    const{data:prof}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
+    if(prof){state.profile=prof;show('screen-room');$('#hubBody').innerHTML='<div class="loading">reconnecting</div>';await loadRoom(code);return}
+  }
+  const{data:prof}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
+  if(!prof){state.pendingAction={type:'join',code};goToNameScreen();return}
+  state.profile=prof;
+  const{data:room}=await sb.from('rooms').select('id,code').eq('code',code).maybeSingle();
+  if(!room){goHome();return}
+  const{data:existing}=await sb.from('room_members').select('user_id').eq('room_id',room.id).eq('user_id',user.id).maybeSingle();
+  if(existing){show('screen-room');$('#hubBody').innerHTML='<div class="loading">loading</div>';await loadRoom(code)}
+  else{state.pendingAction={type:'join',code};await joinRoom(code)}
+}
+
+// ─── init ─────────────────────────────────────────────────
+(async()=>{
+  const{data:{user}}=await sb.auth.getUser();
+  if(user){state.user=user;const{data:prof}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();if(prof)state.profile=prof}
+  renderRecentRooms();handleHash();
+})();
+</script>
 </body>
 </html>
