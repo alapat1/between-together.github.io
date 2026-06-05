@@ -755,67 +755,7 @@
     font-weight: 500;
   }
 
-  /* TOD */
-  .tod-spice {
-    display: flex;
-    gap: 10px;
-    margin: 6px 0 20px;
-  }
-  .spice-btn {
-    flex: 1;
-    background: var(--bg-card);
-    border: 2px solid transparent;
-    border-radius: 16px;
-    padding: 16px 12px;
-    font-family: 'Bricolage Grotesque', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-soft);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .spice-btn:hover { color: var(--text); background: var(--bg-card-hover); }
-  .spice-btn.selected {
-    border-color: var(--mint);
-    color: var(--mint);
-    background: var(--bg-soft);
-  }
-  .spice-label {
-    font-family: 'Geist Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--text-soft);
-    margin-bottom: 4px;
-  }
-  .tod-turn-banner {
-    text-align: center;
-    padding: 20px;
-    background: var(--bg-card);
-    border-radius: 18px;
-    margin: 18px 0;
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-  .tod-turn-banner .who {
-    font-family: 'Geist Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--text-soft);
-    margin-bottom: 8px;
-  }
-  .tod-turn-banner .what {
-    font-size: 22px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
-  .tod-turn-banner .what .mint { color: var(--mint); }
-
-  .tod-pick {
-    display: flex;
-    gap: 14px;
-    margin: 8px 0 24px;
-  }
+  /* TOD pick button (shared) */
   .tod-pick-btn {
     flex: 1;
     background: var(--bg-card);
@@ -836,45 +776,6 @@
     transform: translateY(-2px);
   }
 
-  .tod-prompt-box {
-    background: var(--bg-card);
-    border: 1px solid var(--mint);
-    border-radius: 24px;
-    padding: 32px 26px;
-    margin: 12px 0;
-    box-shadow: 0 0 40px var(--mint-glow);
-  }
-  .tod-prompt-tag {
-    font-family: 'Geist Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--mint);
-    margin-bottom: 14px;
-  }
-  .tod-prompt-text {
-    font-family: 'Bricolage Grotesque', sans-serif;
-    font-size: clamp(22px, 5.5vw, 28px);
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    line-height: 1.3;
-    min-height: 70px;
-  }
-  .typing-cursor {
-    display: inline-block;
-    width: 3px;
-    height: 1em;
-    background: var(--mint);
-    vertical-align: text-bottom;
-    margin-left: 2px;
-    animation: blink 1s steps(2) infinite;
-  }
-
-  .tod-judge {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-  }
   .judge-btn {
     flex: 1;
     background: var(--bg-card);
@@ -890,6 +791,109 @@
   }
   .judge-btn.did:hover { border-color: var(--mint); color: var(--mint); }
   .judge-btn.didnt:hover { border-color: var(--warn); color: var(--warn); }
+
+  /* TOD 2.0 */
+  .tod2-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 4px;
+  }
+  .tod2-phase-banner {
+    background: rgba(255, 140, 100, 0.12);
+    border: 1px solid rgba(255, 140, 100, 0.3);
+    border-radius: 16px;
+    padding: 16px 20px;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-align: center;
+  }
+  .tod2-prompt-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 32px 26px;
+    font-size: clamp(22px, 5.5vw, 30px);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeUp 0.35s ease;
+  }
+  .tod2-action-row {
+    display: flex;
+    gap: 12px;
+  }
+  .tod2-action-row .btn-ghost { flex: 1; }
+  .tod2-action-row .btn-primary { flex: 2; }
+  .tod2-waiting {
+    text-align: center;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .tod2-theme-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .tod2-theme-card {
+    background: var(--bg-card);
+    border: 2px solid transparent;
+    border-radius: 20px;
+    padding: 20px 22px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    color: inherit;
+    width: 100%;
+  }
+  .tod2-theme-card:hover:not([disabled]) {
+    border-color: var(--mint);
+    background: var(--bg-card-hover);
+  }
+  .tod2-theme-card.selected {
+    border-color: var(--mint);
+    background: var(--bg-soft);
+    box-shadow: 0 0 24px var(--mint-glow);
+  }
+  .tod2-theme-card[disabled] { opacity: 0.7; cursor: default; }
+  .tod2-theme-label {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .tod2-theme-desc {
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+  .tod2-vote-indicator {
+    text-align: center;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
 
   /* end-of-game */
   .end-card {
@@ -1498,176 +1502,14 @@
     gap: 6px;
   }
 
-  /* ── TOD 2.0 styles (Change 6) ── */
-  .tod-overclock-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 28px;
-  }
-  .tod-hold-btn-wrap {
-    position: relative;
-    width: 160px;
-    height: 160px;
-  }
-  .tod-hold-btn {
-    width: 160px;
-    height: 160px;
+  /* blink-dot helper */
+  .blink-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
     border-radius: 50%;
-    border: none;
-    background: var(--bg-card);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    z-index: 2;
-    font-family: 'Bricolage Grotesque', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    gap: 4px;
-    transition: transform 0.1s;
-    -webkit-user-select: none;
-    user-select: none;
-    touch-action: none;
-  }
-  .tod-hold-btn:active { transform: scale(0.96); }
-  .tod-hold-btn .theme-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--mint);
-  }
-  .tod-hold-btn .hold-hint {
-    font-size: 11px;
-    color: var(--text-soft);
-    font-family: 'Geist Mono', monospace;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
-  .tod-hold-ring {
-    position: absolute;
-    top: 0; left: 0;
-    width: 160px; height: 160px;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 3;
-  }
-  .tod-stakes-input {
-    width: 100%;
-    background: var(--bg-card);
-    border: 2px solid transparent;
-    border-radius: 18px;
-    padding: 20px 22px;
-    font-family: 'Bricolage Grotesque', sans-serif;
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--text);
-    outline: none;
-    transition: all 0.2s;
-    text-align: center;
-  }
-  .tod-stakes-input::placeholder { color: var(--text-faint); }
-  .tod-stakes-input:focus { border-color: var(--mint); box-shadow: 0 0 24px var(--mint-glow); }
-  .tod-stakes-banner {
-    background: rgba(127,255,196,0.08);
-    border: 1px solid rgba(127,255,196,0.25);
-    border-radius: 12px;
-    padding: 10px 16px;
-    font-size: 13px;
-    color: var(--mint);
-    text-align: center;
-    font-family: 'Geist Mono', monospace;
-    letter-spacing: 0.1em;
-  }
-  .tod-vignette {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 15;
-    transition: opacity 0.4s;
-    background: rgba(10,10,18,0.85);
-    opacity: 0;
-  }
-  .tod-vignette.active { opacity: 1; }
-  .tod-prompt-box.focused {
-    position: relative;
-    z-index: 16;
-    box-shadow: 0 0 60px var(--mint-glow);
-  }
-  .penalty-flash {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9990;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--warn);
-    background: rgba(10,10,18,0.9);
-    border: 1px solid var(--warn);
-    border-radius: 16px;
-    padding: 16px 28px;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .penalty-flash.show { opacity: 1; }
-  .tod-emoji-bar {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 16px;
-  }
-  .tod-emoji-btn {
-    font-size: 24px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 50%;
-    transition: transform 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .tod-emoji-btn:active { transform: scale(1.3); }
-  .floating-emoji {
-    position: fixed;
-    font-size: 28px;
-    pointer-events: none;
-    z-index: 9995;
-    animation: floatEmoji 1.5s ease-out forwards;
-  }
-  @keyframes floatEmoji {
-    0% { opacity: 1; transform: translateY(0) translateX(0); }
-    100% { opacity: 0; transform: translateY(-200px) translateX(var(--drift)); }
-  }
-  .tod-hold-confirm {
-    position: relative;
-    width: 100%;
-    padding: 20px;
-    border-radius: 18px;
-    background: var(--bg-card);
-    border: 2px solid rgba(127,255,196,0.3);
-    font-family: 'Bricolage Grotesque', sans-serif;
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--text);
-    cursor: pointer;
-    overflow: hidden;
-    -webkit-user-select: none;
-    user-select: none;
-    touch-action: none;
-  }
-  .tod-hold-confirm-fill {
-    position: absolute;
-    top: 0; left: 0; bottom: 0;
-    width: 0%;
-    background: rgba(127,255,196,0.15);
-    transition: none;
-    pointer-events: none;
+    background: var(--mint);
+    animation: blink 1.4s ease-in-out infinite;
+    flex-shrink: 0;
   }
 
   /* ── FS 2.0 styles (Change 7) ── */
@@ -1888,9 +1730,6 @@
     </div>
   </div>
 
-  <!-- PENALTY FLASH (Change 6) ───────────────────── -->
-  <div class="penalty-flash" id="penaltyFlash">🔥 penalty doubled</div>
-
 <script>
 const SUPABASE_URL = 'https://zfbahckiiytuebejahia.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_qQfnibwTWXmjqJalCiurEg_ayJHALxH';
@@ -1985,657 +1824,495 @@ const WYR_PROMPTS = [
 ];
 
 const TOD_PROMPTS = {
-  easy: {
+  casual: {
     truth: [
-      "what's a song you'd put on if you wanted to feel cool?",
-      "what's the most useless skill you have?",
-      "what's a snack you can't stop eating lately?",
-      "what's a movie you'd watch on repeat without getting bored?",
-      "what's something you find very funny that nobody else does?",
-      "what's the dumbest thing you'd buy if money didn't matter?",
-      "what's a hill you'd die on about a tv show?",
-      "what's a habit you have that even you find weird?",
-      "what's something you secretly enjoy that you pretend you don't?",
-      "what's a small thing that always makes you smile?",
-      "what's your most-played song this week?",
-      "what would be your ideal breakfast tomorrow morning?",
-      "what's a thing you're irrationally good at?",
-      "if you could pick a superpower for one day only, what?",
-      "what's an animal you'd love to have as a pet?",
-      "what's a tv show you've finished and still miss?",
-      "what's your favourite weather and why?",
-      "what's a small win you've had this week?",
-      "if you could steal someone else's accent permanently, whose?",
-      "what's a meal you'd be sad to never eat again?",
-      "what's a song stuck in your head this week?",
-      "what's the last show you binged?",
-      "what's a movie you'd watch with anyone, anytime?",
-      "what's a small thing you find oddly satisfying?",
-      "what's a takeout order you make too often?",
-      "what's something on your phone you check every morning?",
-      "what's a chore you actually don't mind?",
-      "what's a chore you actively dread?",
-      "what's your favourite kind of cake?",
-      "if you could only drink one beverage forever, which?",
-      "what's a holiday you'd want to spend in pajamas?",
-      "what's a weird snack combination you stand by?",
-      "what's a pet name you'd use for me other than my name?",
-      "what's a smell that instantly puts you in a good mood?",
-      "what's a sound that instantly relaxes you?",
-      "what's a small purchase you're really happy you made?",
-      "what's a podcast or youtube channel you'd recommend?",
-      "what's a niche subject you could talk about for an hour?",
-      "what's a question you wish people asked more?",
-      "what's a thing you find effortlessly hard?",
-      "what's a weather you'd want to wake up to every day?",
-      "what's a season you wish was longer?",
-      "what's a tradition you'd want us to start?",
-      "what's an item of clothing you wear too much?",
-      "what's a small luxury you treat yourself to?",
-      "what's a topic you could rant about indefinitely?",
-      "what's a piece of advice you ignore but probably shouldn't?",
-      "what's a number you find pleasing for no reason?",
-      "what's a colour you keep being drawn to lately?",
-      "what's a fictional character you'd want to meet?",
-      "what's a meal you can make in your sleep?",
-      "what's a meal you wish you could make?",
-      "what's a song you'd add to our shared playlist right now?",
-      "what's something you've watched recently that surprised you?",
-      "what's a fact you bring up too often at parties?",
-      "what's an item in your kitchen you couldn't live without?",
-      "what's a piece of furniture you'd want for our future home?",
-      "what's a city you'd want to visit next?",
-      "what's a part of your routine you actually love?",
-      "what's something you do that makes you laugh at yourself?",
-      "what's a habit you picked up from a friend?",
-      "what's a question you'd ask your future self?",
-      "what's a meme that's never not funny to you?",
-      "what's a small skill you wish you had?",
-      "what's a sport you'd want to learn?",
-      "what's a board game you'd want to play with me right now?",
-      "what's a tv show you watched as a kid that holds up?",
-      "what's a song you'd dance to in a kitchen?",
-      "what's the best gift you've received recently?",
-      "what's a quote you keep coming back to?"
+      "what's a song you'd be embarrassed to admit is on your most-played list",
+      "what's the most useless talent you secretly have",
+      "what's a food you pretend to like but actually don't",
+      "what's the last small lie you told",
+      "what's a purchase you immediately regretted",
+      "what's a tv show you watched all of but would never recommend",
+      "what's the dumbest thing you've googled recently",
+      "what's a habit you have that you'd never admit to in person",
+      "what's the last thing that made you laugh at yourself",
+      "what's a phase you went through that you cringe about now",
+      "what's an opinion you hold that would surprise most people who know you",
+      "what's a skill you claimed to have but didn't",
+      "what's the most boring thing you genuinely enjoy",
+      "what's something you do when nobody's watching",
+      "what's a celebrity crush you'd be embarrassed to say out loud",
+      "what's the worst meal you've cooked and served anyway",
+      "what's a fear you have that other people would find ridiculous",
+      "what's a word you always spell wrong",
+      "what's the last time you cried and what was it about",
+      "what's something you've pretended to understand but never actually did",
+      "what's a childhood dream you still kind of have",
+      "what's the most childish thing you still do",
+      "what's a song you sing in the shower",
+      "what's something you own way too many of",
+      "what's a compliment you got once that you still think about",
+      "what's a show you rewatch when you're sad",
+      "what's the longest you've gone without showering and why",
+      "what's a food combination you eat that others find weird",
+      "what's a word or phrase you say too much",
+      "what's the worst haircut you ever had",
+      "what's something you've never told anyone because it's too embarrassing",
+      "what's the most dramatic thing you've done over something small",
+      "what's a joke you've laughed at that you probably shouldn't have",
+      "what's the last time you were genuinely scared and what happened",
+      "what's a game you take way too seriously",
+      "what's something you're irrationally competitive about",
+      "what's a trend you secretly followed even though you claimed not to",
+      "what's something you've done that you blamed on someone else",
+      "what's a nickname you once had and how did you get it",
+      "what's the most embarrassing thing that's ever happened to you in public",
+      "what's a movie you've pretended to have seen but haven't",
+      "what's a book you started and never finished but tell people you've read",
+      "what's the worst gift you've ever given",
+      "what's the worst gift you've ever received",
+      "what's something you've stolen — even something tiny",
+      "what's a talent show or performance you did as a kid",
+      "what's the most times you've seen the same film",
+      "what's a topic you could talk about for an hour but pretend you don't care about",
+      "what's a rule you always break",
+      "what's something you'd never want your parents to see on your phone",
+      "what's a restaurant you'd be embarrassed to say is your favourite",
+      "what's the most embarrassing thing in your search history right now",
+      "what's something you've faked being good at",
+      "what's a conspiracy theory you kind of believe",
+      "what's the last time you were rude to someone and got away with it",
+      "what's a social situation you always find awkward",
+      "what's a phrase from a film or show that you use in real life too much",
+      "what's the most time you've wasted on something pointless",
+      "what's a smell that takes you back to something embarrassing",
+      "what's the dumbest injury you've ever had",
+      "what's a pet peeve that's secretly about something in yourself",
+      "what's the most embarrassing voicemail you've ever left",
+      "what's an argument you've had with a stranger online",
+      "what's a time you laughed at exactly the wrong moment",
+      "what's a decision you made in the last month that you already regret",
+      "what's the most expensive thing you've ever broken",
+      "what's something you've been putting off for months",
+      "what's a time you got caught doing something you shouldn't have",
+      "what's the lamest excuse you've ever used to get out of something",
+      "what's a social media post you deleted because it got no engagement",
+      "what's something you keep buying even though you never use it",
+      "what's the most embarrassing thing you've said on a date",
+      "what's a time someone gave you a compliment and you handled it badly",
+      "what's a habit you've tried to quit and failed",
+      "what's a weird thing you do before you fall asleep",
+      "what's the worst decision you made last week",
+      "what's a time you walked into a room and immediately wanted to leave",
+      "what's an app on your phone you'd be embarrassed to explain",
+      "what's a thing you've done to impress someone that backfired"
     ],
     dare: [
-      "do 10 jumping jacks right now",
-      "speak in a british accent until your next turn",
-      "send the dumbest selfie you can make to a random contact",
-      "sing the chorus of any song, full commitment",
-      "tell a joke and laugh at it before the punchline",
-      "eat or drink with your wrong hand until your next turn",
-      "say 'red lorry yellow lorry' three times fast",
-      "dance for 15 seconds, music optional",
-      "do your best impression of a celebrity for 20 seconds",
-      "make up a 3-line jingle about your phone",
-      "text 'hi from a parallel universe' to a random contact",
-      "show me your most recent screenshot",
-      "pull 3 silly faces in 10 seconds",
-      "balance something on your head for 20 seconds",
-      "say 'i love you' to the next inanimate object you see",
-      "send a 5-second voice note of you just laughing",
-      "show me everything in your bag or pockets right now",
-      "type a full sentence with your eyes closed and send it",
-      "take a photo of the most boring thing within arm's reach",
-      "do an exaggerated yawn and stretch for the camera",
-      "send me an emoji that describes your mood right now",
-      "take a selfie with the most serious expression you can",
-      "text the next person on your contacts list a single wave emoji",
-      "show me three random items on your desk or table",
-      "do 10 squats right now",
-      "invent a new dance move and demonstrate for 10 seconds",
-      "spell your name backwards out loud, fast",
-      "read a sentence in slow motion",
-      "hum a song until i guess it",
-      "count down from 20 in any language you know",
-      "send me a poem written in the next 30 seconds",
-      "invent a fake band name and a song title for it",
-      "take a 5-second video of you spinning slowly",
-      "impersonate someone we both know",
-      "say 'she sells seashells' three times fast",
-      "invent a new word and use it in a sentence",
-      "send me a haiku about the meal you ate today",
-      "show me a random photo from a year ago",
-      "say 'good morning' in five different ways",
-      "take a photo of the most colourful thing nearby",
-      "give yourself a one-minute pep talk out loud",
-      "do a fake commercial for a random object for 15 seconds",
-      "show me your phone's battery percentage and last app opened",
-      "read 'i am a normal human' in a robot voice",
-      "sing your name as if it were a famous song",
-      "do any magic trick you know",
-      "invent a celebrity gossip headline and read it dramatically",
-      "talk like a pirate until your next turn",
-      "show me what's in your fridge from 3 feet away",
-      "write me a 4-line poem about the room you're in",
-      "send the funniest gif you can find in 30 seconds",
-      "balance a small object on the back of your hand for 10 seconds",
-      "yawn loudly for 10 seconds",
-      "say the alphabet in a southern accent",
-      "send me a screenshot of your phone's home screen",
-      "text 'remember that time' to a random contact, no follow up",
-      "do a 10-second interpretive dance about your day",
-      "take a photo with weird lighting",
-      "read out the lyrics of any song without singing them",
-      "invent a fake superpower and show me how it works",
-      "show me a hidden talent, even a tiny one",
-      "say your favourite word three times with different inflections",
-      "do your worst impression of a british person",
-      "shout 'i am the captain now' in your most heroic voice",
-      "send a voice note saying 'today is a good day' five ways",
-      "show me a photo of something blue near you",
-      "record yourself singing the alphabet",
-      "say a sentence backwards",
-      "invent a slogan for your morning routine",
-      "send a 3-second voice note that captures your current vibe"
-    ]
-  },
-  fun: {
-    truth: [
-      "who's a fictional character you'd actually be friends with?",
-      "what's a superpower that sounds cool but would be annoying?",
-      "if you could swap lives with anyone for a day, who?",
-      "what's something everyone seems to love that you find boring?",
-      "what's a food combination you love that nobody else gets?",
-      "if you could only listen to one album forever, which one?",
-      "what's a small thing you spend way too much money on?",
-      "what would you name a pet you got tomorrow?",
-      "what's a hobby you'd start if you had unlimited free time?",
-      "what's the weirdest dream you can remember right now?",
-      "if you could only eat one cuisine for a month, which?",
-      "what's a small thing that gives you irrational joy?",
-      "what would your reality tv show be about?",
-      "what's a fictional world you'd actually want to live in?",
-      "if you could trade lives with me for a day, what would you do first?",
-      "what's a question you've been curious to ask me but never have?",
-      "what's a fictional couple you've compared us to?",
-      "what's your most embarrassing autocomplete suggestion?",
-      "what's a tiny conspiracy theory you actually believe?",
-      "if our relationship was a movie genre, which one?",
-      "if your life had a soundtrack, what's the opening song?",
-      "what's a movie sequel you secretly enjoyed?",
-      "if you had to live in any decade's aesthetic, which?",
-      "what's a city you wouldn't want to live in?",
-      "what's a household item you've broken and never replaced?",
-      "what's a small revenge you've taken that you don't regret?",
-      "what's a kid show you'd still watch unironically?",
-      "what would you spend $100 on right now, no thinking?",
-      "what's a job title that sounds appealing even if you can't do it?",
-      "what's a fashion trend you secretly love?",
-      "what's a fashion trend you'd happily kill?",
-      "what's a thing you've googled to settle an argument?",
-      "if you got famous tomorrow, what would it be for?",
-      "what's a weird animal fact you know?",
-      "if you could only watch one director's films, who?",
-      "what's a country you'd want to road-trip across?",
-      "what's a small habit of mine you've copied?",
-      "what's a small habit of mine you'd want to copy?",
-      "what's a meal we should make together?",
-      "what's a trip you'd plan if money wasn't an issue?",
-      "what's a tv show finale you actually loved?",
-      "what's a tv show finale you hated?",
-      "what's a board game you used to play obsessively?",
-      "what's a hobby you tried and dropped?",
-      "what's a hobby you wish you stuck with?",
-      "who would play me in a movie of our lives?",
-      "who would play you in that same movie?",
-      "what's a moment recently when you laughed too hard?",
-      "what's a movie you've cried at unexpectedly?",
-      "what's a song that gets you in a specific mood instantly?",
-      "what's an opinion of mine you've come around to?",
-      "what's an opinion of mine you still disagree with?",
-      "if you had a free month with no obligations, what would you do?",
-      "what's an item you'd put on display in our place?",
-      "what's a job interview question you wish was asked more?",
-      "if you owned a small business, what would it sell?",
-      "what's the best meal you've eaten recently?",
-      "what's a small adventure we should have this week?",
-      "what would your villain origin story be?",
-      "what's a small superpower you wish you had at home?",
-      "if you wrote a memoir, what's the title?",
-      "what's a saying you don't really agree with?",
-      "what's a saying that always feels right?",
-      "what's a thing you're surprisingly bad at?",
-      "what's a movie quote you reference too often?",
-      "what's a place you'd want to be right now if you could teleport?",
-      "what's a fictional weapon you'd want to own, just for show?",
-      "what's a hot take about our city or town?",
-      "what's a snack we should always have stocked?",
-      "what would your perfect saturday morning look like?"
-    ],
-    dare: [
-      "let me pick a song to play on your speakers right now",
-      "show me the last 5 emojis you used",
-      "show me your most-used app this week",
-      "text 'i'm doing fine, why?' to a random contact",
-      "let me write your status or bio for the next hour",
-      "scroll to a random photo in your camera roll and describe it dramatically",
-      "take a selfie pulling the weirdest face possible",
-      "say the next sentence you say in a movie trailer voice",
-      "share your home screen with me",
-      "send a voice note in your worst attempted accent",
-      "text a friend a fake plot twist about your day",
-      "let me write the next thing you text someone",
-      "give a 30-second commentary on a random object near you",
-      "invent a backstory for a stranger you saw today",
-      "set an alarm with the funniest possible label",
-      "show me what you ate today, photos or detailed description",
-      "let me give you a new nickname for the rest of the game",
-      "write a 6-word story about today and send it to me",
-      "send me a screenshot of your weather right now",
-      "play 20 questions about an object in your room, i'll guess",
-      "text three random contacts a single question mark",
-      "show me the weirdest photo in your camera roll",
-      "read me the next email you have to send",
-      "give a 30-second lecture on the word i'll send",
-      "let me name your next 3 wifi networks",
-      "type a paragraph using only your nose",
-      "send me a riddle you make up on the spot",
-      "show me your most-followed account and explain why",
-      "let me pick a random opinion and you defend it for a minute",
-      "show me a screenshot of your last group chat",
-      "pose like a statue for 15 seconds",
-      "text 'i had an idea' to a random contact, no follow-up",
-      "record a 10-second podcast intro about your day",
-      "send a voice note in 3 different fake accents",
-      "invent a backstory for a random emoji",
-      "let me set your phone wallpaper for the day",
-      "text me one word that describes me right now",
-      "take a photo of something within 3 feet that's red",
-      "read the next text you'll send in a movie villain voice",
-      "record yourself counting backwards from 10 dramatically",
-      "show me three apps you'd delete if forced to choose",
-      "recommend a song based on my last 3 messages",
-      "invent a tagline for your favourite chair",
-      "send a one-sentence weather report in a news anchor voice",
-      "show me what's in your most-used emoji recently",
-      "record a fake commercial for your toothbrush",
-      "tell a joke in slow motion",
-      "show me one notification you've ignored",
-      "take a 5-second video of you trying to look mysterious",
-      "balance a phone on your head for 15 seconds",
-      "text your most recent contact 'weird question'",
-      "read me your last sent message in a confused voice",
-      "invent a name for an imaginary band based on the room you're in",
-      "say 'wow that's interesting' in 5 different ways",
-      "send me a horoscope you make up for me",
-      "record yourself doing a fake interview about your day",
-      "show me the most random photo you've sent in a chat",
-      "take a picture of your shoes",
-      "let me write a one-line tweet for you to post",
-      "type a message using only one finger and send it",
-      "invent a tagline for a fake perfume called 'monday'",
-      "read the next text you send in slow motion",
-      "show me your last 3 sent stickers or gifs",
-      "shout the most enthusiastic compliment about your pillow",
-      "record a voice note explaining a simple concept like you're stalling",
-      "impersonate a youtube tutorial for 20 seconds",
-      "invent a fake news headline about us",
-      "send a one-line bedtime story to a contact",
-      "record yourself trying to sound like the sea",
-      "text a random contact 'wait i forgot the question'"
-    ]
-  },
-  wild: {
-    truth: [
-      "what's a small lie everyone tells that you wish people stopped?",
-      "what's a take you have that would lose you friends?",
-      "what's something everyone is supposed to enjoy that you don't?",
-      "who's a celebrity you find genuinely annoying?",
-      "what's a quirk of mine you secretly find funny?",
-      "what's something you'd never admit you google?",
-      "if i had your phone for a day, what's the one thing i'd be surprised by?",
-      "what's something i do that confuses you, in a good or bad way?",
-      "what's a small opinion you hold that sounds wild out loud?",
-      "what's a recent thought you've had that you wouldn't say out loud?",
-      "what's a controversial food opinion you stand by?",
-      "what's the wildest thing you've thought about doing lately?",
-      "what's a small risk you've been considering taking?",
-      "what's an unpopular opinion about something we both like?",
-      "what's a thing you'd never actually do but secretly find appealing?",
-      "what's a small petty satisfaction you indulge in?",
-      "what's a take you have that you'd never post online?",
-      "what would your dating profile say if it had to be brutally honest?",
-      "what's an attractive trait you think is unfairly distributed?",
-      "what's something in this relationship you've wanted to try but haven't asked?",
-      "what's a take you held strongly that you've completely changed on?",
-      "what's a small white lie you tell on the regular?",
-      "what's a thing you find attractive in people that you can't explain?",
-      "what's a small thing about modern life that genuinely annoys you?",
-      "what's a habit of mine that you've quietly accepted?",
-      "what's an opinion of mine that surprises you?",
-      "what's a topic where you think i'm completely wrong?",
-      "what's a part of your personality you'd want to dial up?",
-      "what's a part of you you'd want to dial down?",
-      "what's a recent moment where i annoyed you, even a little?",
-      "what's a recent moment where you annoyed yourself?",
-      "what's a guilty pleasure you'd defend in public?",
-      "what's a 'trend' you fall for every single time?",
-      "what's a thing you do alone that you'd be slightly embarrassed about?",
-      "what's an unpopular take on something everyone else loves?",
-      "what's a tiny thing about me that you'd never want to change?",
-      "what's a thing you've judged someone for that you've also done?",
-      "what's a piece of feedback you'd give me but haven't?",
-      "what's a small lie i've told that you didn't push back on?",
-      "what's something about our generation that genuinely worries you?",
-      "what's an industry or job you secretly think is overrated?",
-      "what's a habit you'd want me to drop?",
-      "what's a habit of mine you'd want me to do more of?",
-      "what's a movie or show you secretly think is overrated?",
-      "what's a meal everyone seems to love that you find boring?",
-      "what's a moment we had recently where you bit your tongue?",
-      "what's a thing you've spent money on that you regret?",
-      "what's a small 'betrayal' you've committed, no big deal?",
-      "what's the most reckless thing you've done in the last month?",
-      "what's the most boring thing you've done in the last month?",
-      "what's a feeling you have that you don't bring up enough?",
-      "what's a person from your life i've not heard much about?",
-      "what's a friend group dynamic that's slightly toxic but fun?",
-      "what's a hot take about parenting, kids, or families?",
-      "what's something you find genuinely scary about adulthood?",
-      "what's a small dream you have that you haven't told me?",
-      "what's a thing that would happen this year that would mark it as good?",
-      "what's a thing you'd want to be richer for, besides obvious stuff?",
-      "what's a number you keep coming back to, money or otherwise?",
-      "what would shock me most about your search history this week?",
-      "what's a small petty rule you secretly follow?",
-      "what's a person you've stopped following for petty reasons?",
-      "what's a small win this year you haven't told me about?",
-      "what's a low-stakes lie everyone in our life believes?",
-      "what's a habit of yours that you've never explained to me?",
-      "what's an unspoken thing about us that should be spoken?",
-      "what would make our next week 10% better, specifically?",
-      "what's a fear of mine you think i overstate?",
-      "what's a strength of mine i underestimate?",
-      "what's a thing i do that you've been quietly admiring?"
-    ],
-    dare: [
-      "show me the last 5 messages you sent to anyone",
-      "show me your search history from today",
-      "open photos, pick a random shot, describe it like breaking news",
-      "let me post one thing on your story, i'll behave",
-      "send any random emoji to 3 contacts and read replies aloud later",
-      "read the last meme you saved as if it's a serious announcement",
-      "record a 10-second voice note about your love for socks",
-      "show me the contact you've saved with the funniest name",
-      "freestyle rap for 20 seconds about whatever you're looking at",
-      "let me ask 3 yes/no questions, no skipping",
-      "let me pick a contact and text them 'thinking of you'",
-      "show me your tab graveyard, all currently open tabs",
-      "read the most recent comment you wrote anywhere out loud",
-      "let me ask 5 yes/no questions, max 3 skips",
-      "play 'two truths and a lie' right now, three statements",
-      "show me your last 5 google searches",
-      "let me look at your camera roll for 30 seconds",
-      "text a random group chat 'i had a strange thought today'",
-      "let me see your saved/bookmarks for 30 seconds",
-      "post a low-stakes vague update to your story, i'll choose what",
-      "show me your most embarrassing search this month",
-      "read me the last 3 voice notes you've received",
-      "read me the most recent text from your most chaotic contact",
-      "let me read the next text someone sends you out loud",
-      "show me the 3 oldest unread messages in your inbox",
-      "show me a photo you almost deleted but didn't",
-      "let me look at your screen time stats for today",
-      "record yourself reading your last sent text in a different voice",
-      "show me what your phone's 'for you' recommendations look like",
-      "show me the bookmark you visit most often",
-      "read me the most recent comment you got on anything",
-      "let me write the next message you send, one line",
-      "show me your photos from exactly one month ago",
-      "show me a screenshot you've kept that you don't even know why",
-      "let me pick a random photo from your camera roll and you describe it",
-      "show me a saved meme you no longer find funny",
-      "show me the most recent thing you've copy-pasted",
-      "play the song you currently have on loop",
-      "show me the most recent shared note, anything you've kept",
-      "let me look at your recent files for 20 seconds",
-      "tell me one small lie you've told today",
-      "play the voice memo you've never listened back to",
-      "show me what you typed in the search bar that you cleared",
-      "read me the next message you draft in a romantic voice",
-      "record a 10-second confession about a small thing",
-      "show me your last 3 saved or bookmarked posts",
-      "read me the worst joke you've sent anyone this week",
-      "show me the most embarrassing screenshot in your gallery",
-      "tell me a thing about yourself you wouldn't say to a stranger",
-      "share the song that comes up first if you shuffle your library",
-      "show me your laptop or computer's open tabs right now",
-      "show me your last calendar invite",
-      "let me read 3 of your sent dms in a row, my pick",
-      "record yourself reading the most cringe text you sent this year",
-      "show me 3 things saved to your downloads folder",
-      "tell me the worst piece of advice you've given recently",
-      "let me send a 2-word message from your phone to a friend",
-      "read me the longest text you sent this month",
-      "show me your most-used reaction emoji in any chat",
-      "let me see the contact you've muted, if any",
-      "text 'i had a thought, ignore this' to the next person who texts you",
-      "show me a screenshot that says nothing about you out of context",
-      "tell me a small petty grudge you've held this year",
-      "record yourself reading an awkward dm in a news anchor voice",
-      "let me look at your last 3 google searches",
-      "show me a friend's text that always makes you laugh",
-      "read me a chat where you're being dramatic",
-      "tell me a thing you've judged me for, even small",
-      "show me what you texted yourself last (if you do that)",
-      "let me look at your most recent shared playlist"
+      "do 15 jumping jacks right now",
+      "say a full sentence backwards",
+      "text the third contact in your phone a random compliment",
+      "take a selfie with the most serious expression you can manage and send it",
+      "do your best impression of a news anchor reading a boring headline",
+      "speak in an accent for the next two minutes",
+      "take a photo of the most boring object within arm's reach",
+      "say the alphabet without moving your lips",
+      "send a voice note of yourself laughing for ten seconds",
+      "take a photo of what's in your fridge right now",
+      "do ten squats",
+      "write your name with the wrong hand and send a photo",
+      "say something nice about the last three things you see",
+      "call someone and say the wrong name three times before hanging up",
+      "show the most recent screenshot on your phone",
+      "do a one-minute plank",
+      "send a text saying only the word 'interesting' to a random contact",
+      "balance a small object on your head for twenty seconds",
+      "sing happy birthday in a slow and sad voice",
+      "do your worst impression of someone famous",
+      "type a message using only your nose and send it",
+      "invent a new word and use it in three sentences",
+      "describe your day as if it were an action film",
+      "take a photo of your left hand looking as dramatic as possible",
+      "walk backwards for thirty seconds",
+      "send a voice note where you introduce yourself as if you're on a documentary",
+      "do ten push-ups",
+      "read the last three texts you sent out loud in a dramatic voice",
+      "hum a song until someone guesses it",
+      "take a photo of your feet",
+      "make up a slogan for your phone",
+      "act out a film title using only gestures for thirty seconds",
+      "send a text to a friend that just says 'i have news'",
+      "say the names of five animals as fast as possible",
+      "describe your appearance as if you were listing yourself on a used items site",
+      "do your best robot impression for twenty seconds",
+      "show the last video in your camera roll",
+      "count backwards from twenty in under five seconds",
+      "take a photo of the ugliest thing in the room",
+      "send a voice note saying today's date like it's breaking news",
+      "try to lick your elbow",
+      "draw a self portrait in thirty seconds and show it",
+      "pick up the nearest book, open to a random page, read the first sentence dramatically",
+      "do a cartwheel or attempt one",
+      "send a photo of something blue near you",
+      "describe what you'd put on your tombstone",
+      "wave at your reflection for ten seconds",
+      "smell something near you and describe it like a wine expert",
+      "take a photo from an angle that makes something ordinary look mysterious",
+      "recite the months of the year in alphabetical order",
+      "show three things in your bag or pockets right now",
+      "mime eating something invisible for twenty seconds",
+      "do an impression of a specific kind of weather",
+      "send a voice note of you saying 'hello' in five different ways",
+      "write a haiku about your phone in thirty seconds and read it out",
+      "spin in a circle five times and walk in a straight line",
+      "list ten words that rhyme with 'door' in thirty seconds",
+      "show your most recently used emoji and explain why",
+      "talk about a household object for thirty seconds like it's the most fascinating thing",
+      "send a photo of something that matches the colour green",
+      "mime a job interview for thirty seconds",
+      "describe how to make toast as if explaining it to an alien",
+      "make a face you've never made before and take a photo",
+      "clap your hands above your head twenty times as fast as possible",
+      "read the next text you receive out loud in a robot voice",
+      "say 'red lorry yellow lorry' five times fast",
+      "send a voice note saying a fake weather forecast",
+      "act as though you're accepting an award for thirty seconds",
+      "pick something in the room and give a thirty-second sales pitch for it",
+      "show the last photo taken on your phone",
+      "invent and describe a new type of food",
+      "count how many steps it takes to walk in a circle",
+      "list five things that are the same colour as something in the room",
+      "text someone a single question mark and wait to see what they say",
+      "show what's on your lock screen",
+      "hold a yoga pose for twenty seconds",
+      "describe your personality as if you were a brand",
+      "narrate the next minute of your life in real time"
     ]
   },
   spicy: {
     truth: [
-      "what's something about me you find unexpectedly attractive?",
-      "what's a small thing i do that you love?",
-      "if you had to write a vow about me right now, what's the first line?",
-      "what's something we should do more of together?",
-      "what's a side of you that you'd want me to see more of?",
-      "what's something you've wanted to say to me but haven't yet?",
-      "what's the most underrated thing about being with me?",
-      "what would make this evening perfect if we were together right now?",
-      "what's something you'd want me to do more of?",
-      "if i described you in one word to a stranger, what should it be?",
-      "when do you find me most irresistible?",
-      "what's a moment with me that replays in your head when we're apart?",
-      "what's something about how i look that you think about often?",
-      "what's your favorite way for me to look at you?",
-      "when do you feel closest to me?",
-      "if we had a whole day just to ourselves, what would you want to do first?",
-      "what's something about my voice or laugh that gets you?",
-      "when do you most want to kiss me?",
-      "what's a feeling i give you that's hard to name?",
-      "what's something you've imagined doing with me but haven't said?",
-      "what's a moment recently when you really wanted me close?",
-      "what's something about who i am right now that you find sexy?",
-      "what's a small intimate routine you'd want with me?",
-      "what's something you wish i'd do without you having to ask?",
-      "what's a way i look at you that you secretly love?",
-      "what's something about me that makes you feel like you got lucky?",
-      "when you think of 'us' in your head, what's the first picture?",
-      "what's a small thing i do that makes you feel chosen?",
-      "when do i look the most like myself, in your eyes?",
-      "what's a moment with me that felt cinematic?",
-      "what's a small intimate gesture you wish was a thing between us?",
-      "what would make a tuesday with me feel like a weekend?",
-      "what's the most attractive thing you've heard me say?",
-      "what's a way i make you feel that you haven't named yet?",
-      "what's an evening with me you'd want to relive in detail?",
-      "what's a moment in the next week you're already looking forward to?",
-      "what's something i do unconsciously that you find attractive?",
-      "what's a way i hold or touch you that you remember vividly?",
-      "what's a memory of us you'd put in a frame?",
-      "what's the most attractive thing about how we argue?",
-      "what's a way i look at you that you wish photos could capture?",
-      "what's a small ritual we have that means more than you've said?",
-      "what's a phrase i say that you'd miss if i stopped?",
-      "what's a sound i make, laugh or voice or anything, that gets you?",
-      "what's an outfit of mine that always works on you?",
-      "what's an outfit of mine i wear too rarely?",
-      "what's a part of my face you'd zoom into if you could?",
-      "what's a part of my body you find unexpectedly beautiful?",
-      "what's a kiss of ours you'd live in?",
-      "what's a kind of touch from me you want more of?",
-      "what's a moment when you wanted to say something but didn't?",
-      "what's something i'd be flattered to hear that you haven't said?",
-      "what's a way i show up for you that you don't acknowledge enough?",
-      "what's a fantasy you've had about a random tuesday with me?",
-      "what's a moment from our story you'd want to write a song about?",
-      "when do you most miss me when we're apart?",
-      "when do you feel most alive with me?",
-      "what's a side of you you only show me?",
-      "what's a side of me you wish you saw more?",
-      "what's a future image of us that you carry in your head?",
-      "what's the most attractive thing about my mind?",
-      "what's something you've been wanting to do with me when we're alone?",
-      "what's a kind of date with me you've been quietly hoping for?",
-      "what's a way i could make you melt in one sentence?",
-      "what's something you'd want me to wear, just for you?",
-      "what's something you'd want to wear, just for me?",
-      "what's a quiet moment with me you'd choose over any loud one?",
-      "what would you want me to whisper if i was beside you right now?",
-      "what's a song you'd want playing when i walk into a room?",
-      "what's a place we should sneak away to for an afternoon?",
-      "what's a way i look at you that you can feel before you see?",
-      "what's an 'us' that we should be more often?",
-      "what's an 'us' that we don't get enough of?",
-      "what's a memory of us that's underrated?",
-      "what's a small thing about you you'd want me to know better?",
-      "what's something about me that makes you feel desire, specifically?",
-      "what's a physical moment of ours you've replayed recently?",
-      "if i was with you right now, what's the first thing you'd want to do?",
-      "what's something you think about when you're alone that involves me?",
-      "if i called you right now and said 'come over', what would happen?",
-      "what's something about my body you'd spend a long time on?",
-      "what's a thought about me you'd be embarrassed to say out loud?",
-      "what's a physical thing about me that makes you lose focus?",
-      "what would you want to do to me right now if nothing was in the way?",
-      "what's the most turned on you've been by something i did recently?",
-      "what's a specific physical memory of us you'd want to repeat?",
-      "what's something you want from me physically that you haven't asked for?",
-      "what's the most charged moment between us we've never talked about?",
-      "when was the last time you felt pure physical desire for me?",
-      "what's a specific way you want me to touch you?",
-      "where on your body do you most want my hands right now?",
-      "describe the kind of touch from me that would drive you crazy",
-      "what's a physical thing you want from me that you've been too shy to ask?",
-      "what's the most physically attracted you've ever been to me?",
-      "what's something you've imagined me doing to you?",
-      "how long could you go without any physical contact from me before it becomes unbearable?",
-      "describe the last time you thought about me in a physical way",
-      "what would make you feel the most desired by me right now?",
-      "when we're apart, what physical thing about me do you miss most?",
-      "what part of my body do you find yourself staring at?",
-      "what's a physical limit of mine you want to push?",
-      "what's your favourite kind of intimacy with me and why?",
-      "what's a physical sensation of mine you'd want to replay?",
-      "what time of day do you want me most and what are we doing?",
-      "if i asked you to come over tonight with no explanation, what would you be thinking?",
-      "what would you want my first move to be if we were alone right now?",
-      "describe what you'd want from me if we had an entire night with no interruptions"
+      "what's something about me that surprised you when you first got to know me",
+      "what's a small thing i do that you find quietly annoying",
+      "what's an opinion of mine you think is completely wrong",
+      "what's something you've wanted to say to me but kept to yourself",
+      "what's a habit of mine that you've silently accepted",
+      "what's the most recent moment i made you feel good without knowing it",
+      "what's something you've judged me for, even a little",
+      "what's a version of yourself you only show when it's just us",
+      "what's something you wish we talked about more",
+      "what's a fear about us you've never said out loud",
+      "what's a quality of mine you're a bit envious of",
+      "what's something you'd change about how we spend time together",
+      "what's the most honest thing you could say about how you're doing right now",
+      "what's a side of yourself you find difficult to show people",
+      "what's something you wish people knew about you without you having to explain it",
+      "what's a thought you've had about me that you'd never say to my face",
+      "what's something you'd want to know about me that you've never asked",
+      "what's a decision you've made recently that you haven't fully processed",
+      "what's the most honest answer you could give to how we're doing",
+      "what's something about yourself that you've never told another person",
+      "what's a moment in the last month where you weren't fully honest with me",
+      "what's a thing you'd want me to do more of",
+      "what's a thing you'd want me to do less of",
+      "what's something that's been on your mind that you've been avoiding",
+      "what's a belief you hold that you're not totally sure about",
+      "what's a version of the future you're hoping for that you haven't said out loud",
+      "what's a moment recently where you wished things between us were different",
+      "what's something you're afraid of admitting about yourself",
+      "what's something you've done in the past month that you're not proud of",
+      "what's a relationship in your life that's draining you right now",
+      "what's something you want right now that feels hard to ask for",
+      "what's an apology you owe someone that you haven't given",
+      "what's something you're proud of that you haven't told me",
+      "what's a goal you have that you've been afraid to commit to",
+      "what's the most uncomfortable truth you could say about your current situation",
+      "what's something you've said to someone else about me that you haven't said to me",
+      "what's a conversation you've been avoiding",
+      "what's a time you felt misunderstood and didn't try to correct it",
+      "what's something about me that you find yourself thinking about when i'm not around",
+      "what's a way i've changed since you first knew me",
+      "what's something you used to think about yourself that turned out not to be true",
+      "what's something i've done that hurt you more than you let on",
+      "what's a thing about yourself you're genuinely working on",
+      "what's a moment where you chose yourself over someone else and you still feel conflicted about it",
+      "what's something about this that makes you nervous",
+      "what's something about your past you're still carrying",
+      "what's a thing someone said to you that stuck in ways you didn't expect",
+      "what's the last time you felt really seen",
+      "what's a version of yourself that other people get that i don't",
+      "what's a criticism of yourself that you think is fair",
+      "what's something you've noticed about yourself recently that surprised you",
+      "what's a thing you do to protect yourself that sometimes gets in the way",
+      "what's something i've said that you've been sitting with since",
+      "what's a part of yourself you've given up on that you shouldn't have",
+      "what's a thing you need right now that's hard to ask for",
+      "what's the most honest way you'd describe what you want from this",
+      "what's a moment you felt like you were performing rather than being yourself",
+      "what's a belief that shaped you that you're not sure you still hold",
+      "what's something about your life right now you feel stuck in",
+      "what's the kindest thing someone has done for you recently",
+      "what's a version of the future you're scared of",
+      "what's a story about yourself you keep telling that might not be fully true",
+      "what's a compliment you find hard to accept",
+      "what's something you're getting better at that nobody's noticed yet",
+      "what's the most recent thing that made you feel small",
+      "what's a boundary you've let people cross because you didn't want to make it awkward",
+      "what's something about the way i see you that you don't think is accurate",
+      "what's a version of yourself you want to move toward",
+      "what's something you're avoiding that you know you need to face",
+      "what's a thing you've been pretending is fine when it isn't",
+      "what's a question you're afraid to ask me",
+      "what's the most recent time you felt genuinely happy",
+      "what's something about us that feels more fragile than you'd like",
+      "what's a piece of advice you've given that you haven't taken yourself",
+      "what's a feeling you've been sitting with that doesn't have a name yet",
+      "what's something you'd do differently if you weren't afraid of how it would land",
+      "what's a way you self-sabotage that you haven't fully admitted",
+      "what's something you'd want me to understand about what you're going through right now"
     ],
     dare: [
-      "tell me three things you genuinely love about me, no filler",
-      "compliment me for 60 seconds straight, no repeats",
-      "send a voice note saying something only i'd understand",
-      "plan our next perfect date right now, in detail",
-      "describe me to a stranger in 30 seconds",
-      "send me a photo of you exactly as you are right now",
-      "share a song that reminds you of me and tell me why",
-      "write a 4-line poem about us, on the spot",
-      "say one thing you want from tonight or tomorrow with me",
-      "describe your favorite version of me, in your own words",
-      "record a voice note in your most flirty tone",
-      "tell me what you'd want to do if we had the next 24 hours together",
-      "describe how you'd kiss me if we were together right now",
-      "tell me one thing you've imagined doing with me",
-      "text me one line as if you were trying to win me over",
-      "send a voice note saying my name three different ways",
-      "describe a perfect evening, from the moment i walk in",
-      "send a photo of what you're wearing right now",
-      "tell me one thing you find attractive about how i think",
-      "say the most flirty thing you can think of right now",
-      "tell me one thing you wish we were doing right now",
-      "send a voice note of the most flirty thing you've never said aloud",
-      "describe one specific physical detail about me you love",
-      "send a song you'd want playing if i walked in tonight",
-      "describe me as if you're writing a love letter, in three sentences",
-      "tell me three things you want from me tonight, no thinking",
-      "send me a photo that's 'just me as i am right now'",
-      "write a one-line note you'd leave on my pillow",
-      "record a voice note like you're inviting me over",
-      "say one thing you'd want me to do without you asking",
-      "tell me a kind of evening with me you'd want this week",
-      "send me a song that captures how you feel about me right now",
-      "text me a sentence that you'd only say to me",
-      "record a voice note saying 'come here' in three different ways",
-      "tell me one detail about me you've been thinking about today",
-      "send a 4-line poem about a moment with me",
-      "describe what you'd want me to do if i came over right now",
-      "send me a photo of something only i'd recognize",
-      "tell me one thing you want to whisper to me later",
-      "record yourself saying a compliment like you mean it",
-      "send me a list of three small things you love about my hands",
-      "describe a perfect morning with me from your point of view",
-      "tell me one thing that makes you nervous about us, kindly",
-      "send a song you'd dance to in a kitchen with me",
-      "tell me one thing you'd want me to do that you've held back from asking",
-      "describe how you'd want to be greeted next time we see each other",
-      "send me a one-line note as if you wrote it on a napkin",
-      "record a voice note saying my name like a wish",
-      "describe the version of me you write about in a journal",
-      "tell me one thing you find ridiculously attractive about me",
-      "tell me a place we've never been that you want to take me to",
-      "send a song you want playing the next time we kiss",
-      "describe a specific look of mine that wrecks you, in three sentences",
-      "tell me one thing i did this week that you replayed in your head",
-      "write a one-line love letter with no extra words",
-      "send me a photo that says 'thinking of you'",
-      "tell me a kind of touch from me that you want more of",
-      "record a voice note in the voice you use only with me",
-      "describe how you'd want to fall asleep next to me tonight",
-      "send me a song you've been hearing as 'our song' lately",
-      "describe how you'd want a morning with me to start, slowly",
-      "tell me one detail of mine that's tattooed in your mind",
-      "send a one-sentence text you'd want to wake up to",
-      "write a one-line vow on the spot",
-      "describe a slow dance with me, even if it's just words",
-      "tell me one moment with me you'd freeze in time",
-      "send me an emoji combo that means 'i want you'",
-      "record a voice note like you're trying to convince me to stay",
-      "describe what you'd want from a stolen ten minutes with me",
-      "send me a photo of where you are right now, made romantic in your caption",
+      "send a voice note saying something honest you've been holding back",
+      "describe me to a stranger in under thirty seconds",
+      "tell me one thing you've thought about me that you've never said",
+      "write and send a text to me as if we'd just met and you were trying to make an impression",
+      "say out loud one thing you genuinely admire about me",
+      "send a voice note saying one thing that's on your mind right now",
+      "read me the last text you sent before this conversation",
+      "tell me what you think my biggest strength is and your biggest one",
+      "share something you're proud of that you've never told me",
+      "tell me one honest thing about how you're doing right now",
+      "describe how you'd want tonight to go if you could decide",
+      "tell me what you think my most annoying habit is",
+      "share a screenshot of something that made you laugh recently",
+      "tell me one thing about myself that you think i underestimate",
+      "describe a moment recently when you thought about me without telling me",
+      "tell me one thing you'd want to change about how we communicate",
+      "send a voice note describing your ideal day right now",
+      "tell me a small thing you've noticed about me that you've never mentioned",
+      "describe in one sentence what you think my life looks like from the outside",
+      "say one thing you've been wanting to bring up but kept putting off",
+      "tell me one thing i do that you secretly find impressive",
+      "describe how you'd want us to spend a full free day",
+      "tell me something about yourself you've been reluctant to share",
+      "say one thing you genuinely appreciate about this",
+      "describe how i make you feel in three words and explain each one",
+      "tell me something you believe about me that might surprise me",
+      "send a voice note of you saying something vulnerable",
+      "tell me one thing that's shifted in how you see me over time",
+      "share something you've been overthinking lately",
+      "tell me the most honest answer to 'how are you' right now",
+      "describe a moment with me that you think about more than i'd expect",
+      "tell me what you wish i knew without you having to say it",
+      "share a thought about yourself you wouldn't normally say out loud",
+      "tell me one thing you'd want to do differently",
+      "describe what kind of day you've had in one honest sentence",
+      "tell me one thing about this that excites you",
+      "tell me one thing about this that worries you",
+      "send a voice note of you saying something kind about someone in your life",
+      "tell me a question you've wanted to ask me for a while",
+      "describe one thing you genuinely wish was different about yourself",
+      "tell me one thing i've done that you found unexpectedly thoughtful",
+      "say something you've been carrying that you haven't put into words yet",
+      "describe the version of yourself you're trying to become",
+      "tell me one thing about your life right now that's harder than it looks",
+      "share a moment recently where you felt really present",
+      "tell me something you wish more people understood about you",
+      "describe a feeling you've had recently that surprised you",
+      "tell me one thing you like about how we talk to each other",
+      "say something you'd want me to remember",
+      "tell me one thing you'd say to yourself three years ago",
+      "describe a version of the future you actually want",
+      "tell me something about me that's stayed with you",
+      "share one small act of courage you did recently",
+      "tell me something you've been holding onto that you could let go",
+      "say one thing about yourself you've decided to stop apologising for",
+      "describe how you know when you trust someone",
+      "tell me one thing you'd like more of right now",
+      "share a moment when you felt most like yourself lately",
+      "tell me what you find genuinely hard",
+      "describe one thing about this conversation that feels good",
+      "tell me one honest thing about your week",
+      "share something that you find yourself looking forward to",
+      "tell me a fear you've made peace with",
+      "describe one thing you'd want to feel more of",
+      "tell me something you've been kind to yourself about lately",
+      "share one thing that changed for you recently in a quiet way",
+      "tell me one small thing you'd want me to know",
+      "describe a moment that made you feel connected to something",
+      "tell me one thing you wish you could say more easily",
+      "say something true that feels risky",
+      "tell me one thing you'd want more time to think about",
+      "describe what matters to you most right now",
+      "tell me what you'd want to say if you knew it would land well",
+      "share something you've been sitting with",
+      "tell me what makes you feel safe",
+      "say one thing you'd want to be known for",
+      "tell me something you're learning about yourself",
+      "describe one thing you're holding gently right now",
+      "tell me something you want",
+      "say one thing you're grateful for right now"
+    ]
+  },
+  unfiltered: {
+    truth: [
+      "what's the most charged moment between us that we've never talked about",
+      "what's something about me you find unexpectedly attractive",
+      "when do you feel most physically drawn to me",
+      "what's something you've imagined doing with me that you haven't said",
+      "what's the most honest thing you can say about what you want from this",
+      "what's a thought you've had about me that you'd find embarrassing if i knew",
+      "what's a physical thing about me that you notice more than you let on",
+      "when do i look the most like myself, in your eyes",
+      "what's something about us that feels different when nobody else is around",
+      "what's a moment with me you've replayed recently",
+      "what's a side of yourself that only comes out with me",
+      "what's something i've done recently that you found genuinely attractive",
+      "when do you find me hardest to resist",
+      "what's a fantasy you've had about us that you've kept to yourself",
+      "what's a version of a night with me you'd want",
+      "what's a physical memory of ours that you'd want to repeat",
+      "what's something you wish i'd do without you having to ask",
+      "what's the most turned on you've been by something i did or said",
+      "what's something you want from me that you haven't asked for",
+      "what's a way i look at you that you can feel before you see it",
+      "what's something about how i sound that gets to you",
+      "what do you think about when you're alone that involves me",
+      "what's a way i could make you feel most wanted right now",
+      "what's a moment you almost said something to me that you pulled back on",
+      "what's something about your body you'd want me to know better",
+      "what's the most physically aware you've been of me recently",
+      "what would you want to do if we had an uninterrupted night",
+      "what's a kind of touch from me you want more of",
+      "what's a place on your body you want me to pay more attention to",
+      "what's the last time you wanted to reach for me and didn't",
+      "what would you want the first thing to be if i came over right now",
+      "what's something you'd want me to say to you",
+      "what's a version of us you'd want for one night",
+      "what's a physical moment between us that stays with you",
+      "what's something i've worn that you've thought about",
+      "what's a way i could make you feel completely at ease with me",
+      "what's the most desire you've felt for me without acting on it",
+      "what's something about the way i move or carry myself that you notice",
+      "what's a small detail about me physically that you find yourself thinking about",
+      "what's a way i make you feel that has no easy name",
+      "what would make you feel the most desired by me right now",
+      "what's something about being close to me that you'd want more of",
+      "what's a way you want me that you haven't found words for yet",
+      "when do you miss me most when we're apart",
+      "what's a moment you felt pure physical want for me",
+      "what's something about my hands you think about",
+      "what would make tonight feel electric",
+      "what's a physical sensation of being near me that you want to stay in",
+      "what's something you'd want to whisper if i was beside you right now",
+      "what's a version of this you'd want that's more physical",
+      "what's something about me that makes it hard to focus",
+      "what's a specific moment of ours that still has charge",
+      "what's the most intimate you've felt with me without anything being said",
+      "what's a way i could close the distance between us right now",
+      "what's a physical instinct you have around me that you usually hold back",
+      "what's a version of you that only comes out when you feel most wanted",
+      "what would make you feel completely uninhibited right now",
+      "what's the most honest thing you could say about what you want tonight",
+      "what's something about me physically that you've never put into words",
+      "what's a thought you've had about us in a private moment recently",
+      "what time of day do you want me most",
+      "what's something about the way i look at you that does something to you",
+      "what's a specific physical thing about me that pulls at you",
+      "what's something you'd want my hands to do if we were alone right now",
+      "what's a way you want to be touched right now",
+      "what's a physical memory of mine that lives in your body",
+      "what would make you feel the most like yourself with me, right now",
+      "what's something you've been wanting from me physically that you've held back",
+      "what's the most charge you've felt between us in the last week",
+      "what's something about how you want me that surprises even you",
+      "what's something physical you want to ask for but haven't yet",
+      "describe a way you'd want to be close to me tonight",
+      "what's a physical thing you'd do first if nothing was in the way",
+      "what's a version of us that feels just out of reach",
+      "what's something you'd give in to if i asked",
+      "what's the most honest thing you'd say if the only person listening was me",
+      "what's something about what we have physically that you want to protect",
+      "what's a specific want you've been quiet about",
+      "what's something you want from this that feels almost too honest to say"
+    ],
+    dare: [
+      "send a voice note saying something you've only thought about me",
+      "describe in one sentence what you'd do first if i walked in right now",
+      "say the most charged thing you've been holding back, voice note",
+      "send a photo of you exactly as you are right now",
+      "tell me one thing you want from tonight, specifically",
+      "record a voice note saying my name the way you say it when it's just us",
+      "describe a physical moment between us you'd want to replay",
       "tell me one thing about your body you want me to notice more",
-      "tell me one thing about my body you'd want to map",
-      "describe how you'd lean in to kiss me, in detail but tasteful",
-      "tell me one thing you want from tonight, even if i can't deliver",
-      "record yourself saying 'i'm yours' in your most-you voice",
-      "send a voice note breathing my name once, slowly",
-      "describe in three sentences what you'd do if i walked in right now",
-      "text me something you'd only say if i was sitting right next to you",
-      "tell me one fantasy you've had about us that you've kept to yourself",
-      "describe a specific physical thing you'd want from me tonight",
-      "say the most charged thing you've wanted to say to me, voice note",
-      "describe a kiss you'd want to give me right now, in detail",
-      "tell me a place on my body you think about more than you let on",
-      "say something in your most intimate voice, voice note, no script",
       "send a voice note of you saying 'i want you' like you mean it",
-      "describe what you'd do with the first ten minutes if i was there",
-      "tell me the thing you find most physically attractive about me, specifically",
-      "describe how you'd wake me up if you could",
-      "describe what you'd want me to do with my hands if i was with you",
-      "send a voice note saying exactly what you want from me tonight",
-      "voice note: describe what you'd do to me first if we were alone",
-      "send me the flirty text you've always wanted to send but haven't",
-      "record a voice note saying exactly where on your body you want me",
-      "describe a specific physical scenario between us in three sentences",
-      "tell me what would make you pull me closer right now, specifically",
-      "record you saying exactly what you'd whisper in my ear right now",
-      "tell me what you'd want me wearing if i knocked on your door tonight",
-      "describe your favourite physical sensation of being close to me",
-      "voice note: tell me what you'd want us to do with a night to ourselves",
-      "describe what you'd do if i walked in and didn't say a word",
-      "tell me one specific physical thing about me you've never said out loud",
-      "send a voice note saying what you'd want the first ten seconds to look like"
+      "describe in three sentences what you'd want from a night to ourselves",
+      "tell me one physical thing about me you've never said out loud",
+      "send a voice note saying something you'd only whisper",
+      "describe the version of us you'd want for tonight",
+      "tell me one thing you'd do to me if you could right now",
+      "send a voice note saying exactly what you're thinking about me right now",
+      "describe how you'd want to be kissed by me right now",
+      "tell me one thing about yourself physically that you want me to know",
+      "record yourself saying something vulnerable about what you want",
+      "tell me one specific physical thing you'd want from me tonight",
+      "describe a moment of ours that lives in your body",
+      "send a voice note saying what you'd want the first ten seconds to look like",
+      "tell me where on your body you want me right now",
+      "describe what you'd do if i came over with no explanation",
+      "send a text saying exactly what you want me to know right now",
+      "tell me one thing you've held back from me physically",
+      "record a voice note of the most honest thing you've thought about us recently",
+      "describe how close you want to be to me right now",
+      "tell me one thing you'd want me to do without asking",
+      "send a voice note breathing out my name",
+      "describe a specific touch you'd want from me right now",
+      "tell me what you'd whisper if you were right here",
+      "record yourself saying something you've only thought",
+      "describe how you'd want to fall asleep with me tonight",
+      "tell me the most physical thing on your mind right now",
+      "send a voice note saying something that makes you feel exposed",
+      "describe one thing you want to feel with me",
+      "tell me something about your body in this moment",
+      "record yourself saying something you've been holding",
+      "describe a version of tonight with me that you'd want",
+      "tell me one thing you'd ask for if you knew the answer was yes",
+      "send a voice note saying something true about what you want",
+      "describe how you'd want me to touch you right now",
+      "tell me something you'd do if you felt completely free to",
+      "record a voice note of you saying something about us that you've been sitting with",
+      "describe what desire feels like in your body right now",
+      "tell me the most honest physical thing you want from this",
+      "send a voice note saying something you'd only say in the dark",
+      "describe how you'd want to wake up with me",
+      "tell me one specific thing about me physically that stays with you",
+      "record a voice note of you saying my name like a question",
+      "describe a version of physical closeness with me you want more of",
+      "tell me what your body is telling you right now",
+      "send a voice note of you saying something that requires courage",
+      "describe one thing you'd give in to right now",
+      "tell me what you'd want to feel first if i was with you",
+      "record yourself saying the thing you've been closest to saying",
+      "describe a physical scenario between us in two sentences",
+      "tell me one thing about desire that's hard to say",
+      "send a voice note of you describing what you want from me tonight",
+      "describe what you'd want my first move to be",
+      "tell me one thing about the way you want me that surprises you",
+      "record a voice note saying something that would make me come closer",
+      "describe the first physical thing you'd want if nothing was stopping you",
+      "tell me what you'd want me to know about how you want me right now",
+      "send a voice note of you saying something charged",
+      "describe how you want to be held right now",
+      "tell me the physical want you've been quietest about",
+      "record yourself saying one true thing about what you want tonight",
+      "describe what you'd want us to do with an hour alone",
+      "tell me something you'd say if you knew i wanted to hear it",
+      "send a voice note of you saying something only i'd understand",
+      "describe the physical version of tonight you'd want to remember",
+      "tell me what you'd want to feel from me right now",
+      "record a voice note saying what you'd want my hands to do",
+      "describe how you'd want to be wanted by me tonight",
+      "tell me what you want right now without softening it",
+      "send a voice note saying the most honest thing about your want",
+      "describe what happens in your body when i'm close to you",
+      "tell me the thing you want to say and haven't yet"
     ]
   }
 };
@@ -3366,7 +3043,7 @@ function renderRoom() {
     if (state.activeGame.game_type === 'wyr') {
       renderWYR();
     } else if (state.activeGame.game_type === 'tod') {
-      renderTOD();
+      renderTOD2();
     } else if (state.activeGame.game_type === 'fs') {
       renderFS();
     }
@@ -3575,23 +3252,22 @@ async function startGame(type, rounds) {
     const n = rounds || ROUNDS_TOD_DEFAULT;
     initialState = {
       theme: null,
-      stakes: null,
-      spice: null,
+      themeVotes: {},
+      currentTurn: partner.user_id,
+      chooser: me.user_id,
+      phase: 'theme_vote',
+      promptIndex: null,
+      usedPrompts: [],
+      choice: null,
+      prompt: null,
       round: 0,
-      total_rounds: n,
-      picker_id: state.user.id,
-      pick: null,
-      prompt_idx: null,
-      judgment: null,
-      escalation_multiplier: 1,
-      used: { easy: { truth: [], dare: [] }, fun: { truth: [], dare: [] }, wild: { truth: [], dare: [] }, spicy: { truth: [], dare: [] } },
-      scores: {}
+      totalRounds: n,
+      skips: { [me.user_id]: 0, [partner.user_id]: 0 },
+      completedBy: null,
+      judgedBy: null
     };
-    initialState.scores[me.user_id] = 0;
-    initialState.scores[partner.user_id] = 0;
-    initialPhase = 'spice';
-    initialTurn = state.user.id;
-    subscribeTODChannel();
+    initialPhase = 'theme_vote';
+    initialTurn = me.user_id;
   } else if (type === 'fs') {
     const n = rounds || 1;
     initialState = {
@@ -3873,493 +3549,304 @@ async function advanceWyrRound() {
   state.wyrLastChoiceRound = -1;
 }
 
-// ─── TOD rendering ─────────────────────────────────────
-// TOD theme definitions (Change 6)
-const TOD_THEMES = ['Casual', 'Playful', 'Intense', 'Unfiltered'];
-const TOD_THEME_TIERS = {
-  Casual:     (r) => r < 3 ? 'easy' : r < 6 ? 'fun' : 'wild',
-  Playful:    (r) => r < 2 ? 'fun' : r < 5 ? 'wild' : 'spicy',
-  Intense:    (r) => r < 2 ? 'wild' : 'spicy',
-  Unfiltered: (r) => 'spicy'
+// ─── TOD 2.0 ─────────────────────────────────────────────
+
+const TOD_PHASE_RENDERERS = {
+  theme_vote:    renderTODThemeVote,
+  chooser_picks: renderTODChooserPicks,
+  prompt_active: renderTODPromptActive,
+  judging:       renderTODJudging,
+  end:           renderTODEnd
 };
-const TOD_THEME_BG = { Casual: 'rgba(127,255,196,0.04)', Playful: 'rgba(100,140,255,0.05)', Intense: 'rgba(255,140,64,0.06)', Unfiltered: 'rgba(255,107,107,0.07)' };
 
-// floating emoji state
-let _floatingEmojis = [];
-
-function showFloatingEmoji(emoji) {
-  if (_floatingEmojis.length >= 3) return;
-  const el = document.createElement('div');
-  el.className = 'floating-emoji';
-  const drift = (Math.random() - 0.5) * 80;
-  el.style.setProperty('--drift', drift + 'px');
-  el.style.left = (30 + Math.random() * 40) + '%';
-  el.style.bottom = '80px';
-  el.textContent = emoji;
-  document.body.appendChild(el);
-  _floatingEmojis.push(el);
-  setTimeout(() => {
-    el.remove();
-    _floatingEmojis = _floatingEmojis.filter(e => e !== el);
-  }, 1500);
-}
-
-// TOD hold-to-confirm dare (Change 6)
-function wireTodHoldConfirm(btnId, onConfirm) {
-  const btn = document.getElementById(btnId);
-  if (!btn) return;
-  const fill = btn.querySelector('.tod-hold-confirm-fill');
-  let holdTimer = null, startTime = 0;
-  const HOLD_MS = 600;
-
-  const start = (e) => {
-    if (e.cancelable) e.preventDefault();
-    startTime = Date.now();
-    fill.style.transition = `width ${HOLD_MS}ms linear`;
-    fill.style.width = '100%';
-    holdTimer = setTimeout(() => { onConfirm(); }, HOLD_MS);
-  };
-  const cancel = () => {
-    clearTimeout(holdTimer);
-    fill.style.transition = 'width 0.15s';
-    fill.style.width = '0%';
-  };
-  btn.addEventListener('pointerdown', start);
-  btn.addEventListener('pointerup', cancel);
-  btn.addEventListener('pointerleave', cancel);
-  btn.addEventListener('pointercancel', cancel);
-}
-
-// TOD overclock hold button (Change 6)
-let _todThemeIdx = 0;
-let _todThemeCycleTimer = null;
-let _todThemeHolding = false;
-
-function startTodOverclock(btnId, onRelease) {
-  _todThemeIdx = 0;
-  const btn = document.getElementById(btnId);
-  if (!btn) return;
-
-  const updateBtn = () => {
-    const theme = TOD_THEMES[_todThemeIdx];
-    const nameEl = btn.querySelector('.theme-name');
-    if (nameEl) nameEl.textContent = theme;
-    // background tint
-    const overlay = document.getElementById('overlayBody');
-    if (overlay) overlay.style.background = TOD_THEME_BG[theme];
-  };
-
-  const startHold = (e) => {
-    if (e.cancelable) e.preventDefault();
-    _todThemeHolding = true;
-    _todThemeCycleTimer = setInterval(() => {
-      if (!_todThemeHolding) return;
-      _todThemeIdx = (_todThemeIdx + 1) % TOD_THEMES.length;
-      updateBtn();
-      drawOverclockArc(_todThemeIdx / TOD_THEMES.length);
-    }, 800);
-  };
-  const endHold = () => {
-    if (!_todThemeHolding) return;
-    _todThemeHolding = false;
-    clearInterval(_todThemeCycleTimer);
-    onRelease(TOD_THEMES[_todThemeIdx]);
-  };
-
-  btn.addEventListener('pointerdown', startHold);
-  btn.addEventListener('pointerup', endHold);
-  btn.addEventListener('pointerleave', endHold);
-  btn.addEventListener('pointercancel', endHold);
-  updateBtn();
-}
-
-function drawOverclockArc(progress) {
-  const svg = document.getElementById('todHoldRing');
-  if (!svg) return;
-  const r = 76, cx = 80, cy = 80;
-  const circ = 2 * Math.PI * r;
-  const dash = progress * circ;
-  svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--mint)" stroke-width="3"
-    stroke-dasharray="${dash} ${circ}" stroke-dashoffset="0" stroke-linecap="round"
-    transform="rotate(-90 ${cx} ${cy})" opacity="0.7"/>`;
-}
-
-function renderTOD() {
-  const body = document.getElementById('overlayBody');
+function renderTOD2() {
   const g = state.activeGame;
+  if (!g) return;
   const me = selfOf(state.room.members);
   const partner = partnerOf(state.room.members);
-  const phase = g.phase;
-  const escalation = g.state.escalation_multiplier || 1;
+  const iAmCurrentTurn = g.state.currentTurn === state.user.id;
+  const iAmChooser = g.state.chooser === state.user.id;
+  const partnerName = (partner && partner.display_name) || 'them';
+  const myName = me ? me.display_name : 'you';
+  const renderer = TOD_PHASE_RENDERERS[g.state.phase] || TOD_PHASE_RENDERERS['end'];
+  renderer(g.state, iAmCurrentTurn, iAmChooser, state.user.id, partnerName, myName);
+}
 
-  // background tint from theme
-  const theme = g.state.theme || null;
-  body.style.background = theme ? TOD_THEME_BG[theme] : '';
+function getTODBody() {
+  return document.getElementById('overlayBody');
+}
 
-  const stakesHtml = g.state.stakes
-    ? `<div class="tod-stakes-banner">stakes: ${escapeHtml(g.state.stakes)}</div>`
-    : '';
+function pickPrompt(theme, type, usedPrompts) {
+  const pool = TOD_PROMPTS[theme][type];
+  const usedSet = new Set((usedPrompts || []).filter(u => u.startsWith(theme + '/' + type + '/')).map(u => parseInt(u.split('/')[2])));
+  let available = pool.map((_, i) => i).filter(i => !usedSet.has(i));
+  if (available.length === 0) available = pool.map((_, i) => i);
+  return available[Math.floor(Math.random() * available.length)];
+}
 
-  let inner = '';
-  const header = `
-    <div class="game-meta-bar">
-      <button class="game-back" id="backToLobby">← lobby</button>
-      <div class="scores">
-        <div class="score-chip">${escapeHtml(me.display_name.slice(0,8))} <span class="num">${g.state.scores[me.user_id] || 0}</span></div>
-        <div class="score-chip">${escapeHtml((partner && partner.display_name) ? partner.display_name.slice(0,8) : '–')} <span class="num">${g.state.scores[partner ? partner.user_id : ''] || 0}</span></div>
-      </div>
-      <div class="game-round">${g.state.round + 1}/${g.state.total_rounds || ROUNDS_TOD_DEFAULT}</div>
-    </div>
-    ${stakesHtml}
-  `;
+function promptKey(theme, type, idx) {
+  return theme + '/' + type + '/' + idx;
+}
 
-  if (phase === 'spice') {
-    // Overclock theme picker (Change 6)
-    const canChoose = g.current_turn_user_id === state.user.id;
-    if (canChoose) {
-      inner = `
-        ${header}
-        <div class="tod-overclock-wrap">
-          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--text-soft);margin-bottom:8px">hold to cycle · release to lock</div>
-          <div class="tod-hold-btn-wrap">
-            <svg id="todHoldRing" class="tod-hold-ring" viewBox="0 0 160 160"></svg>
-            <button class="tod-hold-btn" id="todOverclockBtn" type="button">
-              <span class="theme-name">Casual</span>
-              <span class="hold-hint">hold</span>
-            </button>
-          </div>
-        </div>
-      `;
-    } else {
-      const pickerName = (partner && partner.display_name) || 'they';
-      inner = `
-        ${header}
-        <div class="tod-overclock-wrap">
-          <div style="font-size:17px;color:var(--text-soft);text-align:center">${escapeHtml(pickerName)} is choosing the vibe…</div>
-          <div style="margin-top:20px;width:80px;height:80px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:28px">✦</div>
-        </div>
-      `;
-    }
-  } else if (phase === 'stakes') {
-    // Stakes input (Change 6)
-    const isFirst = g.current_turn_user_id === state.user.id;
-    inner = `
-      ${header}
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px">
-        <div style="font-size:26px;font-weight:600;letter-spacing:-0.02em;text-align:center">what does the loser owe?</div>
-        <input class="tod-stakes-input" id="stakesInput" maxlength="80" placeholder="optional…" />
-        <div id="partnerTyping" style="font-size:13px;color:var(--text-faint);text-align:center;min-height:18px"></div>
-        <button class="btn-primary" id="stakesSubmit">lock it in <span class="arrow">→</span></button>
-        <button class="btn-ghost" id="stakesSkip">skip stakes</button>
-      </div>
-    `;
-  } else if (phase === 'pick') {
-    const isPicker = g.state.picker_id === state.user.id;
-    inner = `
-      ${header}
-      <div class="tod-turn-banner">
-        <div class="who">${isPicker ? "your turn" : `${escapeHtml((partner && partner.display_name) || 'their')}'s turn`}</div>
-        <div class="what">${isPicker ? `pick <span class="mint">truth</span> or <span class="mint">dare</span>` : 'they\'re choosing'}</div>
-      </div>
-      ${isPicker ? `
-        <div class="tod-pick">
-          <button class="tod-pick-btn phys-card" data-pick="truth">truth</button>
-          <button class="tod-pick-btn phys-card" data-pick="dare">dare</button>
-        </div>
-      ` : ''}
-    `;
-  } else if (phase === 'prompt' || phase === 'judge') {
-    const isPicker = g.state.picker_id === state.user.id;
-    const judgeReady = phase === 'judge';
-    const isDare = g.state.pick === 'dare';
-    inner = `
-      ${header}
-      <div class="tod-vignette" id="todVignette"></div>
-      <div class="tod-prompt-box${judgeReady ? ' focused' : ''}" style="position:relative;z-index:16">
-        <div class="tod-prompt-tag">${g.state.pick}${escalation > 1 ? ` · ×${escalation} multiplier` : ''}</div>
-        <div class="tod-prompt-text" id="todPromptText"></div>
-      </div>
-      ${isPicker ? `
-        ${!judgeReady ? `
-          ${isDare ? `
-            <button class="tod-hold-confirm phys-card" id="todDoneHold" type="button">
-              <div class="tod-hold-confirm-fill"></div>
-              hold to confirm — i did it
-            </button>
-          ` : `
-            <button class="btn-primary" id="todDone">done <span class="arrow">→</span></button>
-          `}
-          <div class="tod-emoji-bar" id="todEmojiBar">
-            ${['😂','🔥','❤️','💀','👏'].map(e => `<button class="tod-emoji-btn" data-emoji="${e}">${e}</button>`).join('')}
-          </div>
-        ` : `
-          <div class="wyr-waiting"><span class="blink-dot"></span>${escapeHtml((partner && partner.display_name) || 'they')} is judging</div>
-        `}
-      ` : `
-        ${!judgeReady ? `
-          <div class="wyr-waiting"><span class="blink-dot"></span>watching ${escapeHtml((partner && partner.display_name) || 'them')}...</div>
-          <div class="tod-emoji-bar" id="todEmojiBar">
-            ${['😂','🔥','❤️','💀','👏'].map(e => `<button class="tod-emoji-btn" data-emoji="${e}">${e}</button>`).join('')}
-          </div>
-        ` : `
-          <div class="tod-judge">
-            <button class="judge-btn did phys-card" id="judgeDid">they did it</button>
-            <button class="judge-btn didnt phys-card" id="judgeDidnt">no they didn't</button>
-          </div>
-        `}
-      `}
-    `;
-  } else if (phase === 'result') {
-    const did = g.state.judgment === 'did';
-    inner = `
-      ${header}
-      <div class="reveal-banner ${did ? 'match' : 'clash'}">${did ? `✦ point scored${escalation > 1 ? ' ×' + escalation : ''}` : 'they couldn\'t do it'}</div>
-      <button class="btn-primary phys-card" id="todNext">${g.state.round + 1 >= (g.state.total_rounds || ROUNDS_TOD_DEFAULT) ? 'see how it went' : 'next round'} <span class="arrow">→</span></button>
-    `;
-  }
+function renderTODThemeVote(gs, iAmCurrentTurn, iAmChooser, myId, partnerName, myName) {
+  const body = getTODBody();
+  const myVote = gs.themeVotes[myId];
+  const themes = [
+    { key: 'casual',     label: 'Casual',     desc: 'light, fun, nothing too deep' },
+    { key: 'spicy',      label: 'Spicy',      desc: 'personal, honest, a bit uncomfortable' },
+    { key: 'unfiltered', label: 'Unfiltered', desc: 'bold, vulnerable, no filter' }
+  ];
 
-  body.innerHTML = `<div class="game-screen">${inner}</div>`;
+  body.innerHTML =
+    '<div class="tod2-screen">' +
+    '<div class="game-meta-bar">' +
+    '<button class="game-back" id="backToLobby">← lobby</button>' +
+    '<div class="game-round">round 1/' + gs.totalRounds + '</div>' +
+    '</div>' +
+    '<h2 style="font-size:clamp(28px,7vw,40px);font-weight:600;letter-spacing:-0.03em;margin:24px 0 8px">pick a vibe</h2>' +
+    '<p style="color:var(--text-soft);font-size:14px;margin-bottom:24px">both pick — highest wins if you disagree</p>' +
+    '<div class="tod2-theme-grid">' +
+    themes.map(function(t) {
+      return '<button class="tod2-theme-card' + (myVote === t.key ? ' selected' : '') + '" data-theme="' + t.key + '"' + (myVote ? ' disabled' : '') + '>' +
+        '<div class="tod2-theme-label">' + t.label + '</div>' +
+        '<div class="tod2-theme-desc">' + t.desc + '</div>' +
+        '</button>';
+    }).join('') +
+    '</div>' +
+    (myVote ? '<div class="tod2-vote-indicator"><span class="blink-dot"></span>you picked ' + myVote + ' — waiting for ' + escapeHtml(partnerName) + '...</div>' : '') +
+    '</div>';
 
-  // wire up
-  const backBtn = document.getElementById('backToLobby');
-  if (backBtn) backBtn.addEventListener('click', () => confirmEndGame());
-
-  if (phase === 'spice' && g.current_turn_user_id === state.user.id) {
-    startTodOverclock('todOverclockBtn', (theme) => {
-      pickTheme(theme);
-    });
-  }
-
-  if (phase === 'stakes') {
-    const submitBtn = document.getElementById('stakesSubmit');
-    const skipBtn = document.getElementById('stakesSkip');
-    const input = document.getElementById('stakesInput');
-    // broadcast keystrokes
-    if (input && _fsCh) {
-      input.addEventListener('input', () => {
-        if (_todCh) _todCh.send({ type: 'broadcast', event: 'stakes_typing', payload: { text: input.value, user_id: state.user.id } });
-      });
-    }
-    if (submitBtn) submitBtn.addEventListener('click', () => submitStakes(input ? input.value.trim() : ''));
-    if (skipBtn) skipBtn.addEventListener('click', () => submitStakes(''));
-  }
-
-  body.querySelectorAll('.tod-pick-btn').forEach(b => {
-    b.addEventListener('pointerup', () => pickTOD(b.dataset.pick));
-  });
-
-  if (phase === 'prompt' || phase === 'judge') {
-    const el = document.getElementById('todPromptText');
-    const spice = g.state.spice;
-    const pick = g.state.pick;
-    const text = TOD_PROMPTS[spice][pick][g.state.prompt_idx];
-    typeText(el, text);
-
-    // focus vignette
-    if (phase === 'prompt') {
-      const vig = document.getElementById('todVignette');
-      if (vig) setTimeout(() => vig.classList.add('active'), 50);
-    }
-
-    const doneBtn = document.getElementById('todDone');
-    if (doneBtn) doneBtn.addEventListener('click', todDone);
-
-    if (document.getElementById('todDoneHold')) {
-      wireTodHoldConfirm('todDoneHold', todDone);
-    }
-
-    const judgeDidBtn = document.getElementById('judgeDid');
-    const judgeDidntBtn = document.getElementById('judgeDidnt');
-    if (judgeDidBtn) judgeDidBtn.addEventListener('pointerup', () => {
-      const vig = document.getElementById('todVignette');
-      if (vig) vig.classList.remove('active');
-      judge('did');
-    });
-    if (judgeDidntBtn) judgeDidntBtn.addEventListener('pointerup', () => {
-      const vig = document.getElementById('todVignette');
-      if (vig) vig.classList.remove('active');
-      judge('didnt');
-    });
-
-    // emoji reactions
-    const emojiBar = document.getElementById('todEmojiBar');
-    if (emojiBar) {
-      emojiBar.querySelectorAll('.tod-emoji-btn').forEach(btn => {
-        btn.addEventListener('pointerup', () => {
-          const emoji = btn.dataset.emoji;
-          showFloatingEmoji(emoji);
-          if (_todCh) _todCh.send({ type: 'broadcast', event: 'emoji', payload: { emoji, user_id: state.user.id } });
-        });
-      });
-    }
-  }
-
-  const todNextBtn = document.getElementById('todNext');
-  if (todNextBtn) todNextBtn.addEventListener('pointerup', advanceTodRound);
-
-  // phys-card
-  body.querySelectorAll('.phys-card').forEach(el => {
-    if (el.disabled) return;
-    el.addEventListener('pointerdown', () => { el.style.transform = 'scale(0.97)'; });
-    const rel = () => {
-      el.style.transition = 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1)';
-      el.style.transform = '';
-      setTimeout(() => el.style.transition = '', 350);
-    };
-    el.addEventListener('pointerup', rel);
-    el.addEventListener('pointercancel', rel);
+  document.getElementById('backToLobby').addEventListener('click', function() { confirmEndGame(); });
+  body.querySelectorAll('.tod2-theme-card:not([disabled])').forEach(function(btn) {
+    btn.addEventListener('pointerup', function() { castThemeVote(btn.dataset.theme); });
   });
 }
 
-// TOD channel for emoji + stakes broadcast
-let _todCh = null;
-function subscribeTODChannel() {
-  if (!state.activeGame || state.activeGame.game_type !== 'tod') return;
-  if (_todCh) { try { sb.removeChannel(_todCh); } catch(e) {} _todCh = null; }
-  _todCh = sb.channel(`tod:${state.activeGame.id}`)
-    .on('broadcast', { event: 'emoji' }, ({ payload }) => {
-      if (payload.user_id !== state.user.id) showFloatingEmoji(payload.emoji);
-    })
-    .on('broadcast', { event: 'stakes_typing' }, ({ payload }) => {
-      if (payload.user_id === state.user.id) return;
-      const el = document.getElementById('partnerTyping');
-      if (el) el.textContent = payload.text ? `they're typing: ${payload.text}` : '';
-    })
-    .subscribe();
-}
-
-function typeText(el, text) {
-  el.textContent = '';
-  let i = 0;
-  const cursor = document.createElement('span');
-  cursor.className = 'typing-cursor';
-  el.appendChild(cursor);
-  const speed = 28;
-  function step() {
-    if (i < text.length) {
-      const node = document.createTextNode(text[i]);
-      el.insertBefore(node, cursor);
-      i++;
-      setTimeout(step, speed);
-    } else {
-      // remove cursor after a moment
-      setTimeout(() => cursor.remove(), 1200);
-    }
-  }
-  step();
-}
-
-async function pickTheme(theme) {
+async function castThemeVote(theme) {
   const g = state.activeGame;
-  const newState = { ...g.state, theme };
-  // Move to stakes phase
-  await sb.from('game_sessions')
-    .update({ state: newState, phase: 'stakes' })
-    .eq('id', g.id).eq('version', g.version);
-}
-
-async function submitStakes(stakes) {
-  const g = state.activeGame;
-  const newState = { ...g.state, stakes: stakes || null };
-  await sb.from('game_sessions')
-    .update({ state: newState, phase: 'pick' })
-    .eq('id', g.id).eq('version', g.version);
-}
-
-async function pickSpice(spice) {
-  // Legacy fallback — map old spice names to themes
-  const themeMap = { easy: 'Casual', fun: 'Playful', wild: 'Intense', spicy: 'Unfiltered' };
-  const theme = themeMap[spice] || 'Casual';
-  await pickTheme(theme);
-}
-
-async function pickTOD(pick) {
-  const g = state.activeGame;
-  const theme = g.state.theme || 'Casual';
-  const tierFn = TOD_THEME_TIERS[theme] || TOD_THEME_TIERS['Casual'];
-  const spice = tierFn(g.state.round || 0);
-  // Apply penalty escalation: if multiplier > 1, force one tier harder
-  const tiers = ['easy', 'fun', 'wild', 'spicy'];
-  let spiceIdx = tiers.indexOf(spice);
-  if ((g.state.escalation_multiplier || 1) > 1 && spiceIdx < tiers.length - 1) spiceIdx++;
-  const effectiveSpice = tiers[spiceIdx];
-
-  const list = TOD_PROMPTS[effectiveSpice][pick];
-  const usedInGame = (g.state.used[effectiveSpice] && g.state.used[effectiveSpice][pick]) || [];
-  const bucket = `tod.${effectiveSpice}.${pick}`;
-  const usedAcrossRoom = state.room ? getUsedPromptIdxs(state.room.code, bucket) : [];
-  const allUsed = Array.from(new Set([...usedInGame, ...usedAcrossRoom]));
-  const idx = pickFreshIdx(list.length, allUsed);
-  if (state.room) addUsedPromptIdxs(state.room.code, bucket, [idx]);
-
-  const newUsed = JSON.parse(JSON.stringify(g.state.used));
-  if (!newUsed[effectiveSpice]) newUsed[effectiveSpice] = { truth: [], dare: [] };
-  newUsed[effectiveSpice][pick] = [...usedInGame, idx];
-  const newState = { ...g.state, spice: effectiveSpice, pick, prompt_idx: idx, used: newUsed };
-  await sb.from('game_sessions')
-    .update({ state: newState, phase: 'prompt' })
-    .eq('id', g.id).eq('version', g.version);
-  subscribeTODChannel();
-}
-
-async function todDone() {
-  const g = state.activeGame;
-  await sb.from('game_sessions')
-    .update({ phase: 'judge' })
-    .eq('id', g.id).eq('version', g.version);
-}
-
-async function judge(verdict) {
-  const g = state.activeGame;
-  const newState = { ...g.state, judgment: verdict };
-  const escalation = g.state.escalation_multiplier || 1;
-  if (verdict === 'did') {
-    newState.scores = { ...newState.scores };
-    newState.scores[g.state.picker_id] = (newState.scores[g.state.picker_id] || 0) + escalation;
-    newState.escalation_multiplier = 1; // reset on success
-  } else {
-    // penalty: double multiplier, next prompt forced harder
-    newState.escalation_multiplier = escalation * 2;
-    // show flash on both screens via broadcast
-    showPenaltyFlash();
-    if (_todCh) _todCh.send({ type: 'broadcast', event: 'penalty', payload: { multiplier: newState.escalation_multiplier } });
+  const newVotes = Object.assign({}, g.state.themeVotes, { [state.user.id]: theme });
+  const partner = partnerOf(state.room.members);
+  const bothVoted = partner && newVotes[partner.user_id] && newVotes[state.user.id];
+  let newState = Object.assign({}, g.state, { themeVotes: newVotes });
+  let newPhase = g.phase;
+  if (bothVoted) {
+    const rank = { casual: 0, spicy: 1, unfiltered: 2 };
+    const myVote = newVotes[state.user.id];
+    const theirVote = newVotes[partner.user_id];
+    const winningTheme = rank[myVote] >= rank[theirVote] ? myVote : theirVote;
+    newState.theme = winningTheme;
+    newState.phase = 'chooser_picks';
+    newPhase = 'chooser_picks';
   }
   await sb.from('game_sessions')
-    .update({ state: newState, phase: 'result' })
-    .eq('id', g.id).eq('version', g.version);
+    .update({ phase: newPhase, state: newState })
+    .eq('id', g.id);
 }
 
-function showPenaltyFlash() {
-  const el = document.getElementById('penaltyFlash');
-  if (!el) return;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 1800);
+function renderTODChooserPicks(gs, iAmCurrentTurn, iAmChooser, myId, partnerName, myName) {
+  const body = getTODBody();
+  const themeLabel = gs.theme ? gs.theme.charAt(0).toUpperCase() + gs.theme.slice(1) : '';
+
+  body.innerHTML =
+    '<div class="tod2-screen">' +
+    '<div class="game-meta-bar">' +
+    '<button class="game-back" id="backToLobby">← lobby</button>' +
+    '<div class="game-round" style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-faint)">' + themeLabel + '</div>' +
+    '<div class="game-round">' + (gs.round + 1) + '/' + gs.totalRounds + '</div>' +
+    '</div>' +
+    '<div class="tod2-phase-banner"><span style="color:var(--coral)">' + escapeHtml(iAmCurrentTurn ? myName : partnerName) + "\u2019s turn</span></div>" +
+    (iAmChooser ?
+      '<p style="color:var(--text-soft);font-size:15px;text-align:center;margin-bottom:28px">you pick for them</p>' +
+      '<div style="display:flex;gap:14px">' +
+      '<button class="tod-pick-btn phys-card" data-pick="truth">truth</button>' +
+      '<button class="tod-pick-btn phys-card" data-pick="dare">dare</button>' +
+      '</div>'
+    :
+      '<p style="color:var(--text-soft);font-size:16px;text-align:center;margin-top:20px">' + escapeHtml(partnerName) + ' is picking for you...</p>' +
+      '<div class="tod2-waiting" style="margin-top:32px"><span class="blink-dot"></span>waiting</div>'
+    ) +
+    '</div>';
+
+  document.getElementById('backToLobby').addEventListener('click', function() { confirmEndGame(); });
+  body.querySelectorAll('.tod-pick-btn').forEach(function(b) {
+    b.addEventListener('pointerup', function() { tod2PickChoice(b.dataset.pick); });
+  });
 }
 
-async function advanceTodRound() {
+async function tod2PickChoice(choice) {
   const g = state.activeGame;
-  const nextRound = g.state.round + 1;
-  const total = g.state.total_rounds || ROUNDS_TOD_DEFAULT;
-  if (nextRound >= total) {
-    triggerInterGameGlow();
+  const theme = g.state.theme || 'casual';
+  const idx = pickPrompt(theme, choice, g.state.usedPrompts);
+  const promptText = TOD_PROMPTS[theme][choice][idx];
+  const newUsed = (g.state.usedPrompts || []).concat([promptKey(theme, choice, idx)]);
+  await sb.from('game_sessions')
+    .update({
+      phase: 'prompt_active',
+      state: Object.assign({}, g.state, {
+        choice: choice,
+        promptIndex: idx,
+        prompt: promptText,
+        usedPrompts: newUsed,
+        completedBy: null,
+        judgedBy: null,
+        phase: 'prompt_active'
+      })
+    })
+    .eq('id', g.id);
+}
+
+function renderTODPromptActive(gs, iAmCurrentTurn, iAmChooser, myId, partnerName, myName) {
+  const body = getTODBody();
+  const themeLabel = gs.theme ? gs.theme.charAt(0).toUpperCase() + gs.theme.slice(1) : '';
+
+  body.innerHTML =
+    '<div class="tod2-screen">' +
+    '<div class="game-meta-bar">' +
+    '<button class="game-back" id="backToLobby">← lobby</button>' +
+    '<div class="game-round" style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-faint)">' + themeLabel + ' · ' + (gs.choice || '') + '</div>' +
+    '<div class="game-round">' + (gs.round + 1) + '/' + gs.totalRounds + '</div>' +
+    '</div>' +
+    '<div class="tod2-phase-banner">' +
+    '<span style="color:var(--coral)">' + (iAmCurrentTurn ? 'your' : escapeHtml(partnerName) + "'s") + '</span> ' + (gs.choice || 'turn') +
+    '</div>' +
+    '<div class="tod2-prompt-card">' + escapeHtml(gs.prompt || '') + '</div>' +
+    (iAmCurrentTurn ?
+      '<div class="tod2-action-row">' +
+      '<button class="btn-ghost phys-card" id="tod2Skip">skip</button>' +
+      '<button class="btn-primary phys-card" id="tod2Done">done ✓</button>' +
+      '</div>'
+    :
+      '<div class="tod2-waiting"><span class="blink-dot"></span>waiting for ' + escapeHtml(partnerName) + '...</div>'
+    ) +
+    '</div>';
+
+  document.getElementById('backToLobby').addEventListener('click', function() { confirmEndGame(); });
+  const doneBtn = document.getElementById('tod2Done');
+  const skipBtn = document.getElementById('tod2Skip');
+  if (doneBtn) doneBtn.addEventListener('pointerup', tod2Done);
+  if (skipBtn) skipBtn.addEventListener('pointerup', tod2Skip);
+}
+
+async function tod2Done() {
+  const g = state.activeGame;
+  await sb.from('game_sessions')
+    .update({ phase: 'judging', state: Object.assign({}, g.state, { completedBy: state.user.id, phase: 'judging' }) })
+    .eq('id', g.id);
+}
+
+async function tod2Skip() {
+  const g = state.activeGame;
+  const newSkips = Object.assign({}, g.state.skips);
+  newSkips[state.user.id] = (newSkips[state.user.id] || 0) + 1;
+  await tod2AdvanceRound(Object.assign({}, g.state, { skips: newSkips }));
+}
+
+function renderTODJudging(gs, iAmCurrentTurn, iAmChooser, myId, partnerName, myName) {
+  const body = getTODBody();
+
+  body.innerHTML =
+    '<div class="tod2-screen">' +
+    '<div class="game-meta-bar">' +
+    '<button class="game-back" id="backToLobby">← lobby</button>' +
+    '<div class="game-round">' + (gs.round + 1) + '/' + gs.totalRounds + '</div>' +
+    '</div>' +
+    '<div style="font-size:20px;font-weight:500;text-align:center;margin:28px 0 8px">' +
+    escapeHtml(iAmCurrentTurn ? 'you' : partnerName) + ' say' + (iAmCurrentTurn ? '' : 's') + ' they did it' +
+    '</div>' +
+    '<div class="tod2-prompt-card" style="opacity:0.6;font-size:16px">' + escapeHtml(gs.prompt || '') + '</div>' +
+    (iAmChooser ?
+      '<div style="display:flex;gap:12px;margin-top:24px">' +
+      '<button class="judge-btn didnt phys-card" id="tod2Nope">nope, they didn\'t</button>' +
+      '<button class="judge-btn did phys-card" id="tod2Yeah">yeah, done ✓</button>' +
+      '</div>'
+    :
+      '<div class="tod2-waiting" style="margin-top:32px"><span class="blink-dot"></span>waiting for ' + escapeHtml(partnerName) + ' to confirm...</div>'
+    ) +
+    '</div>';
+
+  document.getElementById('backToLobby').addEventListener('click', function() { confirmEndGame(); });
+  const yeahBtn = document.getElementById('tod2Yeah');
+  const nopeBtn = document.getElementById('tod2Nope');
+  if (yeahBtn) yeahBtn.addEventListener('pointerup', function() { tod2Confirm(true); });
+  if (nopeBtn) nopeBtn.addEventListener('pointerup', function() { tod2Confirm(false); });
+}
+
+async function tod2Confirm(completed) {
+  const g = state.activeGame;
+  const newState = Object.assign({}, g.state, { judgedBy: state.user.id });
+  if (!completed) {
+    newState.skips = Object.assign({}, newState.skips);
+    newState.skips[g.state.currentTurn] = (newState.skips[g.state.currentTurn] || 0) + 1;
+  }
+  await tod2AdvanceRound(newState);
+}
+
+async function tod2AdvanceRound(newState) {
+  const g = state.activeGame;
+  const nextRound = (newState.round || 0) + 1;
+  if (nextRound >= (newState.totalRounds || 10)) {
+    // Keep game active (no ended_at) so renderTOD2 shows the end screen
     await sb.from('game_sessions')
-      .update({ ended_at: new Date().toISOString(), phase: 'ended' })
+      .update({ phase: 'end', state: Object.assign({}, newState, { phase: 'end' }) })
       .eq('id', g.id);
+    triggerInterGameGlow();
     return;
   }
-  const partner = partnerOf(state.room.members);
-  const newState = {
-    ...g.state,
-    round: nextRound,
-    picker_id: g.state.picker_id === state.user.id ? (partner && partner.user_id) : state.user.id,
-    pick: null,
-    prompt_idx: null,
-    judgment: null
-  };
+  const newCurrentTurn = newState.chooser;
+  const newChooser = newState.currentTurn;
   await sb.from('game_sessions')
-    .update({ state: newState, phase: 'pick', current_turn_user_id: newState.picker_id })
-    .eq('id', g.id).eq('version', g.version);
+    .update({
+      phase: 'chooser_picks',
+      state: Object.assign({}, newState, {
+        round: nextRound,
+        currentTurn: newCurrentTurn,
+        chooser: newChooser,
+        choice: null,
+        prompt: null,
+        promptIndex: null,
+        completedBy: null,
+        judgedBy: null,
+        phase: 'chooser_picks'
+      })
+    })
+    .eq('id', g.id);
 }
+
+function renderTODEnd(gs, iAmCurrentTurn, iAmChooser, myId, partnerName, myName) {
+  const body = getTODBody();
+  const mySkips = (gs.skips && gs.skips[myId]) || 0;
+  const partnerKey = Object.keys(gs.skips || {}).find(function(k) { return k !== myId; });
+  const partnerSkips = (gs.skips && partnerKey && gs.skips[partnerKey]) || 0;
+  const themeLabel = gs.theme ? gs.theme.charAt(0).toUpperCase() + gs.theme.slice(1) : '';
+
+  body.innerHTML =
+    '<div class="tod2-screen">' +
+    '<div class="end-card">' +
+    '<div class="end-headline"><span class="mint">' + themeLabel + '</span><br>game over</div>' +
+    '<div class="end-stat">' + gs.totalRounds + ' rounds played</div>' +
+    '<div class="end-stat">you skipped <span class="num">' + mySkips + '</span> time' + (mySkips !== 1 ? 's' : '') + '</div>' +
+    '<div class="end-stat">' + escapeHtml(partnerName) + ' skipped <span class="num">' + partnerSkips + '</span> time' + (partnerSkips !== 1 ? 's' : '') + '</div>' +
+    '<div class="end-actions">' +
+    '<button class="btn-primary" id="tod2PlayAgain">play again <span class="arrow">→</span></button>' +
+    '<button class="btn-ghost" id="tod2BackLobby">back to lobby</button>' +
+    '</div>' +
+    '</div>' +
+    '</div>';
+
+  document.getElementById('tod2PlayAgain').addEventListener('click', function() {
+    const g = state.activeGame;
+    if (g) sb.from('game_sessions').update({ ended_at: new Date().toISOString() }).eq('id', g.id);
+    startGame('tod', gs.totalRounds);
+  });
+  document.getElementById('tod2BackLobby').addEventListener('click', async function() {
+    const g = state.activeGame;
+    if (g) await sb.from('game_sessions').update({ ended_at: new Date().toISOString() }).eq('id', g.id);
+    teardownFS();
+    state.activeGame = null;
+    renderRoom();
+  });
+}
+
 
 // ─── Finger Smash ──────────────────────────────────────
 const FS_BASE_TAP_WEIGHT = 1.8;
