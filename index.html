@@ -3033,11 +3033,17 @@ function renderRoom() {
   const hasActiveGame = state.activeGame && !state.activeGame.ended_at;
 
   if (!hasActiveGame) {
-    closeGameOverlay();
-    if (state.activeGame && state.activeGame.ended_at) {
-      renderEndCard();
+    // TOD end state stays in the overlay (consistent with all other TOD phases)
+    if (state.activeGame && state.activeGame.ended_at && state.activeGame.game_type === 'tod') {
+      openGameOverlay();
+      renderTOD2();
     } else {
-      renderLobby();
+      closeGameOverlay();
+      if (state.activeGame && state.activeGame.ended_at) {
+        renderEndCard(); // WYR / FS generic end card in hub
+      } else {
+        renderLobby();
+      }
     }
   } else {
     // Open overlay for active games
