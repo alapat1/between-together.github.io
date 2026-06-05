@@ -25,6 +25,7 @@
     --mint-deep: #2EA876;
     --mint-glow: rgba(127, 255, 196, 0.25);
     --warn: #FF6B6B;
+    --coral: #FF8C64;
   }
 
   html, body { height: 100%; overflow-x: hidden; }
@@ -1235,6 +1236,555 @@
     .screen { padding: 20px 16px; }
     .code-slot { max-width: 60px; height: 68px; font-size: 26px; }
   }
+
+  /* ── Room History chips ── */
+  .room-history {
+    width: 100%;
+    margin-top: 18px;
+  }
+  .room-history-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 10px;
+  }
+  .room-history-chips {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .room-history-chips::-webkit-scrollbar { display: none; }
+  .room-history-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 100px;
+    padding: 10px 14px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    color: inherit;
+    flex-shrink: 0;
+  }
+  .room-history-chip:hover { border-color: var(--mint); background: var(--bg-card-hover); }
+  .room-history-chip .rhc-code {
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--mint);
+  }
+  .room-history-chip .rhc-partner {
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+  .room-history-chip .rhc-time {
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+  .room-history-chip .rhc-arrow {
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  /* ── Avatar blobs ── */
+  @keyframes avatarBreathe {
+    0%, 100% { border-radius: 60% 40% 55% 45% / 55% 45% 60% 40%; transform: scale(1); }
+    50% { border-radius: 45% 55% 40% 60% / 40% 60% 45% 55%; transform: scale(1.04); }
+  }
+  .avatar-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .avatar-blob {
+    width: 52px;
+    height: 52px;
+    border-radius: 60% 40% 55% 45% / 55% 45% 60% 40%;
+    animation: avatarBreathe 3s ease-in-out infinite;
+    position: relative;
+    flex-shrink: 0;
+    transition: filter 0.4s, box-shadow 0.4s;
+  }
+  .avatar-blob.self {
+    background: radial-gradient(circle at 40% 40%, var(--mint), var(--mint-deep));
+  }
+  .avatar-blob.partner {
+    background: radial-gradient(circle at 40% 40%, var(--coral), #c0552a);
+    animation-delay: -1.5s;
+  }
+  .avatar-blob.offline {
+    filter: saturate(0) brightness(0.6);
+  }
+  .avatar-blob.glow-pulse {
+    box-shadow: 0 0 24px var(--mint);
+  }
+  .avatar-presence-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--mint);
+    box-shadow: 0 0 6px var(--mint);
+    border: 1.5px solid var(--bg);
+    animation: blink 2s ease-in-out infinite;
+  }
+  .avatar-presence-dot.offline {
+    background: var(--text-faint);
+    box-shadow: none;
+    animation: none;
+  }
+  .avatar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+  }
+  .avatar-name {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 500;
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+  }
+  .avatar-tether-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    max-width: 80px;
+    height: 52px;
+    overflow: visible;
+  }
+  .avatar-tether-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  /* ── Game overlay (Change 2) ── */
+  #game-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: var(--bg);
+    overflow-y: auto;
+    padding: 24px 22px;
+    max-width: 520px;
+    margin: 0 auto;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  #game-overlay.active {
+    transform: translateY(0);
+  }
+  #screen-room.game-active {
+    transform: scale(0.95) translateY(-10px);
+    filter: blur(3px);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.4s;
+  }
+  #screen-room {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.4s;
+  }
+  .overlay-back {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px 0;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .overlay-back:hover { color: var(--mint); }
+
+  /* ── WYR 2.0 Split Screen (Change 5) ── */
+  .wyr-split {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 22px;
+    overflow: hidden;
+    min-height: 340px;
+  }
+  .wyr-half {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.25s;
+    position: relative;
+    border: none;
+    font-family: inherit;
+    color: var(--text);
+    text-align: center;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .wyr-half-a {
+    background: var(--bg-card);
+    background: linear-gradient(to bottom, rgba(127,255,196,0.08) 0%, var(--bg-card) 100%);
+  }
+  .wyr-half-b {
+    background: var(--bg-card);
+    background: linear-gradient(to top, rgba(255,140,100,0.07) 0%, var(--bg-card) 100%);
+  }
+  .wyr-half:disabled { cursor: default; }
+  .wyr-half.you { box-shadow: inset 0 0 0 3px var(--mint); }
+  .wyr-half.both { background: rgba(127,255,196,0.13); box-shadow: inset 0 0 0 3px var(--mint); }
+  .wyr-half.you-dimmed { opacity: 0.55; }
+  .wyr-half.them { box-shadow: inset 0 0 0 2px var(--mint-deep); }
+  .wyr-half.winner-glow { background: rgba(127,255,196,0.18); box-shadow: inset 0 0 0 3px var(--mint), 0 0 30px var(--mint-glow); }
+  .wyr-half.loser-tint { background: rgba(255,107,107,0.10); }
+  .wyr-split-divider {
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    transform: translateY(-50%);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .wyr-split-pill {
+    background: rgba(20,20,31,0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    padding: 10px 20px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+    max-width: 280px;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    pointer-events: none;
+  }
+  .wyr-half-tags {
+    position: absolute;
+    bottom: 10px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* ── TOD 2.0 styles (Change 6) ── */
+  .tod-overclock-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+  }
+  .tod-hold-btn-wrap {
+    position: relative;
+    width: 160px;
+    height: 160px;
+  }
+  .tod-hold-btn {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg-card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    gap: 4px;
+    transition: transform 0.1s;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
+  }
+  .tod-hold-btn:active { transform: scale(0.96); }
+  .tod-hold-btn .theme-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--mint);
+  }
+  .tod-hold-btn .hold-hint {
+    font-size: 11px;
+    color: var(--text-soft);
+    font-family: 'Geist Mono', monospace;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .tod-hold-ring {
+    position: absolute;
+    top: 0; left: 0;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .tod-stakes-input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 2px solid transparent;
+    border-radius: 18px;
+    padding: 20px 22px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text);
+    outline: none;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .tod-stakes-input::placeholder { color: var(--text-faint); }
+  .tod-stakes-input:focus { border-color: var(--mint); box-shadow: 0 0 24px var(--mint-glow); }
+  .tod-stakes-banner {
+    background: rgba(127,255,196,0.08);
+    border: 1px solid rgba(127,255,196,0.25);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--mint);
+    text-align: center;
+    font-family: 'Geist Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+  .tod-vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 15;
+    transition: opacity 0.4s;
+    background: rgba(10,10,18,0.85);
+    opacity: 0;
+  }
+  .tod-vignette.active { opacity: 1; }
+  .tod-prompt-box.focused {
+    position: relative;
+    z-index: 16;
+    box-shadow: 0 0 60px var(--mint-glow);
+  }
+  .penalty-flash {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9990;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--warn);
+    background: rgba(10,10,18,0.9);
+    border: 1px solid var(--warn);
+    border-radius: 16px;
+    padding: 16px 28px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .penalty-flash.show { opacity: 1; }
+  .tod-emoji-bar {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .tod-emoji-btn {
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tod-emoji-btn:active { transform: scale(1.3); }
+  .floating-emoji {
+    position: fixed;
+    font-size: 28px;
+    pointer-events: none;
+    z-index: 9995;
+    animation: floatEmoji 1.5s ease-out forwards;
+  }
+  @keyframes floatEmoji {
+    0% { opacity: 1; transform: translateY(0) translateX(0); }
+    100% { opacity: 0; transform: translateY(-200px) translateX(var(--drift)); }
+  }
+  .tod-hold-confirm {
+    position: relative;
+    width: 100%;
+    padding: 20px;
+    border-radius: 18px;
+    background: var(--bg-card);
+    border: 2px solid rgba(127,255,196,0.3);
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
+  }
+  .tod-hold-confirm-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 0%;
+    background: rgba(127,255,196,0.15);
+    transition: none;
+    pointer-events: none;
+  }
+
+  /* ── FS 2.0 styles (Change 7) ── */
+  .fs-walkthrough {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 32px;
+    text-align: center;
+  }
+  .fs-wt-icon { font-size: 64px; }
+  .fs-wt-text {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+  .fs-wt-dots {
+    display: flex;
+    gap: 8px;
+  }
+  .fs-wt-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-faint);
+    transition: background 0.3s;
+  }
+  .fs-wt-dot.active { background: var(--mint); }
+  .fs-powerup {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    z-index: 8;
+    cursor: pointer;
+    pointer-events: auto;
+    animation: powerupAppear 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @keyframes powerupAppear {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .fs-powerup.bomb {
+    background: rgba(255,107,107,0.15);
+    border: 3px solid var(--warn);
+    box-shadow: 0 0 12px rgba(255,107,107,0.4), 0 0 24px rgba(255,107,107,0.2);
+    animation: powerupAppear 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards, bombPulse 0.8s 0.3s ease-in-out infinite;
+  }
+  @keyframes bombPulse {
+    0%,100% { box-shadow: 0 0 12px rgba(255,107,107,0.4); }
+    50% { box-shadow: 0 0 24px rgba(255,107,107,0.8), 0 0 40px rgba(255,107,107,0.3); }
+  }
+  .fs-powerup.turbo {
+    background: rgba(127,255,196,0.15);
+    border: 3px solid var(--mint);
+  }
+  .fs-powerup.freeze {
+    width: 52px; height: 52px;
+    border-radius: 4px;
+    transform: rotate(45deg);
+    background: rgba(74,158,255,0.15);
+    border: 3px solid #4A9EFF;
+  }
+  .fs-turbo-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: var(--mint);
+    color: var(--bg);
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 4px 8px;
+    border-radius: 100px;
+    z-index: 9;
+    pointer-events: none;
+  }
+  .fs-frozen-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(74,158,255,0.12);
+    backdrop-filter: blur(6px);
+    font-size: 28px;
+    font-weight: 700;
+    color: #4A9EFF;
+    pointer-events: none;
+  }
+  .fs-bar-line-physics {
+    position: absolute;
+    left: 0; right: 0;
+    height: 4px;
+    transition: bottom 0.08s linear, border-radius 0.08s linear, height 0.08s linear, background 0.15s;
+    pointer-events: none;
+  }
+
+  /* ── Card physics (Change 4) ── */
+  .phys-card {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .phys-card:active {
+    transform: scale(0.97) !important;
+  }
 </style>
 </head>
 <body>
@@ -1280,6 +1830,10 @@
           <input class="code-slot" maxlength="1" inputmode="text" autocapitalize="characters" aria-label="code 3" />
           <input class="code-slot" maxlength="1" inputmode="text" autocapitalize="characters" aria-label="code 4" />
         </div>
+        <div class="room-history" id="roomHistory" style="display:none">
+          <div class="room-history-label">your rooms</div>
+          <div class="room-history-chips" id="roomHistoryChips"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -1316,9 +1870,30 @@
     <div id="roomBody"></div>
   </section>
 
+  <!-- GAME OVERLAY (Change 2) ─────────────────────── -->
+  <div id="game-overlay">
+    <button class="overlay-back" id="overlayBack">← back</button>
+    <div id="overlayBody"></div>
+  </div>
+
+  <!-- ROOM NAMING MODAL (Change 1) ────────────────── -->
+  <div class="modal-backdrop" id="roomNameModal" hidden>
+    <div class="modal-card">
+      <div class="modal-label">give this room a name (optional)</div>
+      <input type="text" class="modal-input" id="roomNameInput" maxlength="40" placeholder="e.g. our late nights" />
+      <div class="modal-actions">
+        <button class="btn-ghost" id="roomNameSkip">skip</button>
+        <button class="btn-primary" id="roomNameSave">save <span class="arrow">→</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PENALTY FLASH (Change 6) ───────────────────── -->
+  <div class="penalty-flash" id="penaltyFlash">🔥 penalty doubled</div>
+
 <script>
-const SUPABASE_URL = 'https://lnjqmsczeqmitztxlpli.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_NUpbncoR_Mj0Gyq7K-xobQ_nezLy76a';
+const SUPABASE_URL = 'https://zfbahckiiytuebejahia.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_qQfnibwTWXmjqJalCiurEg_ayJHALxH';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: true, storageKey: 'bt-auth' }
 });
@@ -2077,6 +2652,57 @@ const state = {
   wyrLastChoiceRound: -1       // local guard against multi-tap
 };
 
+// ─── Room History (Change 1) ───────────────────────────
+const ROOM_HISTORY_KEY = 'bt-room-history';
+function getRoomHistory() {
+  try { return JSON.parse(localStorage.getItem(ROOM_HISTORY_KEY) || '[]'); } catch(e) { return []; }
+}
+function upsertRoomHistory(entry) {
+  let hist = getRoomHistory().filter(h => h.code !== entry.code);
+  hist.unshift({ ...entry, ts: Date.now() });
+  if (hist.length > 10) hist = hist.slice(0, 10);
+  localStorage.setItem(ROOM_HISTORY_KEY, JSON.stringify(hist));
+}
+function timeAgo(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return 'just now';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h / 24) + 'd ago';
+}
+function renderRoomHistory() {
+  const hist = getRoomHistory();
+  const wrap = document.getElementById('roomHistory');
+  const chips = document.getElementById('roomHistoryChips');
+  if (!wrap || !chips) return;
+  if (!hist.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  chips.innerHTML = hist.map((h, i) => `
+    <button class="room-history-chip" data-idx="${i}">
+      <span class="rhc-code">${escapeHtml(h.code)}</span>
+      ${h.partnerName ? `<span class="rhc-partner">· ${escapeHtml(h.partnerName)}</span>` : ''}
+      <span class="rhc-time">${timeAgo(h.ts)}</span>
+      <span class="rhc-arrow">›</span>
+    </button>
+  `).join('');
+  chips.querySelectorAll('.room-history-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const h = hist[parseInt(btn.dataset.idx)];
+      if (!h) return;
+      // if we have auth and userId matches stored, skip join flow
+      if (state.user && state.user.id === h.userId && state.profile) {
+        show('screen-room');
+        document.getElementById('roomBody').innerHTML = '<div class="loading">loading the room</div>';
+        loadRoom(h.code);
+      } else {
+        startFlow({ type: 'join', code: h.code });
+      }
+    });
+  });
+}
+
 // ─── Utility ───────────────────────────────────────────
 function $(sel) { return document.querySelector(sel); }
 function $$(sel) { return Array.from(document.querySelectorAll(sel)); }
@@ -2374,7 +3000,7 @@ async function joinRoom(code) {
 async function loadRoom(code) {
   const { data: room, error } = await sb
     .from('rooms')
-    .select('id, code, created_by, created_at')
+    .select('id, code, created_by, created_at, display_name')
     .eq('code', code)
     .maybeSingle();
   if (error || !room) { toast('that room is gone', true); return goHome(); }
@@ -2414,6 +3040,28 @@ async function loadRoom(code) {
   await unsubscribeAll();
   subscribeRoom();
   startPolling();
+
+  // upsert room history
+  const partner = partnerOf(state.room.members);
+  const displayName = room.display_name || (partner && partner.display_name) || null;
+  upsertRoomHistory({
+    code: room.code,
+    displayName,
+    partnerName: partner ? partner.display_name : null,
+    userId: state.user ? state.user.id : null,
+    lastPlayed: new Date().toISOString()
+  });
+
+  // Show room naming modal if second player joining for first time and no display_name yet
+  const isNewSecondPlayer = !room.display_name && partner &&
+    partner.user_id !== (room.created_by) &&
+    state.user && state.user.id !== room.created_by &&
+    members && members.length === 2;
+  if (isNewSecondPlayer && !localStorage.getItem('bt-named-' + room.code)) {
+    localStorage.setItem('bt-named-' + room.code, '1');
+    setTimeout(() => openRoomNameModal(room), 600);
+  }
+
   renderRoom();
 }
 
@@ -2423,10 +3071,38 @@ function goHome() {
   stopPolling();
   teardownFS();
   unsubscribeAll();
+  closeGameOverlay();
   window.location.hash = '';
-  // reset slots
   slots.forEach(s => { s.value = ''; s.classList.remove('filled'); });
   show('screen-home');
+  renderRoomHistory();
+}
+
+function openRoomNameModal(room) {
+  const modal = document.getElementById('roomNameModal');
+  const input = document.getElementById('roomNameInput');
+  if (!modal || !input) return;
+  input.value = '';
+  modal.hidden = false;
+  setTimeout(() => input.focus(), 50);
+  document.getElementById('roomNameSkip').onclick = () => { modal.hidden = true; };
+  document.getElementById('roomNameSave').onclick = async () => {
+    const name = input.value.trim();
+    modal.hidden = true;
+    if (name) {
+      await sb.from('rooms').update({ display_name: name }).eq('id', room.id);
+      if (state.room) state.room.display_name = name;
+      // update history entry
+      const partner = partnerOf(state.room ? state.room.members : []);
+      upsertRoomHistory({
+        code: room.code,
+        displayName: name,
+        partnerName: partner ? partner.display_name : null,
+        userId: state.user ? state.user.id : null,
+        lastPlayed: new Date().toISOString()
+      });
+    }
+  };
 }
 
 // ─── Sync layer (defense in depth against realtime gaps) ───
@@ -2612,16 +3288,43 @@ function subscribeRoom() {
   state.channels.push(presCh);
 }
 
+// ─── Game Overlay (Change 2) ───────────────────────────
+function openGameOverlay() {
+  const overlay = document.getElementById('game-overlay');
+  const roomScreen = document.getElementById('screen-room');
+  if (!overlay) return;
+  overlay.classList.add('active');
+  roomScreen.classList.add('game-active');
+}
+
+function closeGameOverlay() {
+  const overlay = document.getElementById('game-overlay');
+  const roomScreen = document.getElementById('screen-room');
+  if (!overlay) return;
+  overlay.classList.remove('active');
+  roomScreen.classList.remove('game-active');
+}
+
+function getGameBody() {
+  // Returns the container where game content is rendered
+  const overlay = document.getElementById('game-overlay');
+  if (overlay && overlay.classList.contains('active')) {
+    return document.getElementById('overlayBody');
+  }
+  return document.getElementById('overlayBody');
+}
+
 // ─── Rendering ─────────────────────────────────────────
 function renderRoom() {
   if (!state.room) return;
   $('#codeValue').textContent = state.room.code;
 
-  // members chips
+  // avatar row (Change 3)
   const memEl = $('#members');
   memEl.innerHTML = '';
   const me = selfOf(state.room.members);
   const partner = partnerOf(state.room.members);
+
   if (me) {
     const chip = document.createElement('button');
     chip.className = 'member-chip self editable';
@@ -2644,20 +3347,112 @@ function renderRoom() {
     memEl.appendChild(empty);
   }
 
-  // body
-  if (!state.activeGame || state.activeGame.ended_at) {
+  // Render avatar blobs in hub body
+  renderAvatarRow();
+
+  // Determine what to show
+  const hasActiveGame = state.activeGame && !state.activeGame.ended_at;
+
+  if (!hasActiveGame) {
+    closeGameOverlay();
     if (state.activeGame && state.activeGame.ended_at) {
       renderEndCard();
     } else {
       renderLobby();
     }
-  } else if (state.activeGame.game_type === 'wyr') {
-    renderWYR();
-  } else if (state.activeGame.game_type === 'tod') {
-    renderTOD();
-  } else if (state.activeGame.game_type === 'fs') {
-    renderFS();
+  } else {
+    // Open overlay for active games
+    openGameOverlay();
+    if (state.activeGame.game_type === 'wyr') {
+      renderWYR();
+    } else if (state.activeGame.game_type === 'tod') {
+      renderTOD();
+    } else if (state.activeGame.game_type === 'fs') {
+      renderFS();
+    }
   }
+}
+
+// ─── Avatar Row + Tether (Change 3) ───────────────────
+let _tetherAnimFrame = null;
+let _tetherOpacity = 0;
+function renderAvatarRow() {
+  const body = document.getElementById('roomBody');
+  if (!body) return;
+  const me = selfOf(state.room.members);
+  const partner = partnerOf(state.room.members);
+
+  // Only inject avatar row if lobby is showing (no active game overlay)
+  // We'll inject it at top of roomBody before lobby content
+  let avatarWrap = document.getElementById('avatarRowWrap');
+  if (!avatarWrap) return; // will be created by renderLobby
+
+  const partnerOnline = partner && state.presence.has(partner.user_id);
+  const bothOnline = me && partner && partnerOnline;
+
+  avatarWrap.innerHTML = `
+    <div class="avatar-row" id="avatarRow">
+      <div class="avatar-wrapper">
+        <div class="avatar-blob self" id="avatarSelf"></div>
+        <div class="avatar-name">${escapeHtml(me ? me.display_name : '')}</div>
+      </div>
+      ${partner ? `
+        <div class="avatar-tether-wrap">
+          <svg class="avatar-tether-svg" id="tetherSvg" viewBox="0 0 80 52" preserveAspectRatio="none">
+            <line x1="0" y1="26" x2="80" y2="26" stroke="var(--mint)" stroke-width="2"
+              stroke-dasharray="4 4" opacity="${bothOnline ? 0.6 : 0}" id="tetherLine"
+              style="transition: opacity 0.8s"/>
+          </svg>
+        </div>
+        <div class="avatar-wrapper">
+          <div class="avatar-blob partner${partnerOnline ? '' : ' offline'}" id="avatarPartner">
+            <span class="avatar-presence-dot${partnerOnline ? '' : ' offline'}"></span>
+          </div>
+          <div class="avatar-name">${escapeHtml(partner.display_name)}</div>
+        </div>
+      ` : `
+        <div class="avatar-tether-wrap" style="opacity:0.3">
+          <svg class="avatar-tether-svg" viewBox="0 0 80 52" preserveAspectRatio="none">
+            <line x1="0" y1="26" x2="80" y2="26" stroke="var(--text-faint)" stroke-width="1" stroke-dasharray="4 6"/>
+          </svg>
+        </div>
+        <div class="avatar-wrapper">
+          <div style="width:52px;height:52px;border-radius:50%;border:2px dashed rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text-faint)">?</div>
+          <div class="avatar-name" style="color:var(--text-faint)">waiting</div>
+        </div>
+      `}
+    </div>
+  `;
+
+  // Animate tether pulse if both online
+  if (bothOnline) {
+    animateTether();
+  }
+}
+
+function animateTether() {
+  const line = document.getElementById('tetherLine');
+  if (!line) return;
+  let t = 0;
+  function tick() {
+    if (!document.getElementById('tetherLine')) return;
+    const op = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(t));
+    line.setAttribute('opacity', op.toFixed(2));
+    t += 0.05;
+    _tetherAnimFrame = requestAnimationFrame(tick);
+  }
+  if (_tetherAnimFrame) cancelAnimationFrame(_tetherAnimFrame);
+  tick();
+}
+
+function triggerInterGameGlow() {
+  const self = document.getElementById('avatarSelf');
+  const partner = document.getElementById('avatarPartner');
+  [self, partner].forEach(el => {
+    if (!el) return;
+    el.classList.add('glow-pulse');
+    setTimeout(() => el.classList.remove('glow-pulse'), 600);
+  });
 }
 
 function escapeHtml(s) {
@@ -2671,6 +3466,7 @@ function renderLobby() {
   const hasPartner = !!partner;
 
   body.innerHTML = `
+    <div id="avatarRowWrap" style="margin-bottom:20px"></div>
     <div class="lobby-main">
       <h1 class="lobby-title">${hasPartner ? `<span class="mint">together</span><br>now what?` : `room's <span class="mint">open</span><br>send the code`}</h1>
       ${!hasPartner ? `
@@ -2681,49 +3477,68 @@ function renderLobby() {
         </div>
       ` : ''}
       <div class="games-list">
-        <div class="game-card ${!hasPartner ? 'is-disabled' : ''}">
+        <div class="game-card phys-card ${!hasPartner ? 'is-disabled' : ''}">
           <div class="game-card-title">would you rather</div>
           <div class="game-card-desc">both pick, then reveal together. agree or diverge.</div>
           <div class="round-picker">
-            <button class="round-chip" data-game="wyr" data-rounds="5" ${!hasPartner ? 'disabled' : ''}>5</button>
-            <button class="round-chip" data-game="wyr" data-rounds="10" ${!hasPartner ? 'disabled' : ''}>10</button>
-            <button class="round-chip" data-game="wyr" data-rounds="20" ${!hasPartner ? 'disabled' : ''}>20</button>
-            <button class="round-chip round-chip-custom" data-game="wyr" data-rounds="custom" ${!hasPartner ? 'disabled' : ''}>custom</button>
+            <button class="round-chip phys-card" data-game="wyr" data-rounds="5" ${!hasPartner ? 'disabled' : ''}>5</button>
+            <button class="round-chip phys-card" data-game="wyr" data-rounds="10" ${!hasPartner ? 'disabled' : ''}>10</button>
+            <button class="round-chip phys-card" data-game="wyr" data-rounds="20" ${!hasPartner ? 'disabled' : ''}>20</button>
+            <button class="round-chip round-chip-custom phys-card" data-game="wyr" data-rounds="custom" ${!hasPartner ? 'disabled' : ''}>custom</button>
           </div>
         </div>
-        <div class="game-card ${!hasPartner ? 'is-disabled' : ''}">
+        <div class="game-card phys-card ${!hasPartner ? 'is-disabled' : ''}">
           <div class="game-card-title">truth or dare</div>
           <div class="game-card-desc">take turns, pick your poison, the other one judges.</div>
           <div class="round-picker">
-            <button class="round-chip" data-game="tod" data-rounds="6" ${!hasPartner ? 'disabled' : ''}>6</button>
-            <button class="round-chip" data-game="tod" data-rounds="12" ${!hasPartner ? 'disabled' : ''}>12</button>
-            <button class="round-chip" data-game="tod" data-rounds="20" ${!hasPartner ? 'disabled' : ''}>20</button>
-            <button class="round-chip round-chip-custom" data-game="tod" data-rounds="custom" ${!hasPartner ? 'disabled' : ''}>custom</button>
+            <button class="round-chip phys-card" data-game="tod" data-rounds="6" ${!hasPartner ? 'disabled' : ''}>6</button>
+            <button class="round-chip phys-card" data-game="tod" data-rounds="12" ${!hasPartner ? 'disabled' : ''}>12</button>
+            <button class="round-chip phys-card" data-game="tod" data-rounds="20" ${!hasPartner ? 'disabled' : ''}>20</button>
+            <button class="round-chip round-chip-custom phys-card" data-game="tod" data-rounds="custom" ${!hasPartner ? 'disabled' : ''}>custom</button>
           </div>
         </div>
-        <div class="game-card ${!hasPartner ? 'is-disabled' : ''}">
+        <div class="game-card phys-card ${!hasPartner ? 'is-disabled' : ''}">
           <div class="game-card-title">finger smash</div>
           <div class="game-card-desc">tap your screen as fast as you can. push the line into their side. don't overheat.</div>
           <div class="round-picker">
-            <button class="round-chip" data-game="fs" data-rounds="1" ${!hasPartner ? 'disabled' : ''}>quick match</button>
-            <button class="round-chip" data-game="fs" data-rounds="3" ${!hasPartner ? 'disabled' : ''}>best of 3</button>
+            <button class="round-chip phys-card" data-game="fs" data-rounds="1" ${!hasPartner ? 'disabled' : ''}>quick match</button>
+            <button class="round-chip phys-card" data-game="fs" data-rounds="3" ${!hasPartner ? 'disabled' : ''}>best of 3</button>
           </div>
         </div>
       </div>
     </div>
   `;
+
+  // render avatar row now that avatarRowWrap exists
+  renderAvatarRow();
+
+  // card physics (Change 4)
+  body.querySelectorAll('.phys-card').forEach(el => {
+    el.addEventListener('pointerdown', () => {
+      el.style.transform = 'scale(0.97)';
+      el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+    });
+    const release = () => {
+      el.style.transition = 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s';
+      el.style.transform = '';
+      el.style.boxShadow = '';
+      setTimeout(() => { el.style.transition = ''; }, 350);
+    };
+    el.addEventListener('pointerup', release);
+    el.addEventListener('pointercancel', release);
+  });
+
   body.querySelectorAll('.round-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
+    chip.addEventListener('pointerup', () => {
       const g = chip.dataset.game;
+      if (chip.disabled) return;
       if (chip.dataset.rounds === 'custom') {
-        const min = g === 'wyr' ? 2 : 2;
-        const max = g === 'wyr' ? 80 : 100;
-        const def = g === 'wyr' ? '10' : '10';
+        const min = 2, max = g === 'wyr' ? 80 : 100;
+        const def = '10';
         const input = window.prompt(`how many rounds? (${min}–${max})`, def);
         if (!input) return;
         const n = parseInt(input);
         if (isNaN(n) || n < min || n > max) { toast(`enter a number between ${min} and ${max}`, true); return; }
-        // ensure even for tod (equal turns)
         const rounds = g === 'tod' && n % 2 !== 0 ? n + 1 : n;
         if (g === 'tod' && rounds !== n) toast(`rounded up to ${rounds} for equal turns`);
         startGame(g, rounds);
@@ -2759,6 +3574,8 @@ async function startGame(type, rounds) {
   } else if (type === 'tod') {
     const n = rounds || ROUNDS_TOD_DEFAULT;
     initialState = {
+      theme: null,
+      stakes: null,
       spice: null,
       round: 0,
       total_rounds: n,
@@ -2766,6 +3583,7 @@ async function startGame(type, rounds) {
       pick: null,
       prompt_idx: null,
       judgment: null,
+      escalation_multiplier: 1,
       used: { easy: { truth: [], dare: [] }, fun: { truth: [], dare: [] }, wild: { truth: [], dare: [] }, spicy: { truth: [], dare: [] } },
       scores: {}
     };
@@ -2773,6 +3591,7 @@ async function startGame(type, rounds) {
     initialState.scores[partner.user_id] = 0;
     initialPhase = 'spice';
     initialTurn = state.user.id;
+    subscribeTODChannel();
   } else if (type === 'fs') {
     const n = rounds || 1;
     initialState = {
@@ -2912,7 +3731,7 @@ async function refreshWyrRound() {
 }
 
 function renderWYR() {
-  const body = $('#roomBody');
+  const body = document.getElementById('overlayBody');
   const g = state.activeGame;
   const round = g.state.round;
   const prompt = g.state.prompts[round];
@@ -2921,45 +3740,48 @@ function renderWYR() {
   const moves = state._wyrMoves || [];
   const myMove = moves.find(m => m.user_id === me.user_id);
   const theirMove = moves.find(m => m.user_id === (partner && partner.user_id));
+  const isReveal = g.phase === 'reveal';
 
-  let banner = '';
-  let isReveal = g.phase === 'reveal';
-  if (isReveal && myMove && theirMove) {
-    const match = myMove.choice === theirMove.choice;
-    banner = `<div class="reveal-banner ${match ? 'match' : 'clash'}">${match ? '✦ same pick' : 'different pick'}</div>`;
-  } else if (isReveal && myMove && !theirMove) {
-    banner = `<div class="reveal-banner">they didn't pick yet</div>`;
-  }
-
-  const chHtml = prompt.map((opt, idx) => {
+  // Determine half classes for reveal
+  const halfCls = [0, 1].map(idx => {
     const youPicked = myMove && myMove.choice === idx;
     const theyPicked = theirMove && theirMove.choice === idx;
-    let cls = 'wyr-choice';
+    let cls = idx === 0 ? 'wyr-half wyr-half-a phys-card' : 'wyr-half wyr-half-b phys-card';
     if (isReveal) {
-      if (youPicked && theyPicked) cls += ' both';
+      if (youPicked && theyPicked) cls += ' both winner-glow';
       else if (youPicked) cls += ' you';
       else if (theyPicked) cls += ' them';
+      else if (myMove || theirMove) cls += ' loser-tint';
     } else if (myMove) {
       cls += youPicked ? ' you' : ' you-dimmed';
     }
+    return cls;
+  });
+
+  const tagHtml = (idx) => {
+    const youPicked = myMove && myMove.choice === idx;
+    const theyPicked = theirMove && theirMove.choice === idx;
     const tags = [];
     if (youPicked) tags.push(`<span class="pick-tag">you</span>`);
     if (theyPicked) tags.push(`<span class="pick-tag">${escapeHtml((partner && partner.display_name) || 'them')}</span>`);
-    return `
-      <button class="${cls}" data-choice="${idx}" ${myMove || isReveal ? 'disabled' : ''}>
-        ${escapeHtml(opt)}
-        <div class="wyr-choice-tags">${tags.join('')}</div>
-      </button>
-    `;
-  }).join('');
+    return tags.length ? `<div class="wyr-half-tags">${tags.join('')}</div>` : '';
+  };
+
+  let bannerText = '';
+  if (isReveal && myMove && theirMove) {
+    const match = myMove.choice === theirMove.choice;
+    bannerText = match ? '✦ same pick' : 'different picks';
+  }
 
   let waitMsg = '';
   if (!myMove && !theirMove) waitMsg = 'both still thinking';
   else if (myMove && !theirMove) waitMsg = '<span class="blink-dot"></span>waiting for them';
   else if (!myMove && theirMove) waitMsg = '<span class="blink-dot"></span>they picked. your turn';
-  else if (myMove && theirMove && !isReveal) waitMsg = 'revealing';
 
-  const nextBtn = isReveal ? `<button class="btn-primary wyr-next" id="wyrNext">${round + 1 >= g.state.prompts.length ? 'see how it went' : 'next round'} <span class="arrow">→</span></button>` : '';
+  const disabled = myMove || isReveal ? 'disabled' : '';
+  const nextBtn = isReveal
+    ? `<button class="btn-primary wyr-next phys-card" id="wyrNext" style="margin-top:16px">${round + 1 >= g.state.prompts.length ? 'see how it went' : 'next round'} <span class="arrow">→</span></button>`
+    : '';
 
   body.innerHTML = `
     <div class="game-screen">
@@ -2971,22 +3793,44 @@ function renderWYR() {
         </div>
         <div class="game-round">${round + 1}/${g.state.prompts.length}</div>
       </div>
-      <div class="wyr-question">${escapeHtml(prompt[0])} <span style="color:var(--mint)">or</span> ${escapeHtml(prompt[1])}?</div>
-      <div class="wyr-choices">${chHtml}</div>
-      ${banner ? banner : `<div class="wyr-waiting">${waitMsg}</div>`}
+      <div class="wyr-split">
+        <button class="${halfCls[0]}" data-choice="0" ${disabled}>${escapeHtml(prompt[0])}${tagHtml(0)}</button>
+        <div class="wyr-split-divider">
+          <div class="wyr-split-pill">
+            ${isReveal && bannerText ? bannerText : (isReveal ? 'revealed' : 'would you rather')}
+          </div>
+        </div>
+        <button class="${halfCls[1]}" data-choice="1" ${disabled}>${escapeHtml(prompt[1])}${tagHtml(1)}</button>
+      </div>
+      ${isReveal ? '' : `<div class="wyr-waiting" style="margin-top:12px">${waitMsg}</div>`}
       ${nextBtn}
     </div>
   `;
 
-  body.querySelectorAll('.wyr-choice').forEach(btn => {
-    btn.addEventListener('click', () => makeWyrChoice(parseInt(btn.dataset.choice)));
+  // card physics
+  body.querySelectorAll('.phys-card').forEach(el => {
+    if (el.disabled) return;
+    el.addEventListener('pointerdown', () => { el.style.transform = 'scale(0.97)'; });
+    const rel = () => {
+      el.style.transition = 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+      el.style.transform = '';
+      setTimeout(() => el.style.transition = '', 350);
+    };
+    el.addEventListener('pointerup', rel);
+    el.addEventListener('pointercancel', rel);
+  });
+
+  body.querySelectorAll('.wyr-half').forEach(btn => {
+    btn.addEventListener('pointerup', () => {
+      if (btn.disabled) return;
+      makeWyrChoice(parseInt(btn.dataset.choice));
+    });
   });
   if (isReveal) {
-    $('#wyrNext').addEventListener('click', advanceWyrRound);
+    document.getElementById('wyrNext').addEventListener('pointerup', advanceWyrRound);
   }
-  $('#backToLobby').addEventListener('click', () => confirmEndGame());
+  document.getElementById('backToLobby').addEventListener('click', () => confirmEndGame());
 
-  // ensure we have move data
   if (!state._wyrMoves) refreshWyrRound();
 }
 
@@ -3030,15 +3874,133 @@ async function advanceWyrRound() {
 }
 
 // ─── TOD rendering ─────────────────────────────────────
+// TOD theme definitions (Change 6)
+const TOD_THEMES = ['Casual', 'Playful', 'Intense', 'Unfiltered'];
+const TOD_THEME_TIERS = {
+  Casual:     (r) => r < 3 ? 'easy' : r < 6 ? 'fun' : 'wild',
+  Playful:    (r) => r < 2 ? 'fun' : r < 5 ? 'wild' : 'spicy',
+  Intense:    (r) => r < 2 ? 'wild' : 'spicy',
+  Unfiltered: (r) => 'spicy'
+};
+const TOD_THEME_BG = { Casual: 'rgba(127,255,196,0.04)', Playful: 'rgba(100,140,255,0.05)', Intense: 'rgba(255,140,64,0.06)', Unfiltered: 'rgba(255,107,107,0.07)' };
+
+// floating emoji state
+let _floatingEmojis = [];
+
+function showFloatingEmoji(emoji) {
+  if (_floatingEmojis.length >= 3) return;
+  const el = document.createElement('div');
+  el.className = 'floating-emoji';
+  const drift = (Math.random() - 0.5) * 80;
+  el.style.setProperty('--drift', drift + 'px');
+  el.style.left = (30 + Math.random() * 40) + '%';
+  el.style.bottom = '80px';
+  el.textContent = emoji;
+  document.body.appendChild(el);
+  _floatingEmojis.push(el);
+  setTimeout(() => {
+    el.remove();
+    _floatingEmojis = _floatingEmojis.filter(e => e !== el);
+  }, 1500);
+}
+
+// TOD hold-to-confirm dare (Change 6)
+function wireTodHoldConfirm(btnId, onConfirm) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  const fill = btn.querySelector('.tod-hold-confirm-fill');
+  let holdTimer = null, startTime = 0;
+  const HOLD_MS = 600;
+
+  const start = (e) => {
+    if (e.cancelable) e.preventDefault();
+    startTime = Date.now();
+    fill.style.transition = `width ${HOLD_MS}ms linear`;
+    fill.style.width = '100%';
+    holdTimer = setTimeout(() => { onConfirm(); }, HOLD_MS);
+  };
+  const cancel = () => {
+    clearTimeout(holdTimer);
+    fill.style.transition = 'width 0.15s';
+    fill.style.width = '0%';
+  };
+  btn.addEventListener('pointerdown', start);
+  btn.addEventListener('pointerup', cancel);
+  btn.addEventListener('pointerleave', cancel);
+  btn.addEventListener('pointercancel', cancel);
+}
+
+// TOD overclock hold button (Change 6)
+let _todThemeIdx = 0;
+let _todThemeCycleTimer = null;
+let _todThemeHolding = false;
+
+function startTodOverclock(btnId, onRelease) {
+  _todThemeIdx = 0;
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+
+  const updateBtn = () => {
+    const theme = TOD_THEMES[_todThemeIdx];
+    const nameEl = btn.querySelector('.theme-name');
+    if (nameEl) nameEl.textContent = theme;
+    // background tint
+    const overlay = document.getElementById('overlayBody');
+    if (overlay) overlay.style.background = TOD_THEME_BG[theme];
+  };
+
+  const startHold = (e) => {
+    if (e.cancelable) e.preventDefault();
+    _todThemeHolding = true;
+    _todThemeCycleTimer = setInterval(() => {
+      if (!_todThemeHolding) return;
+      _todThemeIdx = (_todThemeIdx + 1) % TOD_THEMES.length;
+      updateBtn();
+      drawOverclockArc(_todThemeIdx / TOD_THEMES.length);
+    }, 800);
+  };
+  const endHold = () => {
+    if (!_todThemeHolding) return;
+    _todThemeHolding = false;
+    clearInterval(_todThemeCycleTimer);
+    onRelease(TOD_THEMES[_todThemeIdx]);
+  };
+
+  btn.addEventListener('pointerdown', startHold);
+  btn.addEventListener('pointerup', endHold);
+  btn.addEventListener('pointerleave', endHold);
+  btn.addEventListener('pointercancel', endHold);
+  updateBtn();
+}
+
+function drawOverclockArc(progress) {
+  const svg = document.getElementById('todHoldRing');
+  if (!svg) return;
+  const r = 76, cx = 80, cy = 80;
+  const circ = 2 * Math.PI * r;
+  const dash = progress * circ;
+  svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--mint)" stroke-width="3"
+    stroke-dasharray="${dash} ${circ}" stroke-dashoffset="0" stroke-linecap="round"
+    transform="rotate(-90 ${cx} ${cy})" opacity="0.7"/>`;
+}
+
 function renderTOD() {
-  const body = $('#roomBody');
+  const body = document.getElementById('overlayBody');
   const g = state.activeGame;
   const me = selfOf(state.room.members);
   const partner = partnerOf(state.room.members);
   const phase = g.phase;
+  const escalation = g.state.escalation_multiplier || 1;
+
+  // background tint from theme
+  const theme = g.state.theme || null;
+  body.style.background = theme ? TOD_THEME_BG[theme] : '';
+
+  const stakesHtml = g.state.stakes
+    ? `<div class="tod-stakes-banner">stakes: ${escapeHtml(g.state.stakes)}</div>`
+    : '';
 
   let inner = '';
-
   const header = `
     <div class="game-meta-bar">
       <button class="game-back" id="backToLobby">← lobby</button>
@@ -3048,24 +4010,51 @@ function renderTOD() {
       </div>
       <div class="game-round">${g.state.round + 1}/${g.state.total_rounds || ROUNDS_TOD_DEFAULT}</div>
     </div>
+    ${stakesHtml}
   `;
 
   if (phase === 'spice') {
-    // host (creator of the session = current_turn_user_id at start) picks spice
+    // Overclock theme picker (Change 6)
     const canChoose = g.current_turn_user_id === state.user.id;
+    if (canChoose) {
+      inner = `
+        ${header}
+        <div class="tod-overclock-wrap">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--text-soft);margin-bottom:8px">hold to cycle · release to lock</div>
+          <div class="tod-hold-btn-wrap">
+            <svg id="todHoldRing" class="tod-hold-ring" viewBox="0 0 160 160"></svg>
+            <button class="tod-hold-btn" id="todOverclockBtn" type="button">
+              <span class="theme-name">Casual</span>
+              <span class="hold-hint">hold</span>
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      const pickerName = (partner && partner.display_name) || 'they';
+      inner = `
+        ${header}
+        <div class="tod-overclock-wrap">
+          <div style="font-size:17px;color:var(--text-soft);text-align:center">${escapeHtml(pickerName)} is choosing the vibe…</div>
+          <div style="margin-top:20px;width:80px;height:80px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:28px">✦</div>
+        </div>
+      `;
+    }
+  } else if (phase === 'stakes') {
+    // Stakes input (Change 6)
+    const isFirst = g.current_turn_user_id === state.user.id;
     inner = `
       ${header}
-      <div class="spice-label">pick a vibe${canChoose ? '' : ' · waiting on them'}</div>
-      <div class="tod-spice">
-        <button class="spice-btn" data-spice="easy" ${canChoose ? '' : 'disabled'}>easy</button>
-        <button class="spice-btn" data-spice="fun" ${canChoose ? '' : 'disabled'}>fun</button>
-        <button class="spice-btn" data-spice="wild" ${canChoose ? '' : 'disabled'}>wild</button>
-        <button class="spice-btn" data-spice="spicy" ${canChoose ? '' : 'disabled'}>spicy</button>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px">
+        <div style="font-size:26px;font-weight:600;letter-spacing:-0.02em;text-align:center">what does the loser owe?</div>
+        <input class="tod-stakes-input" id="stakesInput" maxlength="80" placeholder="optional…" />
+        <div id="partnerTyping" style="font-size:13px;color:var(--text-faint);text-align:center;min-height:18px"></div>
+        <button class="btn-primary" id="stakesSubmit">lock it in <span class="arrow">→</span></button>
+        <button class="btn-ghost" id="stakesSkip">skip stakes</button>
       </div>
     `;
   } else if (phase === 'pick') {
     const isPicker = g.state.picker_id === state.user.id;
-    const pickerName = isPicker ? 'your' : `${(partner && partner.display_name) || 'their'}'s`;
     inner = `
       ${header}
       <div class="tod-turn-banner">
@@ -3074,70 +4063,169 @@ function renderTOD() {
       </div>
       ${isPicker ? `
         <div class="tod-pick">
-          <button class="tod-pick-btn" data-pick="truth">truth</button>
-          <button class="tod-pick-btn" data-pick="dare">dare</button>
+          <button class="tod-pick-btn phys-card" data-pick="truth">truth</button>
+          <button class="tod-pick-btn phys-card" data-pick="dare">dare</button>
         </div>
       ` : ''}
     `;
   } else if (phase === 'prompt' || phase === 'judge') {
     const isPicker = g.state.picker_id === state.user.id;
-    const promptList = TOD_PROMPTS[g.state.spice][g.state.pick];
-    const promptText = promptList[g.state.prompt_idx];
     const judgeReady = phase === 'judge';
+    const isDare = g.state.pick === 'dare';
     inner = `
       ${header}
-      <div class="tod-prompt-box">
-        <div class="tod-prompt-tag">${g.state.pick} · ${g.state.spice}</div>
+      <div class="tod-vignette" id="todVignette"></div>
+      <div class="tod-prompt-box${judgeReady ? ' focused' : ''}" style="position:relative;z-index:16">
+        <div class="tod-prompt-tag">${g.state.pick}${escalation > 1 ? ` · ×${escalation} multiplier` : ''}</div>
         <div class="tod-prompt-text" id="todPromptText"></div>
       </div>
       ${isPicker ? `
         ${!judgeReady ? `
-          <button class="btn-primary" id="todDone">i did it <span class="arrow">→</span></button>
+          ${isDare ? `
+            <button class="tod-hold-confirm phys-card" id="todDoneHold" type="button">
+              <div class="tod-hold-confirm-fill"></div>
+              hold to confirm — i did it
+            </button>
+          ` : `
+            <button class="btn-primary" id="todDone">done <span class="arrow">→</span></button>
+          `}
+          <div class="tod-emoji-bar" id="todEmojiBar">
+            ${['😂','🔥','❤️','💀','👏'].map(e => `<button class="tod-emoji-btn" data-emoji="${e}">${e}</button>`).join('')}
+          </div>
         ` : `
           <div class="wyr-waiting"><span class="blink-dot"></span>${escapeHtml((partner && partner.display_name) || 'they')} is judging</div>
         `}
       ` : `
         ${!judgeReady ? `
           <div class="wyr-waiting"><span class="blink-dot"></span>watching ${escapeHtml((partner && partner.display_name) || 'them')}...</div>
+          <div class="tod-emoji-bar" id="todEmojiBar">
+            ${['😂','🔥','❤️','💀','👏'].map(e => `<button class="tod-emoji-btn" data-emoji="${e}">${e}</button>`).join('')}
+          </div>
         ` : `
           <div class="tod-judge">
-            <button class="judge-btn did" id="judgeDid">they did it</button>
-            <button class="judge-btn didnt" id="judgeDidnt">no they didn't</button>
+            <button class="judge-btn did phys-card" id="judgeDid">they did it</button>
+            <button class="judge-btn didnt phys-card" id="judgeDidnt">no they didn't</button>
           </div>
         `}
       `}
     `;
   } else if (phase === 'result') {
-    const isPicker = g.state.picker_id === state.user.id;
     const did = g.state.judgment === 'did';
     inner = `
       ${header}
-      <div class="reveal-banner ${did ? 'match' : 'clash'}">${did ? '✦ point scored' : 'they couldn\'t do it'}</div>
-      <button class="btn-primary" id="todNext">${g.state.round + 1 >= (g.state.total_rounds || ROUNDS_TOD_DEFAULT) ? 'see how it went' : 'next round'} <span class="arrow">→</span></button>
+      <div class="reveal-banner ${did ? 'match' : 'clash'}">${did ? `✦ point scored${escalation > 1 ? ' ×' + escalation : ''}` : 'they couldn\'t do it'}</div>
+      <button class="btn-primary phys-card" id="todNext">${g.state.round + 1 >= (g.state.total_rounds || ROUNDS_TOD_DEFAULT) ? 'see how it went' : 'next round'} <span class="arrow">→</span></button>
     `;
   }
 
   body.innerHTML = `<div class="game-screen">${inner}</div>`;
 
   // wire up
-  $('#backToLobby') && $('#backToLobby').addEventListener('click', () => confirmEndGame());
-  body.querySelectorAll('.spice-btn').forEach(b => {
-    b.addEventListener('click', () => pickSpice(b.dataset.spice));
-  });
-  body.querySelectorAll('.tod-pick-btn').forEach(b => {
-    b.addEventListener('click', () => pickTOD(b.dataset.pick));
-  });
-  $('#todDone') && $('#todDone').addEventListener('click', todDone);
-  $('#judgeDid') && $('#judgeDid').addEventListener('click', () => judge('did'));
-  $('#judgeDidnt') && $('#judgeDidnt').addEventListener('click', () => judge('didnt'));
-  $('#todNext') && $('#todNext').addEventListener('click', advanceTodRound);
+  const backBtn = document.getElementById('backToLobby');
+  if (backBtn) backBtn.addEventListener('click', () => confirmEndGame());
 
-  // typewriter for prompt
-  if (phase === 'prompt' || phase === 'judge') {
-    const el = $('#todPromptText');
-    const text = TOD_PROMPTS[g.state.spice][g.state.pick][g.state.prompt_idx];
-    typeText(el, text);
+  if (phase === 'spice' && g.current_turn_user_id === state.user.id) {
+    startTodOverclock('todOverclockBtn', (theme) => {
+      pickTheme(theme);
+    });
   }
+
+  if (phase === 'stakes') {
+    const submitBtn = document.getElementById('stakesSubmit');
+    const skipBtn = document.getElementById('stakesSkip');
+    const input = document.getElementById('stakesInput');
+    // broadcast keystrokes
+    if (input && _fsCh) {
+      input.addEventListener('input', () => {
+        if (_todCh) _todCh.send({ type: 'broadcast', event: 'stakes_typing', payload: { text: input.value, user_id: state.user.id } });
+      });
+    }
+    if (submitBtn) submitBtn.addEventListener('click', () => submitStakes(input ? input.value.trim() : ''));
+    if (skipBtn) skipBtn.addEventListener('click', () => submitStakes(''));
+  }
+
+  body.querySelectorAll('.tod-pick-btn').forEach(b => {
+    b.addEventListener('pointerup', () => pickTOD(b.dataset.pick));
+  });
+
+  if (phase === 'prompt' || phase === 'judge') {
+    const el = document.getElementById('todPromptText');
+    const spice = g.state.spice;
+    const pick = g.state.pick;
+    const text = TOD_PROMPTS[spice][pick][g.state.prompt_idx];
+    typeText(el, text);
+
+    // focus vignette
+    if (phase === 'prompt') {
+      const vig = document.getElementById('todVignette');
+      if (vig) setTimeout(() => vig.classList.add('active'), 50);
+    }
+
+    const doneBtn = document.getElementById('todDone');
+    if (doneBtn) doneBtn.addEventListener('click', todDone);
+
+    if (document.getElementById('todDoneHold')) {
+      wireTodHoldConfirm('todDoneHold', todDone);
+    }
+
+    const judgeDidBtn = document.getElementById('judgeDid');
+    const judgeDidntBtn = document.getElementById('judgeDidnt');
+    if (judgeDidBtn) judgeDidBtn.addEventListener('pointerup', () => {
+      const vig = document.getElementById('todVignette');
+      if (vig) vig.classList.remove('active');
+      judge('did');
+    });
+    if (judgeDidntBtn) judgeDidntBtn.addEventListener('pointerup', () => {
+      const vig = document.getElementById('todVignette');
+      if (vig) vig.classList.remove('active');
+      judge('didnt');
+    });
+
+    // emoji reactions
+    const emojiBar = document.getElementById('todEmojiBar');
+    if (emojiBar) {
+      emojiBar.querySelectorAll('.tod-emoji-btn').forEach(btn => {
+        btn.addEventListener('pointerup', () => {
+          const emoji = btn.dataset.emoji;
+          showFloatingEmoji(emoji);
+          if (_todCh) _todCh.send({ type: 'broadcast', event: 'emoji', payload: { emoji, user_id: state.user.id } });
+        });
+      });
+    }
+  }
+
+  const todNextBtn = document.getElementById('todNext');
+  if (todNextBtn) todNextBtn.addEventListener('pointerup', advanceTodRound);
+
+  // phys-card
+  body.querySelectorAll('.phys-card').forEach(el => {
+    if (el.disabled) return;
+    el.addEventListener('pointerdown', () => { el.style.transform = 'scale(0.97)'; });
+    const rel = () => {
+      el.style.transition = 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+      el.style.transform = '';
+      setTimeout(() => el.style.transition = '', 350);
+    };
+    el.addEventListener('pointerup', rel);
+    el.addEventListener('pointercancel', rel);
+  });
+}
+
+// TOD channel for emoji + stakes broadcast
+let _todCh = null;
+function subscribeTODChannel() {
+  if (!state.activeGame || state.activeGame.game_type !== 'tod') return;
+  if (_todCh) { try { sb.removeChannel(_todCh); } catch(e) {} _todCh = null; }
+  _todCh = sb.channel(`tod:${state.activeGame.id}`)
+    .on('broadcast', { event: 'emoji' }, ({ payload }) => {
+      if (payload.user_id !== state.user.id) showFloatingEmoji(payload.emoji);
+    })
+    .on('broadcast', { event: 'stakes_typing' }, ({ payload }) => {
+      if (payload.user_id === state.user.id) return;
+      const el = document.getElementById('partnerTyping');
+      if (el) el.textContent = payload.text ? `they're typing: ${payload.text}` : '';
+    })
+    .subscribe();
 }
 
 function typeText(el, text) {
@@ -3161,33 +4249,57 @@ function typeText(el, text) {
   step();
 }
 
-async function pickSpice(spice) {
+async function pickTheme(theme) {
   const g = state.activeGame;
-  const partner = partnerOf(state.room.members);
-  const newState = { ...g.state, spice };
+  const newState = { ...g.state, theme };
+  // Move to stakes phase
+  await sb.from('game_sessions')
+    .update({ state: newState, phase: 'stakes' })
+    .eq('id', g.id).eq('version', g.version);
+}
+
+async function submitStakes(stakes) {
+  const g = state.activeGame;
+  const newState = { ...g.state, stakes: stakes || null };
   await sb.from('game_sessions')
     .update({ state: newState, phase: 'pick' })
     .eq('id', g.id).eq('version', g.version);
 }
 
+async function pickSpice(spice) {
+  // Legacy fallback — map old spice names to themes
+  const themeMap = { easy: 'Casual', fun: 'Playful', wild: 'Intense', spicy: 'Unfiltered' };
+  const theme = themeMap[spice] || 'Casual';
+  await pickTheme(theme);
+}
+
 async function pickTOD(pick) {
   const g = state.activeGame;
-  const list = TOD_PROMPTS[g.state.spice][pick];
-  const usedInGame = g.state.used[g.state.spice][pick] || [];
-  const bucket = `tod.${g.state.spice}.${pick}`;
+  const theme = g.state.theme || 'Casual';
+  const tierFn = TOD_THEME_TIERS[theme] || TOD_THEME_TIERS['Casual'];
+  const spice = tierFn(g.state.round || 0);
+  // Apply penalty escalation: if multiplier > 1, force one tier harder
+  const tiers = ['easy', 'fun', 'wild', 'spicy'];
+  let spiceIdx = tiers.indexOf(spice);
+  if ((g.state.escalation_multiplier || 1) > 1 && spiceIdx < tiers.length - 1) spiceIdx++;
+  const effectiveSpice = tiers[spiceIdx];
+
+  const list = TOD_PROMPTS[effectiveSpice][pick];
+  const usedInGame = (g.state.used[effectiveSpice] && g.state.used[effectiveSpice][pick]) || [];
+  const bucket = `tod.${effectiveSpice}.${pick}`;
   const usedAcrossRoom = state.room ? getUsedPromptIdxs(state.room.code, bucket) : [];
-  // combine and pick a fresh one
   const allUsed = Array.from(new Set([...usedInGame, ...usedAcrossRoom]));
   const idx = pickFreshIdx(list.length, allUsed);
-  // record in both game state (for show-once-per-game) and room memory (cross-game)
   if (state.room) addUsedPromptIdxs(state.room.code, bucket, [idx]);
 
   const newUsed = JSON.parse(JSON.stringify(g.state.used));
-  newUsed[g.state.spice][pick] = [...usedInGame, idx];
-  const newState = { ...g.state, pick, prompt_idx: idx, used: newUsed };
+  if (!newUsed[effectiveSpice]) newUsed[effectiveSpice] = { truth: [], dare: [] };
+  newUsed[effectiveSpice][pick] = [...usedInGame, idx];
+  const newState = { ...g.state, spice: effectiveSpice, pick, prompt_idx: idx, used: newUsed };
   await sb.from('game_sessions')
     .update({ state: newState, phase: 'prompt' })
     .eq('id', g.id).eq('version', g.version);
+  subscribeTODChannel();
 }
 
 async function todDone() {
@@ -3200,13 +4312,28 @@ async function todDone() {
 async function judge(verdict) {
   const g = state.activeGame;
   const newState = { ...g.state, judgment: verdict };
+  const escalation = g.state.escalation_multiplier || 1;
   if (verdict === 'did') {
     newState.scores = { ...newState.scores };
-    newState.scores[g.state.picker_id] = (newState.scores[g.state.picker_id] || 0) + 1;
+    newState.scores[g.state.picker_id] = (newState.scores[g.state.picker_id] || 0) + escalation;
+    newState.escalation_multiplier = 1; // reset on success
+  } else {
+    // penalty: double multiplier, next prompt forced harder
+    newState.escalation_multiplier = escalation * 2;
+    // show flash on both screens via broadcast
+    showPenaltyFlash();
+    if (_todCh) _todCh.send({ type: 'broadcast', event: 'penalty', payload: { multiplier: newState.escalation_multiplier } });
   }
   await sb.from('game_sessions')
     .update({ state: newState, phase: 'result' })
     .eq('id', g.id).eq('version', g.version);
+}
+
+function showPenaltyFlash() {
+  const el = document.getElementById('penaltyFlash');
+  if (!el) return;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1800);
 }
 
 async function advanceTodRound() {
@@ -3214,13 +4341,13 @@ async function advanceTodRound() {
   const nextRound = g.state.round + 1;
   const total = g.state.total_rounds || ROUNDS_TOD_DEFAULT;
   if (nextRound >= total) {
+    triggerInterGameGlow();
     await sb.from('game_sessions')
       .update({ ended_at: new Date().toISOString(), phase: 'ended' })
       .eq('id', g.id);
     return;
   }
   const partner = partnerOf(state.room.members);
-  // flip picker
   const newState = {
     ...g.state,
     round: nextRound,
@@ -3240,8 +4367,10 @@ const FS_OVERHEAT_LIMIT = 7;
 const FS_OVERHEAT_MS = 1200;
 const FS_MATCH_MS = 30000;
 const FS_BROADCAST_MS = 80;
+const FS_WALKTHROUGH_KEY = 'bt-fs-walkthrough-seen';
 
 let _fsCh = null, _fsBroadcastTimer = null, _fsCountdownTimer = null, _fsMatchTimer = null, _fsRoundKey = null;
+let _fsPowerupTimer = null, _fsPowerups = [], _fsTurboTapsLeft = 0, _fsFrozen = false, _fsFreezeTimer = null;
 
 function resetFSLocal() {
   state.fsLocal = {
@@ -3255,6 +4384,9 @@ function resetFSLocal() {
     roundWinner: null,
     endedLocally: false
   };
+  _fsPowerups = [];
+  _fsTurboTapsLeft = 0;
+  _fsFrozen = false;
 }
 
 function teardownFS() {
@@ -3262,7 +4394,12 @@ function teardownFS() {
   if (_fsBroadcastTimer) { clearInterval(_fsBroadcastTimer); _fsBroadcastTimer = null; }
   if (_fsCountdownTimer) { clearInterval(_fsCountdownTimer); _fsCountdownTimer = null; }
   if (_fsMatchTimer) { clearTimeout(_fsMatchTimer); _fsMatchTimer = null; }
+  if (_fsPowerupTimer) { clearTimeout(_fsPowerupTimer); _fsPowerupTimer = null; }
+  if (_fsFreezeTimer) { clearTimeout(_fsFreezeTimer); _fsFreezeTimer = null; }
   _fsRoundKey = null;
+  _fsPowerups = [];
+  _fsTurboTapsLeft = 0;
+  _fsFrozen = false;
   state.fsLocal = null;
 }
 
@@ -3288,7 +4425,34 @@ function subscribeFSChannel() {
       hostRecordFSRoundWin(payload.winner_id);
       renderFS();
     })
+    .on('broadcast', { event: 'sabotage' }, ({ payload }) => {
+      if (!state.fsLocal || state.fsLocal.phase !== 'playing') return;
+      if (payload.target_id !== state.user.id) return;
+      if (payload.type === 'freeze') applyFreezeEffect();
+    })
     .subscribe();
+}
+
+function applyFreezeEffect() {
+  _fsFrozen = true;
+  const tapArea = document.getElementById('fsTapArea');
+  if (tapArea) {
+    let frozenOverlay = document.getElementById('fsFrozenOverlay');
+    if (!frozenOverlay) {
+      frozenOverlay = document.createElement('div');
+      frozenOverlay.id = 'fsFrozenOverlay';
+      frozenOverlay.style.cssText = 'position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;background:rgba(74,158,255,0.25);backdrop-filter:blur(6px);font-family:\'Bricolage Grotesque\',sans-serif;font-size:32px;font-weight:700;color:#4A9EFF;letter-spacing:-0.02em;pointer-events:none;';
+      frozenOverlay.textContent = 'FROZEN';
+      tapArea.appendChild(frozenOverlay);
+    }
+    frozenOverlay.style.display = 'flex';
+  }
+  if (_fsFreezeTimer) clearTimeout(_fsFreezeTimer);
+  _fsFreezeTimer = setTimeout(() => {
+    _fsFrozen = false;
+    const el = document.getElementById('fsFrozenOverlay');
+    if (el) el.style.display = 'none';
+  }, 2000);
 }
 
 function stopFSTimers() {
@@ -3350,10 +4514,54 @@ async function hostRecordFSRoundWin(winner_id) {
     .eq('version', g.version);
 }
 
+function checkPowerupHit(touchX, touchY) {
+  for (let i = _fsPowerups.length - 1; i >= 0; i--) {
+    const p = _fsPowerups[i];
+    const dx = touchX - p.cx;
+    const dy = touchY - p.cy;
+    if (Math.sqrt(dx * dx + dy * dy) < 36) {
+      clearTimeout(p.despawnTimer);
+      const el = document.getElementById('fsPowerup_' + p.id);
+      if (el) el.remove();
+      _fsPowerups.splice(i, 1);
+      activatePowerup(p.type);
+      return true;
+    }
+  }
+  return false;
+}
+
+function activatePowerup(type) {
+  if (type === 'bomb') {
+    state.fsLocal.overheated = true;
+    if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
+    paintFSScreen();
+    setTimeout(() => {
+      if (state.fsLocal) { state.fsLocal.overheated = false; state.fsLocal.myTaps = []; paintFSScreen(); }
+    }, 1500);
+  } else if (type === 'turbo') {
+    _fsTurboTapsLeft = 5;
+    const badge = document.getElementById('fsTurboBadge');
+    if (badge) { badge.textContent = 'TURBO ×' + _fsTurboTapsLeft; badge.style.display = 'block'; }
+  } else if (type === 'freeze') {
+    const partner = partnerOf(state.room.members);
+    if (_fsCh && partner) {
+      _fsCh.send({ type: 'broadcast', event: 'sabotage', payload: { target_id: partner.user_id, type: 'freeze' } });
+    }
+  }
+}
+
 function onFSTap(e) {
   if (e && e.cancelable) e.preventDefault();
   if (!state.fsLocal || state.fsLocal.phase !== 'playing') return;
   if (state.fsLocal.endedLocally || state.fsLocal.overheated) return;
+  if (_fsFrozen) return;
+
+  // powerup hit detection
+  const touch = e.touches && e.touches[0];
+  const cx = touch ? touch.clientX : (e.clientX || 0);
+  const cy = touch ? touch.clientY : (e.clientY || 0);
+  if (checkPowerupHit(cx, cy)) return;
 
   const now = Date.now();
   state.fsLocal.myTaps = state.fsLocal.myTaps.filter(t => now - t < 1000);
@@ -3372,7 +4580,17 @@ function onFSTap(e) {
     return;
   }
 
-  state.fsLocal.myCount++;
+  const weight = _fsTurboTapsLeft > 0 ? 2 : 1;
+  if (_fsTurboTapsLeft > 0) {
+    _fsTurboTapsLeft--;
+    const badge = document.getElementById('fsTurboBadge');
+    if (badge) {
+      if (_fsTurboTapsLeft <= 0) { badge.style.display = 'none'; }
+      else { badge.textContent = 'TURBO ×' + _fsTurboTapsLeft; }
+    }
+  }
+
+  state.fsLocal.myCount += weight;
   computeFSLine();
   paintFSScreen();
 }
@@ -3417,6 +4635,7 @@ function beginFSMatch() {
   state.fsLocal.phase = 'playing';
   renderFS();
   startFSBroadcastLoop();
+  schedulePowerupSpawn();
   if (_fsMatchTimer) clearTimeout(_fsMatchTimer);
   _fsMatchTimer = setTimeout(() => {
     if (!state.fsLocal || state.fsLocal.phase !== 'playing' || state.fsLocal.endedLocally) return;
@@ -3428,6 +4647,152 @@ function beginFSMatch() {
   }, FS_MATCH_MS);
 }
 
+function spawnPowerup() {
+  if (!state.fsLocal || state.fsLocal.phase !== 'playing') return;
+  if (_fsPowerups.length >= 2) { schedulePowerupSpawn(); return; }
+
+  const tapArea = document.getElementById('fsTapArea');
+  if (!tapArea) return;
+  const rect = tapArea.getBoundingClientRect();
+  const margin = 80;
+  const types = ['bomb', 'turbo', 'freeze'];
+  const type = types[Math.floor(Math.random() * types.length)];
+
+  // pick non-overlapping position
+  let attempts = 0, x, y;
+  do {
+    x = margin + Math.random() * (rect.width * 0.8 - margin);
+    y = margin + Math.random() * (rect.height * 0.8 - margin);
+    const overlaps = _fsPowerups.some(p => {
+      const dx = p.x - x, dy = p.y - y;
+      return Math.sqrt(dx*dx + dy*dy) < 80;
+    });
+    if (!overlaps) break;
+  } while (++attempts < 10);
+
+  const id = Date.now();
+  const el = document.createElement('div');
+  el.id = 'fsPowerup_' + id;
+  el.className = 'fs-powerup ' + type;
+  if (type === 'bomb') el.textContent = '💣';
+  else if (type === 'turbo') el.textContent = '⚡';
+  else { el.textContent = '❄'; }
+  el.style.cssText = `left:${x}px;top:${y}px;`;
+  tapArea.appendChild(el);
+
+  const cx = rect.left + x + 30;
+  const cy = rect.top + y + 30;
+
+  const despawnTimer = setTimeout(() => {
+    const idx = _fsPowerups.findIndex(p => p.id === id);
+    if (idx !== -1) { _fsPowerups.splice(idx, 1); el.remove(); }
+  }, 3000);
+
+  _fsPowerups.push({ id, type, x, y, cx, cy, despawnTimer });
+  schedulePowerupSpawn();
+}
+
+function schedulePowerupSpawn() {
+  if (_fsPowerupTimer) clearTimeout(_fsPowerupTimer);
+  const delay = 6000 + Math.random() * 4000;
+  _fsPowerupTimer = setTimeout(spawnPowerup, delay);
+}
+
+function showFSWalkthrough(onDone) {
+  const frames = [
+    { icon: '👆', text: 'tap as fast as you can' },
+    { icon: '💣', text: 'avoid the bomb or you\'ll overheat' },
+    { icon: '⚡ 💣 ❄', text: 'powerups change the game' }
+  ];
+  let frameIdx = 0;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'fs-walkthrough';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:40px;';
+
+  const iconEl = document.createElement('div');
+  iconEl.style.cssText = 'font-size:72px;transition:opacity 0.3s;';
+  const textEl = document.createElement('div');
+  textEl.style.cssText = 'font-family:\'Bricolage Grotesque\',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:600;letter-spacing:-0.02em;text-align:center;color:var(--text);transition:opacity 0.3s;';
+  const dotsEl = document.createElement('div');
+  dotsEl.style.cssText = 'display:flex;gap:8px;margin-top:8px;';
+
+  overlay.append(iconEl, textEl, dotsEl);
+  document.body.appendChild(overlay);
+
+  function renderFrame() {
+    iconEl.style.opacity = '0'; textEl.style.opacity = '0';
+    setTimeout(() => {
+      iconEl.textContent = frames[frameIdx].icon;
+      textEl.textContent = frames[frameIdx].text;
+      dotsEl.innerHTML = frames.map((_, i) =>
+        `<div style="width:6px;height:6px;border-radius:50%;background:${i === frameIdx ? 'var(--mint)' : 'var(--text-faint)'};transition:background 0.3s;"></div>`
+      ).join('');
+      iconEl.style.opacity = '1'; textEl.style.opacity = '1';
+    }, 150);
+  }
+
+  renderFrame();
+  const autoTimer = setInterval(() => {
+    frameIdx++;
+    if (frameIdx >= frames.length) {
+      clearInterval(autoTimer);
+      showReadyScreen();
+    } else {
+      renderFrame();
+    }
+  }, 1500);
+
+  function showReadyScreen() {
+    overlay.innerHTML = '';
+    overlay.style.gap = '32px';
+    const title = document.createElement('div');
+    title.style.cssText = 'font-family:\'Bricolage Grotesque\',sans-serif;font-size:clamp(28px,8vw,40px);font-weight:600;letter-spacing:-0.03em;color:var(--text);text-align:center;';
+    title.textContent = 'both players ready?';
+    const btn = document.createElement('button');
+    btn.className = 'btn-primary';
+    btn.style.cssText = 'max-width:280px;width:100%;';
+    btn.innerHTML = 'i\'m ready <span class="arrow">→</span>';
+    const waiting = document.createElement('div');
+    waiting.style.cssText = 'font-family:\'Geist Mono\',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-soft);min-height:20px;';
+    overlay.append(title, btn, waiting);
+
+    let iReady = false;
+    let partnerReady = false;
+
+    const readyCh = _fsCh;
+
+    if (readyCh) {
+      readyCh.on('broadcast', { event: 'fs_ready' }, ({ payload }) => {
+        if (payload.user_id !== state.user.id) {
+          partnerReady = true;
+          if (iReady) proceed();
+          else {
+            const partner = partnerOf(state.room.members);
+            waiting.textContent = (partner ? partner.display_name : 'they') + ' is ready — waiting for you';
+          }
+        }
+      });
+    }
+
+    btn.addEventListener('click', () => {
+      if (iReady) return;
+      iReady = true;
+      btn.disabled = true;
+      btn.innerHTML = 'waiting for them <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--mint);margin-left:8px;vertical-align:middle;animation:blink 1s infinite;"></span>';
+      if (readyCh) {
+        readyCh.send({ type: 'broadcast', event: 'fs_ready', payload: { user_id: state.user.id } });
+      }
+      if (partnerReady) proceed();
+    });
+
+    function proceed() {
+      overlay.remove();
+      onDone();
+    }
+  }
+}
+
 function maybeStartFSRound() {
   if (!state.activeGame || state.activeGame.game_type !== 'fs') return;
   if (state.activeGame.phase !== 'countdown' && state.activeGame.phase !== 'playing') return;
@@ -3437,7 +4802,14 @@ function maybeStartFSRound() {
   stopFSTimers();
   resetFSLocal();
   if (!_fsCh) subscribeFSChannel();
-  beginFSCountdown();
+
+  const seenWalkthrough = localStorage.getItem(FS_WALKTHROUGH_KEY);
+  if (!seenWalkthrough) {
+    localStorage.setItem(FS_WALKTHROUGH_KEY, '1');
+    showFSWalkthrough(() => beginFSCountdown());
+  } else {
+    beginFSCountdown();
+  }
 }
 
 async function advanceFSRound() {
@@ -3516,6 +4888,7 @@ function renderFS() {
         <div class="fs-tap-hint" id="fsTapHint">tap anywhere</div>
         <div class="fs-overheat" id="fsOverheat">overheated</div>
         <div class="fs-countdown" id="fsCountdown"></div>
+        <div id="fsTurboBadge" style="display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:9;background:var(--mint);color:var(--bg);font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.2em;padding:6px 14px;border-radius:100px;pointer-events:none;"></div>
       </div>
     </div>
   `;
@@ -3543,12 +4916,54 @@ function paintFSScreen() {
   const hint = $('#fsTapHint');
   const overheat = $('#fsOverheat');
   const countdown = $('#fsCountdown');
+  const tapArea = $('#fsTapArea');
   if (!my) return;
 
   my.textContent = state.fsLocal.myCount;
   their.textContent = state.fsLocal.opponentCount;
-  fill.style.height = state.fsLocal.linePos + '%';
-  line.style.bottom = state.fsLocal.linePos + '%';
+
+  // tension string physics
+  const total = state.fsLocal.myCount + state.fsLocal.opponentCount;
+  const ratio = total > 0 ? state.fsLocal.myCount / total : 0.5;
+  const linePos = state.fsLocal.linePos;
+
+  // vertical position: map linePos (0-100) to translateY offset
+  const tapAreaEl = document.getElementById('fsTapArea');
+  const areaH = tapAreaEl ? tapAreaEl.offsetHeight : 400;
+  const yOffset = ((linePos - 50) / 50) * (areaH * 0.3);
+
+  // bow amount and height based on dominance
+  const dominance = Math.abs(ratio - 0.5) * 2; // 0=equal, 1=total
+  const lineH = dominance > 0.8 ? 12 : dominance > 0.6 ? 8 : 4;
+  let borderRadius = '0';
+  if (ratio > 0.6) borderRadius = `0 0 ${Math.round(dominance * 60)}px ${Math.round(dominance * 60)}px`;
+  else if (ratio < 0.4) borderRadius = `${Math.round(dominance * 60)}px ${Math.round(dominance * 60)}px 0 0`;
+
+  // colour: mint (winning) → text (neutral) → warn (losing)
+  let lineColor;
+  if (ratio >= 0.5) {
+    const t = (ratio - 0.5) * 2;
+    lineColor = `color-mix(in srgb, var(--mint) ${Math.round(t*100)}%, var(--text))`;
+  } else {
+    const t = (0.5 - ratio) * 2;
+    lineColor = `color-mix(in srgb, var(--warn) ${Math.round(t*100)}%, var(--text))`;
+  }
+
+  fill.style.height = linePos + '%';
+  line.style.bottom = linePos + '%';
+  line.style.height = lineH + 'px';
+  line.style.borderRadius = borderRadius;
+  line.style.transform = `translateY(${-yOffset}px)`;
+  line.style.background = lineColor;
+
+  // pressure vignette on tap area
+  if (tapAreaEl) {
+    const vigStrength = Math.max(0, (0.5 - ratio) * 2); // 0 at 0.5, 1 at 0
+    const vigPx = Math.round(vigStrength * 80);
+    tapAreaEl.style.boxShadow = vigPx > 0
+      ? `inset 0 0 ${vigPx}px rgba(255,107,107,0.4)`
+      : '';
+  }
 
   if (state.fsLocal.phase === 'countdown') {
     countdown.style.display = 'flex';
