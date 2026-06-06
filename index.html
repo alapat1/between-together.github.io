@@ -1117,7 +1117,7 @@
   .fs-tap-area {
     flex: 1;
     position: relative;
-    background: var(--bg-card);
+    background: #020408;
     border-radius: 24px;
     overflow: hidden;
     border: 1px solid rgba(255,255,255,0.08);
@@ -1126,39 +1126,11 @@
     min-height: 400px;
     cursor: pointer;
   }
-  .fs-tap-area::before {
-    content: '';
+  #fsCanvas {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba(255, 140, 100, 0.18) 0%, rgba(255, 140, 100, 0.05) 50%, transparent 50%);
-    pointer-events: none;
     z-index: 1;
-  }
-  .fs-bar-track {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 2;
-  }
-  .fs-bar-fill {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 50%;
-    background: linear-gradient(to top, var(--mint) 0%, var(--mint-soft) 100%);
-    opacity: 0.22;
-    transition: height 0.08s linear;
-  }
-  .fs-bar-line {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 50%;
-    height: 3px;
-    background: var(--text);
-    box-shadow: 0 0 16px rgba(245, 240, 229, 0.6);
-    transition: bottom 0.08s linear;
+    border-radius: 24px;
   }
   .fs-tap-hint {
     position: absolute;
@@ -1181,14 +1153,14 @@
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 60, 60, 0.18);
-    backdrop-filter: blur(6px);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(4px);
     font-family: 'Bricolage Grotesque', sans-serif;
     font-size: 28px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: #FF6B6B;
-    text-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+    color: #A78BFA;
+    text-shadow: 0 0 20px rgba(167, 139, 250, 0.6);
     pointer-events: none;
     animation: fsOverheatPulse 0.6s ease-in-out infinite;
   }
@@ -1210,8 +1182,30 @@
     color: var(--mint);
     text-shadow: 0 0 60px var(--mint-glow);
     pointer-events: none;
-    background: rgba(10, 10, 18, 0.55);
+    background: rgba(2, 4, 8, 0.55);
     backdrop-filter: blur(8px);
+  }
+  .fs-powerup {
+    position: absolute;
+    z-index: 4;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(254, 243, 199, 0.15);
+    border: 2px solid #FEF3C7;
+    box-shadow: 0 0 20px rgba(254, 243, 199, 0.4), 0 0 40px rgba(254, 243, 199, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    pointer-events: none;
+  }
+  .fs-powerup .fs-powerup-icon {
+    animation: fsPowerupSpin 8s linear infinite;
+  }
+  @keyframes fsPowerupSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 
   /* loading */
@@ -1607,18 +1601,12 @@
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(74,158,255,0.12);
-    backdrop-filter: blur(6px);
+    background: rgba(224, 242, 254, 0.08);
+    backdrop-filter: blur(4px);
     font-size: 28px;
     font-weight: 700;
-    color: #4A9EFF;
-    pointer-events: none;
-  }
-  .fs-bar-line-physics {
-    position: absolute;
-    left: 0; right: 0;
-    height: 4px;
-    transition: bottom 0.08s linear, border-radius 0.08s linear, height 0.08s linear, background 0.15s;
+    color: #E0F2FE;
+    text-shadow: 0 0 20px rgba(224, 242, 254, 0.6);
     pointer-events: none;
   }
 
@@ -3885,6 +3873,7 @@ function resetFSLocal() {
 }
 
 function teardownFS() {
+  stopFSRenderLoop();
   if (_fsCh) { try { sb.removeChannel(_fsCh); } catch(e) {} _fsCh = null; }
   if (_fsBroadcastTimer) { clearInterval(_fsBroadcastTimer); _fsBroadcastTimer = null; }
   if (_fsCountdownTimer) { clearInterval(_fsCountdownTimer); _fsCountdownTimer = null; }
@@ -3896,6 +3885,321 @@ function teardownFS() {
   _fsTurboTapsLeft = 0;
   _fsFrozen = false;
   state.fsLocal = null;
+  _fsParticles = [];
+  _fsBlooms = [];
+  _fsMergeParticles = [];
+  _fsWavesLeft = [];
+  _fsWavesRight = [];
+  _fsWinAnim = null;
+}
+
+// ─── Aurora Canvas Renderer ───────────────────────────
+const FS_COLOR_SELF = '#A78BFA';
+const FS_COLOR_OPP = '#34D399';
+const FS_COLOR_MERGE = '#F472B6';
+const FS_COLOR_BG = '#020408';
+const FS_COLOR_OVERHEAT = '#FFFFFF';
+const FS_COLOR_FREEZE = '#E0F2FE';
+
+let _fsRaf = null, _fsCtx = null, _fsW = 0, _fsH = 0;
+let _fsParticles = [], _fsBlooms = [], _fsMergeParticles = [];
+let _fsWavesLeft = [], _fsWavesRight = [];
+let _fsWinAnim = null;
+let _fsLoopGen = 0; // generation counter — incremented on teardown to cancel stale retries
+
+function hslShift(hex, hueShift) {
+  const r = parseInt(hex.slice(1,3),16)/255;
+  const g = parseInt(hex.slice(3,5),16)/255;
+  const b = parseInt(hex.slice(5,7),16)/255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h, s, l = (max+min)/2;
+  if (max===min) { h=s=0; } else {
+    const d = max-min;
+    s = l>0.5 ? d/(2-max-min) : d/(max+min);
+    if (max===r) h = ((g-b)/d + (g<b?6:0))/6;
+    else if (max===g) h = ((b-r)/d+2)/6;
+    else h = ((r-g)/d+4)/6;
+  }
+  h = ((h*360 + hueShift) % 360) / 360;
+  if (h<0) h+=1;
+  function hue2rgb(p,q,t){ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; }
+  let rr,gg,bb;
+  if(s===0){ rr=gg=bb=l; } else {
+    const q = l<0.5 ? l*(1+s) : l+s-l*s;
+    const p = 2*l-q;
+    rr=hue2rgb(p,q,h+1/3); gg=hue2rgb(p,q,h); bb=hue2rgb(p,q,h-1/3);
+  }
+  return `rgb(${Math.round(rr*255)},${Math.round(gg*255)},${Math.round(bb*255)})`;
+}
+
+function initFSCanvas() {
+  const canvas = document.getElementById('fsCanvas');
+  if (!canvas || !canvas.parentElement) return null;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  if (rect.width < 10 || rect.height < 10) return null;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  _fsCtx = ctx; _fsW = rect.width; _fsH = rect.height;
+  return { canvas, ctx, w: rect.width, h: rect.height };
+}
+
+function makeWave(h) {
+  return { y: Math.random()*h, opacity: 0.04+Math.random()*0.06, speed: 0.3+Math.random()*0.3, height: 40+Math.random()*80, baseOpacity: 0.04+Math.random()*0.06 };
+}
+function initAuroraWaves() {
+  _fsWavesLeft = []; _fsWavesRight = [];
+  for (let i = 0; i < 5; i++) { _fsWavesLeft.push(makeWave(_fsH)); _fsWavesRight.push(makeWave(_fsH)); }
+}
+function initMergeParticles() {
+  _fsMergeParticles = [];
+  for (let i = 0; i < 20; i++) {
+    _fsMergeParticles.push({ angle: Math.random()*Math.PI*2, radius: 8+Math.random()*12, speed: (Math.random()>0.5?1:-1)*(0.008+Math.random()*0.012), yOffset: (Math.random()-0.5)*30, size: 2+Math.random() });
+  }
+}
+
+function startFSRenderLoop() {
+  if (_fsRaf) return;
+  const gen = _fsLoopGen;
+  const setup = initFSCanvas();
+  if (!setup) {
+    setTimeout(() => { if (_fsLoopGen === gen) startFSRenderLoop(); }, 50);
+    return;
+  }
+  initAuroraWaves(); initMergeParticles();
+  let t = 0;
+  function frame() {
+    if (!_fsCtx) { _fsRaf = null; return; }
+    const ctx = _fsCtx, w = _fsW, h = _fsH;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = FS_COLOR_BG;
+    ctx.fillRect(0, 0, w, h);
+    const linePos = state.fsLocal ? state.fsLocal.linePos : 50;
+    const stringY = h * (1 - linePos / 100);
+    const ratio = linePos / 100;
+    drawAuroraWaves(ctx, w, h, t, ratio);
+    drawTapBlooms(ctx, t);
+    drawMergeSwirl(ctx, w, h, t, stringY);
+    drawRibbon(ctx, w, h, t, stringY, ratio);
+    if (_fsFrozen) drawFreezeOverlay(ctx, w, h, ratio);
+    if (_fsWinAnim) drawWinAnimation(ctx, w, h, t);
+    if (state.fsLocal && state.fsLocal.overheated) drawOverheatWash(ctx, w, h, ratio);
+    t++;
+    _fsRaf = requestAnimationFrame(frame);
+  }
+  _fsRaf = requestAnimationFrame(frame);
+}
+
+function stopFSRenderLoop() {
+  _fsLoopGen++; // invalidate any pending retries
+  if (_fsRaf) { cancelAnimationFrame(_fsRaf); _fsRaf = null; }
+  _fsCtx = null;
+}
+
+function drawAuroraWaves(ctx, w, h, t, ratio) {
+  const midX = w * ratio;
+  const isOverheated = state.fsLocal && state.fsLocal.overheated;
+  const speedMult = isOverheated ? 3 : 1;
+  const opacityMult = isOverheated ? 2 : 1;
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  for (const wave of _fsWavesLeft) {
+    wave.y -= wave.speed * speedMult;
+    if (wave.y + wave.height/2 < 0) { wave.y = h + wave.height/2; wave.height = 40+Math.random()*80; }
+    const alpha = wave.baseOpacity * Math.min(1.5, 0.7+ratio*0.6) * opacityMult;
+    if (alpha < 0.01) continue;
+    ctx.globalAlpha = alpha;
+    const grad = ctx.createLinearGradient(0, wave.y-wave.height/2, 0, wave.y+wave.height/2);
+    grad.addColorStop(0,'transparent'); grad.addColorStop(0.5, FS_COLOR_SELF); grad.addColorStop(1,'transparent');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, wave.y-wave.height/2, midX, wave.height);
+  }
+  const frozenSlowMult = _fsFrozen ? 0.1 : 1;
+  for (const wave of _fsWavesRight) {
+    wave.y -= wave.speed * frozenSlowMult;
+    if (wave.y + wave.height/2 < 0) { wave.y = h + wave.height/2; wave.height = 40+Math.random()*80; }
+    const alpha = wave.baseOpacity * Math.min(1.5, 0.7+(1-ratio)*0.6);
+    if (alpha < 0.01) continue;
+    ctx.globalAlpha = alpha;
+    const grad = ctx.createLinearGradient(0, wave.y-wave.height/2, 0, wave.y+wave.height/2);
+    const waveColor = _fsFrozen ? FS_COLOR_FREEZE : FS_COLOR_OPP;
+    grad.addColorStop(0,'transparent'); grad.addColorStop(0.5, waveColor); grad.addColorStop(1,'transparent');
+    ctx.fillStyle = grad;
+    ctx.fillRect(midX, wave.y-wave.height/2, w-midX, wave.height);
+  }
+  ctx.restore();
+}
+
+function spawnTapBloom(x, y) {
+  const isOverheated = state.fsLocal && state.fsLocal.overheated;
+  for (let i = 0; i < 12; i++) {
+    const angle = Math.random()*Math.PI*2;
+    const speed = 0.8+Math.random()*1.2;
+    const maxLife = 60+Math.random()*30;
+    if (_fsParticles.length >= 150) _fsParticles.shift();
+    _fsParticles.push({ x, y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, radius: 4+Math.random()*8, opacity: 0.7, colour: isOverheated ? FS_COLOR_OVERHEAT : hslShift(FS_COLOR_SELF, (Math.random()-0.5)*30), life: 0, maxLife });
+  }
+  _fsBlooms.push({ x, y, radius: 120, opacity: 0.12, life: 0, maxLife: 40, colour: isOverheated ? FS_COLOR_OVERHEAT : FS_COLOR_SELF });
+}
+
+function spawnPowerupBurst(x, y) {
+  for (let i = 0; i < 20; i++) {
+    const angle = Math.random()*Math.PI*2;
+    const speed = 1+Math.random()*2;
+    if (_fsParticles.length >= 150) _fsParticles.shift();
+    _fsParticles.push({ x, y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, radius: 3+Math.random()*6, opacity: 0.8, colour: '#FEF3C7', life: 0, maxLife: 50+Math.random()*20 });
+  }
+}
+
+function drawTapBlooms(ctx, t) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  for (let i = _fsBlooms.length-1; i >= 0; i--) {
+    const b = _fsBlooms[i]; b.life++;
+    const progress = b.life/b.maxLife;
+    if (progress >= 1) { _fsBlooms.splice(i,1); continue; }
+    ctx.globalAlpha = b.opacity*(1-progress);
+    const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.radius);
+    grad.addColorStop(0, b.colour); grad.addColorStop(1,'transparent');
+    ctx.fillStyle = grad;
+    ctx.fillRect(b.x-b.radius, b.y-b.radius, b.radius*2, b.radius*2);
+  }
+  for (let i = _fsParticles.length-1; i >= 0; i--) {
+    const p = _fsParticles[i]; p.life++;
+    if (p.life >= p.maxLife) { _fsParticles.splice(i,1); continue; }
+    p.x += p.vx; p.y += p.vy;
+    const progress = p.life/p.maxLife;
+    ctx.globalAlpha = p.opacity*(1-progress);
+    ctx.fillStyle = p.colour;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius*(1-progress*0.3), 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawMergeSwirl(ctx, w, h, t, stringY) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = FS_COLOR_MERGE;
+  for (const p of _fsMergeParticles) {
+    p.angle += p.speed;
+    const px = w/2 + Math.cos(p.angle)*p.radius;
+    const py = stringY + p.yOffset + Math.sin(p.angle)*p.radius*0.5;
+    ctx.beginPath(); ctx.arc(px, py, p.size, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawRibbon(ctx, w, h, t, stringY, ratio) {
+  ctx.save();
+  const bow = (ratio-0.5)*h*0.3;
+  const lineWidth = 3 + Math.abs(ratio-0.5)*6;
+  let vibrationY = 0;
+  if (state.fsLocal && state.fsLocal.phase === 'countdown') {
+    const cd = state.fsLocal.countdown;
+    const amp = cd >= 3 ? 4 : cd === 2 ? 8 : cd === 1 ? 16 : 0;
+    vibrationY = Math.sin(t*0.5)*amp;
+  }
+  if (state.fsLocal && state.fsLocal._snapTime !== undefined && state.fsLocal._snapTime !== null) {
+    const elapsed = t - state.fsLocal._snapTime;
+    if (elapsed >= 0 && elapsed < 18) {
+      vibrationY = 40*Math.sin(elapsed*0.8)*Math.exp(-elapsed*0.15);
+    } else if (elapsed >= 18) {
+      state.fsLocal._snapTime = null;
+    }
+  }
+  const sy = stringY + vibrationY;
+  const pulse = 12 + 16*(0.5+0.5*Math.sin(t*0.05));
+  if (_fsWinAnim && _fsWinAnim.phase >= 3) {
+    const shimmerT = (_fsWinAnim.elapsed-800)/200;
+    if (shimmerT >= 0 && shimmerT < 1 && Math.floor(shimmerT*8)%2 === 1) { ctx.restore(); return; }
+  }
+  ctx.shadowBlur = pulse;
+  ctx.shadowColor = FS_COLOR_MERGE;
+  ctx.lineWidth = lineWidth;
+  const grad = ctx.createLinearGradient(0,0,w,0);
+  const midStop = Math.max(0.05, Math.min(0.95, ratio));
+  grad.addColorStop(0, FS_COLOR_SELF);
+  grad.addColorStop(midStop, FS_COLOR_MERGE);
+  grad.addColorStop(1, _fsFrozen ? FS_COLOR_FREEZE : FS_COLOR_OPP);
+  ctx.strokeStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(0, sy);
+  ctx.bezierCurveTo(w*0.25, sy+bow, w*0.75, sy+bow, w, sy);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawOverheatWash(ctx, w, h, ratio) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  const midX = w*ratio;
+  const grad = ctx.createRadialGradient(0, h/2, 0, 0, h/2, midX*1.2);
+  grad.addColorStop(0, 'rgba(167,139,250,0.25)'); grad.addColorStop(1,'transparent');
+  ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
+  ctx.restore();
+}
+
+function drawFreezeOverlay(ctx, w, h, ratio) {
+  ctx.save();
+  ctx.globalAlpha = 0.08;
+  ctx.fillStyle = FS_COLOR_FREEZE;
+  const midX = w*ratio;
+  const size = 4;
+  for (let x = midX; x < w; x += size*3) {
+    for (let y = 0; y < h; y += size*3) {
+      ctx.beginPath();
+      ctx.moveTo(x, y-size); ctx.lineTo(x+size, y); ctx.lineTo(x, y+size); ctx.lineTo(x-size, y);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function startWinAnimation(winnerId) {
+  const isMe = winnerId === state.user.id;
+  _fsWinAnim = { startT: null, elapsed: 0, phase: 0, winnerColor: isMe ? FS_COLOR_SELF : FS_COLOR_OPP, done: false };
+}
+
+function drawWinAnimation(ctx, w, h, t) {
+  if (!_fsWinAnim) return;
+  if (_fsWinAnim.startT === null) _fsWinAnim.startT = t;
+  _fsWinAnim.elapsed = ((t - _fsWinAnim.startT)/60)*1000;
+  const ms = _fsWinAnim.elapsed;
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  if (ms < 400) {
+    const progress = ms/400, radius = Math.max(w,h)*progress;
+    ctx.globalAlpha = 0.8*(1-progress);
+    const stringY = _fsH*(1-(state.fsLocal ? state.fsLocal.linePos : 50)/100);
+    const grad = ctx.createRadialGradient(w/2, stringY, 0, w/2, stringY, radius);
+    grad.addColorStop(0, _fsWinAnim.winnerColor); grad.addColorStop(1,'transparent');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
+    _fsWinAnim.phase = 1;
+  }
+  if (ms >= 400 && ms < 800) {
+    const progress = (ms-400)/400;
+    ctx.globalAlpha = 0.15+progress*0.15;
+    ctx.fillStyle = _fsWinAnim.winnerColor;
+    ctx.fillRect(0,0,w,h);
+    _fsWinAnim.phase = 2;
+  }
+  if (ms >= 800 && ms < 1000) _fsWinAnim.phase = 3;
+  if (ms >= 1000 && ms < 1200) {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = (ms-1000)/200;
+    ctx.fillStyle = FS_COLOR_BG;
+    ctx.fillRect(0,0,w,h);
+    _fsWinAnim.phase = 4;
+  }
+  if (ms >= 1200) { _fsWinAnim.done = true; _fsWinAnim.phase = 5; }
+  ctx.restore();
 }
 
 function subscribeFSChannel() {
@@ -3918,7 +4222,11 @@ function subscribeFSChannel() {
       state.fsLocal.phase = 'over';
       stopFSTimers();
       hostRecordFSRoundWin(payload.winner_id);
-      renderFS();
+      startWinAnimation(payload.winner_id);
+      setTimeout(() => {
+        _fsWinAnim = null;
+        renderFS();
+      }, 1200);
     })
     .on('broadcast', { event: 'sabotage' }, ({ payload }) => {
       if (!state.fsLocal || state.fsLocal.phase !== 'playing') return;
@@ -3983,7 +4291,11 @@ function declareFSRoundWinner(winner_id) {
     });
   }
   hostRecordFSRoundWin(winner_id);
-  renderFS();
+  startWinAnimation(winner_id);
+  setTimeout(() => {
+    _fsWinAnim = null;
+    renderFS();
+  }, 1200);
 }
 
 async function hostRecordFSRoundWin(winner_id) {
@@ -4019,14 +4331,21 @@ function checkPowerupHit(touchX, touchY) {
       const el = document.getElementById('fsPowerup_' + p.id);
       if (el) el.remove();
       _fsPowerups.splice(i, 1);
-      activatePowerup(p.type);
+      activatePowerup(p.type, p.cx, p.cy);
       return true;
     }
   }
   return false;
 }
 
-function activatePowerup(type) {
+function activatePowerup(type, hitX, hitY) {
+  if (hitX !== undefined && hitY !== undefined) {
+    const tapArea = document.getElementById('fsTapArea');
+    if (tapArea) {
+      const rect = tapArea.getBoundingClientRect();
+      spawnPowerupBurst(hitX - rect.left, hitY - rect.top);
+    }
+  }
   if (type === 'bomb') {
     state.fsLocal.overheated = true;
     if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
@@ -4087,6 +4406,24 @@ function onFSTap(e) {
 
   state.fsLocal.myCount += weight;
   computeFSLine();
+
+  // Spawn tap bloom at touch/click position relative to canvas
+  const tapArea = document.getElementById('fsTapArea');
+  if (tapArea && e) {
+    const rect = tapArea.getBoundingClientRect();
+    let tx, ty;
+    if (e.touches && e.touches.length > 0) {
+      tx = e.touches[0].clientX - rect.left;
+      ty = e.touches[0].clientY - rect.top;
+    } else if (e.clientX !== undefined) {
+      tx = e.clientX - rect.left;
+      ty = e.clientY - rect.top;
+    } else {
+      tx = rect.width / 2; ty = rect.height / 2;
+    }
+    spawnTapBloom(tx, ty);
+  }
+
   paintFSScreen();
 }
 
@@ -4120,7 +4457,7 @@ function beginFSCountdown() {
       _fsCountdownTimer = null;
       beginFSMatch();
     } else {
-      renderFS();
+      paintFSScreen();
     }
   }, 1000);
 }
@@ -4128,7 +4465,8 @@ function beginFSCountdown() {
 function beginFSMatch() {
   if (!state.fsLocal) return;
   state.fsLocal.phase = 'playing';
-  renderFS();
+  state.fsLocal._snapTime = 0;
+  paintFSScreen();
   startFSBroadcastLoop();
   schedulePowerupSpawn();
   if (_fsMatchTimer) clearTimeout(_fsMatchTimer);
@@ -4359,6 +4697,13 @@ function renderFS() {
   // playing / countdown — always check; guard inside handles idempotency
   maybeStartFSRound();
 
+  // If the canvas is already running for THIS round, don't rebuild the DOM — just update counters
+  const currentRoundKey = `${g.id}:${g.state.match_round}`;
+  if (document.getElementById('fsCanvas') && _fsRaf && _fsCtx && _fsRoundKey === currentRoundKey) {
+    paintFSScreen();
+    return;
+  }
+
   body.innerHTML = `
     <div class="fs-wrap" id="fsWrap">
       <div class="fs-top">
@@ -4376,10 +4721,7 @@ function renderFS() {
         </div>
       </div>
       <div class="fs-tap-area" id="fsTapArea">
-        <div class="fs-bar-track">
-          <div class="fs-bar-fill" id="fsBarFill"></div>
-          <div class="fs-bar-line" id="fsBarLine"></div>
-        </div>
+        <canvas id="fsCanvas"></canvas>
         <div class="fs-tap-hint" id="fsTapHint">tap anywhere</div>
         <div class="fs-overheat" id="fsOverheat">overheated</div>
         <div class="fs-countdown" id="fsCountdown"></div>
@@ -4400,65 +4742,23 @@ function renderFS() {
     onFSTap(e);
   });
   paintFSScreen();
+
+  // Start canvas render loop after DOM is ready
+  stopFSRenderLoop();
+  requestAnimationFrame(() => startFSRenderLoop());
 }
 
 function paintFSScreen() {
   if (!state.fsLocal) return;
   const my = $('#fsMyCount');
   const their = $('#fsTheirCount');
-  const fill = $('#fsBarFill');
-  const line = $('#fsBarLine');
   const hint = $('#fsTapHint');
   const overheat = $('#fsOverheat');
   const countdown = $('#fsCountdown');
-  const tapArea = $('#fsTapArea');
   if (!my) return;
 
   my.textContent = state.fsLocal.myCount;
   their.textContent = state.fsLocal.opponentCount;
-
-  // tension string physics
-  const total = state.fsLocal.myCount + state.fsLocal.opponentCount;
-  const ratio = total > 0 ? state.fsLocal.myCount / total : 0.5;
-  const linePos = state.fsLocal.linePos;
-
-  // vertical position: map linePos (0-100) to translateY offset
-  const tapAreaEl = document.getElementById('fsTapArea');
-  const areaH = tapAreaEl ? tapAreaEl.offsetHeight : 400;
-  const yOffset = ((linePos - 50) / 50) * (areaH * 0.3);
-
-  // bow amount and height based on dominance
-  const dominance = Math.abs(ratio - 0.5) * 2; // 0=equal, 1=total
-  const lineH = dominance > 0.8 ? 12 : dominance > 0.6 ? 8 : 4;
-  let borderRadius = '0';
-  if (ratio > 0.6) borderRadius = `0 0 ${Math.round(dominance * 60)}px ${Math.round(dominance * 60)}px`;
-  else if (ratio < 0.4) borderRadius = `${Math.round(dominance * 60)}px ${Math.round(dominance * 60)}px 0 0`;
-
-  // colour: mint (winning) → text (neutral) → warn (losing)
-  let lineColor;
-  if (ratio >= 0.5) {
-    const t = (ratio - 0.5) * 2;
-    lineColor = `color-mix(in srgb, var(--mint) ${Math.round(t*100)}%, var(--text))`;
-  } else {
-    const t = (0.5 - ratio) * 2;
-    lineColor = `color-mix(in srgb, var(--warn) ${Math.round(t*100)}%, var(--text))`;
-  }
-
-  fill.style.height = linePos + '%';
-  line.style.bottom = linePos + '%';
-  line.style.height = lineH + 'px';
-  line.style.borderRadius = borderRadius;
-  line.style.transform = `translateY(${-yOffset}px)`;
-  line.style.background = lineColor;
-
-  // pressure vignette on tap area
-  if (tapAreaEl) {
-    const vigStrength = Math.max(0, (0.5 - ratio) * 2); // 0 at 0.5, 1 at 0
-    const vigPx = Math.round(vigStrength * 80);
-    tapAreaEl.style.boxShadow = vigPx > 0
-      ? `inset 0 0 ${vigPx}px rgba(255,107,107,0.4)`
-      : '';
-  }
 
   if (state.fsLocal.phase === 'countdown') {
     countdown.style.display = 'flex';
