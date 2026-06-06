@@ -4656,7 +4656,7 @@ async function advanceFSRound() {
 }
 
 function renderFS() {
-  const body = $('#roomBody');
+  const body = document.getElementById('overlayBody') || $('#roomBody');
   const g = state.activeGame;
   const me = selfOf(state.room.members);
   const partner = partnerOf(state.room.members);
@@ -4778,7 +4778,7 @@ function paintFSScreen() {
 
 
 function renderEndCard() {
-  const body = $('#roomBody');
+  const body = document.getElementById('overlayBody') || $('#roomBody');
   const g = state.activeGame;
   const me = selfOf(state.room.members);
   const partner = partnerOf(state.room.members);
