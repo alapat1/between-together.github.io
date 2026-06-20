@@ -3691,7 +3691,7 @@ async function joinRoom(code) {
 async function loadRoom(code) {
   const { data: room, error } = await sb
     .from('rooms')
-    .select('id, code, created_by, created_at, display_name')
+    .select('id, code, created_by, created_at, display_name, seen_prompts')
     .eq('code', code)
     .maybeSingle();
   if (error || !room) { toast('that room is gone', true); return goHome(); }
@@ -4397,10 +4397,14 @@ async function startGame(type, rounds) {
   let initialState;
   let initialPhase;
   let initialTurn = null;
+  let wyrPickedIdxs = null;
 
   if (type === 'wyr') {
     const n = rounds || ROUNDS_WYR_DEFAULT;
-    const prompts = pickWyrPrompts(n);
+    const seen = await getFreshSeen();
+    const picked = pickWyrPrompts(n, seen.wyr || []);
+    const prompts = picked.prompts;
+    wyrPickedIdxs = picked.idxs;
     initialState = {
       round: 0,
       prompts,
@@ -4524,6 +4528,7 @@ async function startGame(type, rounds) {
   }
   state.activeGame = data;
   state.wyrLastChoiceRound = -1;
+  if (type === 'wyr' && wyrPickedIdxs) { try { await persistSeen({ wyr: wyrPickedIdxs }); } catch (e) {} }
   teardownFS();
   renderRoom();
 }
@@ -4536,9 +4541,37 @@ function pickFreshIdx(poolLen, usedIdxs) {
   return available[Math.floor(Math.random() * available.length)];
 }
 
-function pickWyrPrompts(n) {
-  const shuffled = [...WYR_PROMPTS].map(function(p) { return { p: p, r: Math.random() }; }).sort(function(a, b) { return a.r - b.r; }).map(function(x) { return x.p; });
-  return shuffled.slice(0, n);
+// ─── Durable no-repeat prompt ledger (per room) ────────
+// Seen prompts live on rooms.seen_prompts as { wyr:[idx...], tod:["theme/tier/type/idx"...] }.
+// TOD and Spin share the `tod` set (same prompt pool), so a prompt seen in one
+// won't resurface in the other across games. Read fresh before each pick so a
+// partner's recent picks are respected.
+async function getFreshSeen() {
+  if (!state.room) return {};
+  const { data } = await sb.from('rooms').select('seen_prompts').eq('id', state.room.id).maybeSingle();
+  const s = (data && data.seen_prompts) || {};
+  state.room.seen_prompts = s;
+  return s;
+}
+async function persistSeen(patch) {
+  if (!state.room) return;
+  const cur = state.room.seen_prompts || {};
+  const next = Object.assign({}, cur, {
+    wyr: Array.from(new Set([...(cur.wyr || []), ...((patch.wyr) || [])])),
+    tod: Array.from(new Set([...(cur.tod || []), ...((patch.tod) || [])]))
+  });
+  state.room.seen_prompts = next;
+  await sb.from('rooms').update({ seen_prompts: next }).eq('id', state.room.id);
+}
+
+function pickWyrPrompts(n, seen) {
+  const seenSet = new Set(seen || []);
+  let idxs = WYR_PROMPTS.map(function(_, i) { return i; }).filter(function(i) { return !seenSet.has(i); });
+  // not enough unseen left → reset to the full pool (repeats only after exhaustion)
+  if (idxs.length < n) idxs = WYR_PROMPTS.map(function(_, i) { return i; });
+  idxs = idxs.map(function(i) { return { i: i, r: Math.random() }; }).sort(function(a, b) { return a.r - b.r; }).map(function(x) { return x.i; });
+  const chosen = idxs.slice(0, n);
+  return { prompts: chosen.map(function(i) { return WYR_PROMPTS[i]; }), idxs: chosen };
 }
 
 // ─── WYR rendering ────────────────────────────────────
@@ -4850,9 +4883,11 @@ async function tod2PickChoice(choice) {
   const g = state.activeGame;
   const theme = g.state.theme || 'casual';
   const tier = getTODTier(theme, g.state.round, g.state.totalRounds);
-  const idx = pickPrompt(theme, tier, choice, g.state.usedPrompts);
+  const seen = await getFreshSeen();
+  const idx = pickPrompt(theme, tier, choice, seen.tod || []);
   const promptText = (TOD_PROMPTS[theme] && TOD_PROMPTS[theme][tier] && TOD_PROMPTS[theme][tier][choice] && TOD_PROMPTS[theme][tier][choice][idx]) || '';
-  const newUsed = (g.state.usedPrompts || []).concat([promptKey(theme, tier, choice, idx)]);
+  const key = promptKey(theme, tier, choice, idx);
+  const newUsed = (g.state.usedPrompts || []).concat([key]);
   await sb.from('game_sessions')
     .update({
       phase: 'prompt_active',
@@ -4868,6 +4903,7 @@ async function tod2PickChoice(choice) {
       })
     })
     .eq('id', g.id);
+  try { await persistSeen({ tod: [key] }); } catch (e) {}
 }
 
 function renderTODPromptActive(gs, iAmCurrentTurn, iAmChooser, myId, partnerName, myName) {
@@ -5226,15 +5262,14 @@ async function saveSpinResult(segmentIdx) {
   const segment = SPIN_SEGMENTS[segmentIdx];
   const theme = g.state.theme || 'casual';
 
-  const list = TOD_PROMPTS[theme]?.[segment.tier]?.[segment.type]
-    || TOD_PROMPTS['casual']['easy']['truth'];
+  // Shared no-repeat ledger with TOD (same prompt pool)
+  const seen = await getFreshSeen();
+  const idx = pickPrompt(theme, segment.tier, segment.type, seen.tod || []);
+  const key = promptKey(theme, segment.tier, segment.type, idx);
 
-  const used = g.state.used[segment.tier]?.[segment.type] || [];
-  const idx = pickFreshIdx(list.length, used);
-
-  const newUsed = JSON.parse(JSON.stringify(g.state.used));
+  const newUsed = JSON.parse(JSON.stringify(g.state.used || {}));
   if (!newUsed[segment.tier]) newUsed[segment.tier] = { truth: [], dare: [] };
-  newUsed[segment.tier][segment.type] = [...used, idx];
+  newUsed[segment.tier][segment.type] = [...(newUsed[segment.tier][segment.type] || []), idx];
 
   const newState = {
     ...g.state,
@@ -5248,6 +5283,7 @@ async function saveSpinResult(segmentIdx) {
   await sb.from('game_sessions')
     .update({ state: newState, phase: 'prompt' })
     .eq('id', g.id).eq('version', g.version);
+  try { await persistSeen({ tod: [key] }); } catch (e) {}
 }
 
 function spinTypeText(el, text) {
