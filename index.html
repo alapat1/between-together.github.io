@@ -1680,6 +1680,62 @@
   .phys-card:active {
     transform: scale(0.97) !important;
   }
+  /* ───────── Redesign v2: richer surfaces, glow, unified TOD/Spin ───────── */
+  #game-overlay { overflow-x: hidden; }
+  #overlayBody { position: relative; z-index: 1; }
+  .game-aura { position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none; z-index: 0; }
+  .game-aura.a1 { width: 300px; height: 300px; background: var(--mint); opacity: .14; top: -40px; left: -50px; animation: auraFloat 12s ease-in-out infinite; }
+  .game-aura.a2 { width: 280px; height: 280px; background: #A974FF; opacity: .16; bottom: 40px; right: -70px; animation: auraFloat2 15s ease-in-out infinite; }
+  .game-aura.a3 { width: 220px; height: 220px; background: #FB7CA0; opacity: .10; top: 42%; left: 45%; animation: auraFloat 18s ease-in-out infinite reverse; }
+  @keyframes auraFloat  { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(18px,28px) scale(1.12)} }
+  @keyframes auraFloat2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-22px,-18px) scale(1.15)} }
+
+  .tod2-theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tod2-theme-card {
+    background: linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.015));
+    border: 1.5px solid rgba(255,255,255,.10);
+    position: relative; overflow: hidden;
+  }
+  .tod2-theme-card::after {
+    content:''; position:absolute; inset:0; opacity:.5; pointer-events:none; mix-blend-mode:screen;
+    background: radial-gradient(120px 80px at 80% 0%, var(--tc, var(--mint)) 0%, transparent 70%);
+  }
+  .tod2-theme-card .tod2-theme-label { color: var(--tc, var(--text)); position:relative; z-index:1; }
+  .tod2-theme-card .tod2-theme-desc { position:relative; z-index:1; }
+  .tod2-theme-card:hover:not([disabled]) { border-color: var(--tc, var(--mint)); background: linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.02)); }
+  .tod2-theme-card.selected { border-color: var(--tc, var(--mint)); box-shadow: 0 0 0 1px var(--tc, var(--mint)), 0 10px 32px -8px var(--tc, var(--mint)); background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); }
+  .tod2-theme-card.selected::after { opacity:.9; }
+  .tod2-theme-card[data-theme="casual"]     { --tc:#7FFFC4; }
+  .tod2-theme-card[data-theme="playful"]    { --tc:#5AA8FF; }
+  .tod2-theme-card[data-theme="romantic"]   { --tc:#FB7CA0; }
+  .tod2-theme-card[data-theme="unfiltered"] { --tc:#FF6B6B; }
+
+  .tod2-prompt-card {
+    background: linear-gradient(165deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border: 1px solid rgba(255,255,255,.10);
+  }
+  .tod2-phase-banner {
+    background: linear-gradient(180deg, rgba(255,140,100,.16), rgba(255,140,100,.05));
+    box-shadow: 0 8px 30px -12px rgba(255,140,100,.5);
+  }
+
+  .btn-primary {
+    background: linear-gradient(180deg, #9bffd6, var(--mint) 60%, var(--mint-soft));
+    color: #06140d; border: none;
+    box-shadow: 0 6px 0 var(--mint-deep), 0 12px 28px -8px rgba(127,255,196,.55);
+  }
+  .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--mint-deep); }
+
+  .tod-pick-btn[data-pick="truth"] { background: linear-gradient(160deg, rgba(90,168,255,.16), rgba(90,168,255,.03)); border-color: rgba(90,168,255,.55); color:#bcdcff; }
+  .tod-pick-btn[data-pick="dare"]  { background: linear-gradient(160deg, rgba(255,140,100,.16), rgba(255,140,100,.03)); border-color: rgba(255,140,100,.55); color:#ffd0bc; }
+  .tod-pick-btn:active { transform: scale(.98); }
+
+  .judge-btn { font-weight:600; }
+  .judge-btn.did   { background: linear-gradient(180deg, var(--mint), var(--mint-soft)); border-color: var(--mint); color:#06140d; box-shadow:0 0 22px rgba(127,255,196,.35); }
+  .judge-btn.didnt { background: linear-gradient(160deg, rgba(255,107,107,.18), rgba(255,107,107,.04)); border-color: rgba(255,107,107,.6); color:#ffd2d2; }
+  .judge-btn.did:hover   { color:#06140d; }
+  .judge-btn.didnt:hover { color:#ffd2d2; }
+  .judge-btn:active { transform: scale(.97); }
 </style>
 </head>
 <body>
@@ -4037,6 +4093,13 @@ function openGameOverlay() {
   const overlay = document.getElementById('game-overlay');
   const roomScreen = document.getElementById('screen-room');
   if (!overlay) return;
+  if (!overlay.querySelector('.game-aura')) {
+    ['a1', 'a2', 'a3'].forEach(c => {
+      const d = document.createElement('div');
+      d.className = 'game-aura ' + c;
+      overlay.prepend(d);
+    });
+  }
   overlay.classList.add('active');
   roomScreen.classList.add('game-active');
 }
@@ -4991,23 +5054,23 @@ function renderSpinTheme() {
   `;
 
   const themeBtns = TOD_THEMES.map(t => `
-    <button class="spice-btn" data-theme="${t.id}" ${canChoose ? '' : 'disabled'} style="border-color:${canChoose ? t.color : 'transparent'}">
-      <div>${t.name.toLowerCase()}</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-top:4px">${t.desc}</div>
+    <button class="tod2-theme-card" data-theme="${t.id}" ${canChoose ? '' : 'disabled'}>
+      <div class="tod2-theme-label">${t.name.toLowerCase()}</div>
+      <div class="tod2-theme-desc">${t.desc}</div>
     </button>
   `).join('');
 
   body.innerHTML = `
-    <div class="game-screen">
+    <div class="tod2-screen">
       ${header}
-      <div class="spice-label">${canChoose ? 'pick a vibe' : "they're picking the vibe"}</div>
-      <div class="tod-spice" style="flex-wrap:wrap">${themeBtns}</div>
+      <div class="tod2-phase-banner">${canChoose ? 'pick a vibe — the wheel does the rest' : "they're picking the vibe"}</div>
+      <div class="tod2-theme-grid">${themeBtns}</div>
     </div>
   `;
 
   $('#spinBack')?.addEventListener('click', () => confirmEndGame());
-  body.querySelectorAll('.spice-btn').forEach(b => {
-    if (b.dataset.theme) b.addEventListener('click', () => lockSpinTheme(b.dataset.theme));
+  body.querySelectorAll('.tod2-theme-card:not([disabled])').forEach(b => {
+    if (b.dataset.theme) b.addEventListener('pointerup', () => lockSpinTheme(b.dataset.theme));
   });
 }
 
@@ -5226,17 +5289,16 @@ function renderSpinPrompt() {
         </div>
         <div class="game-round">${g.state.round+1}/${g.state.total_rounds}</div>
       </div>
-      <div class="spin-segment-reveal" style="border-color:${segColor};box-shadow:0 0 40px ${segColor}44">
-        <div class="spin-segment-symbol" style="color:${segColor}">${segment.symbol}</div>
-        <div class="spin-segment-type">${g.state.current_type}</div>
+      <div class="spin-segment-reveal" style="border:none;box-shadow:none">
+        <div class="spin-segment-symbol" style="color:${segColor};filter:drop-shadow(0 0 16px ${segColor})">${segment.symbol}</div>
+        <div class="spin-segment-type">${g.state.current_tier} · ${g.state.current_type}</div>
       </div>
-      <div class="tod-prompt-box" style="border-color:${segColor};box-shadow:0 0 40px ${segColor}22">
-        <div class="tod-prompt-tag" style="color:${segColor}">${g.state.current_tier} · ${g.state.current_type}</div>
-        <div class="tod-prompt-text" id="spinPromptTxt"></div>
+      <div class="tod2-prompt-card" style="border-color:${segColor};box-shadow:0 0 44px -6px ${segColor}">
+        <span id="spinPromptTxt"></span>
       </div>
       ${isSpinner
-        ? `<button class="btn-primary" id="spinDoneBtn">i did it <span class="arrow">→</span></button>`
-        : `<div class="tod-judge"><button class="judge-btn did" id="spinDid">they did it</button><button class="judge-btn didnt" id="spinDidnt">they didn't</button></div>`
+        ? `<div class="tod2-action-row"><button class="btn-primary" id="spinDoneBtn" style="flex:1">i did it <span class="arrow">→</span></button></div>`
+        : `<div class="tod2-action-row"><button class="judge-btn didnt" id="spinDidnt">they didn't</button><button class="judge-btn did" id="spinDid">they did it</button></div>`
       }
     </div>`;
 
