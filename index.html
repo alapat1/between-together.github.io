@@ -3500,20 +3500,9 @@ $('#ampChar').addEventListener('click', () => {
 // ─── Auth flow ─────────────────────────────────────────
 async function startFlow(action) {
   state.pendingAction = action;
-  if (action.type === 'join') {
-    // pre-check the room exists (capacity is enforced by trigger on insert)
-    const { data: room, error } = await sb
-      .from('rooms')
-      .select('id, code')
-      .eq('code', action.code)
-      .maybeSingle();
-    if (error || !room) {
-      toast('no room with that code', true);
-      slots.forEach(s => { s.value = ''; s.classList.remove('filled'); });
-      slots[0].focus();
-      return;
-    }
-  }
+  // No pre-check here: rooms aren't world-readable anymore. Existence is
+  // validated server-side at join time (join_room_by_code raises no_such_room),
+  // and joinRoom surfaces that as "no room with that code".
 
   // ensure auth
   const { data: { user } } = await sb.auth.getUser();
@@ -3625,35 +3614,22 @@ async function joinRoom(code) {
   show('screen-room');
   $('#roomBody').innerHTML = '<div class="loading">slipping into the room</div>';
 
-  const { data: room, error } = await sb
-    .from('rooms')
-    .select('id, code')
-    .eq('code', code)
-    .maybeSingle();
-  if (error || !room) { toast('no room with that code', true); return goHome(); }
-
-  // try insert (idempotent if already a member)
-  const { data: existing } = await sb
-    .from('room_members')
-    .select('user_id')
-    .eq('room_id', room.id)
-    .eq('user_id', state.user.id)
-    .maybeSingle();
-
-  if (!existing) {
-    const { error: jErr } = await sb
-      .from('room_members')
-      .insert({ room_id: room.id, user_id: state.user.id, role: 'guest' });
-    if (jErr) {
-      console.error(jErr);
-      const msg = jErr.message && jErr.message.includes('full') ? 'that room is full' : 'could not join';
-      toast(msg, true);
-      return goHome();
-    }
+  // Join via server-side function: it looks up the room by code, enforces the
+  // 2-person cap, and adds us atomically. Idempotent if we're already a member.
+  // This means the client never needs table-wide read access to rooms.
+  const { error } = await sb.rpc('join_room_by_code', { p_code: code });
+  if (error) {
+    console.error(error);
+    const m = error.message || '';
+    const msg = m.includes('room_full') ? 'that room is full'
+      : m.includes('no_such_room') ? 'no room with that code'
+      : 'could not join';
+    toast(msg, true);
+    return goHome();
   }
 
-  window.location.hash = '/r/' + room.code;
-  await loadRoom(room.code);
+  window.location.hash = '/r/' + code;
+  await loadRoom(code);
 }
 
 async function loadRoom(code) {
@@ -6472,22 +6448,9 @@ async function handleHash() {
       return;
     }
     state.profile = prof;
-    // check if already a member
-    const { data: room } = await sb.from('rooms').select('id, code').eq('code', code).maybeSingle();
-    if (!room) {
-      goHome();
-      return;
-    }
-    const { data: existing } = await sb.from('room_members').select('user_id').eq('room_id', room.id).eq('user_id', user.id).maybeSingle();
-    if (existing) {
-      show('screen-room');
-      $('#roomBody').innerHTML = '<div class="loading">loading the room</div>';
-      await loadRoom(code);
-    } else {
-      state.pendingAction = { type: 'join', code };
-      // already have profile, just join
-      await joinRoom(code);
-    }
+    // RPC join is idempotent (no-op if already a member), then load the room.
+    state.pendingAction = { type: 'join', code };
+    await joinRoom(code);
   } else {
     if (state.room) {
       // user navigated away, clean up
