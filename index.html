@@ -1784,8 +1784,8 @@
   </div>
 
 <script>
-const SUPABASE_URL = 'https://zfbahckiiytuebejahia.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_qQfnibwTWXmjqJalCiurEg_ayJHALxH';
+const SUPABASE_URL = 'https://lnjqmsczeqmitztxlpli.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_NUpbncoR_Mj0Gyq7K-xobQ_nezLy76a';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: true, storageKey: 'bt-auth' }
 });
@@ -3306,7 +3306,9 @@ const state = {
   presence: new Set(),         // set of user_ids currently present
   activeGame: null,            // {id, type, phase, state, version, current_turn_user_id}
   channels: [],                // active realtime channels
-  wyrLastChoiceRound: -1       // local guard against multi-tap
+  wyrLastChoiceRound: -1,      // local guard against multi-tap
+  heartbeat: null,             // setInterval id for the reconciler safety-net
+  realtimeOk: true             // realtime channel health (for status dot)
 };
 
 // ─── Room History (Change 1) ───────────────────────────
@@ -3854,6 +3856,86 @@ async function unsubscribeAll() {
   }
   state.channels = [];
   state.presence = new Set();
+  if (state.heartbeat) { clearInterval(state.heartbeat); state.heartbeat = null; }
+}
+
+// Safety-net reconciler: realtime postgres_changes is best-effort (no delivery
+// or ordering guarantee). This refetches the room's current active game and
+// applies it if newer/different, so a dropped event self-heals within seconds.
+async function reconcileActiveGame() {
+  if (!state.room) return;
+  const { data } = await sb.from('game_sessions')
+    .select('*')
+    .eq('room_id', state.room.id)
+    .is('ended_at', null)
+    .order('created_at', { ascending: false })
+    .limit(1).maybeSingle();
+  if (!data) return;
+  const cur = state.activeGame;
+  if (!cur || cur.id !== data.id || data.version > cur.version) {
+    state.activeGame = data;
+    if (data.game_type === 'wyr') await refreshWyrRound();
+    renderRoom();
+  }
+}
+
+// Small connection dot so a desync is visible (and reassuring when healthy).
+function setConnStatus(ok) {
+  state.realtimeOk = ok;
+  let dot = document.getElementById('connDot');
+  if (!dot) {
+    dot = document.createElement('div');
+    dot.id = 'connDot';
+    dot.style.cssText = 'position:fixed;top:10px;right:10px;width:8px;height:8px;' +
+      'border-radius:50%;z-index:9998;pointer-events:none;transition:background .3s,box-shadow .3s;';
+    document.body.appendChild(dot);
+  }
+  if (ok) {
+    dot.style.background = 'var(--mint)';
+    dot.style.boxShadow = '0 0 6px var(--mint)';
+    dot.title = 'connected';
+  } else {
+    dot.style.background = 'var(--coral)';
+    dot.style.boxShadow = '0 0 6px var(--coral)';
+    dot.title = 'reconnecting…';
+  }
+}
+
+// If the partner goes offline mid-game, don't leave the player on a frozen
+// screen. Show a non-blocking banner with a safe "end game" escape. We do NOT
+// auto-skip their turn (that risks corrupting turn state) — ending the game
+// cleanly returns both to the lobby once the partner is back.
+function updateDisconnectBanner() {
+  const overlay = document.getElementById('game-overlay');
+  const partner = state.room && partnerOf(state.room.members);
+  const active = state.activeGame && !state.activeGame.ended_at;
+  const offline = active && partner && !state.presence.has(partner.user_id);
+  let banner = document.getElementById('disconnectBanner');
+  if (!offline) { if (banner) banner.remove(); return; }
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'disconnectBanner';
+    banner.style.cssText = 'position:absolute;left:50%;top:14px;transform:translateX(-50%);' +
+      'z-index:9997;background:var(--bg-card);border:1px solid var(--coral);color:var(--text);' +
+      'padding:10px 14px;border-radius:12px;font-size:13px;display:flex;gap:10px;align-items:center;' +
+      'box-shadow:0 6px 20px rgba(0,0,0,.4);max-width:90%;';
+    ((overlay && overlay.classList.contains('active')) ? overlay : document.body).appendChild(banner);
+  }
+  const name = escapeHtml((partner.display_name || 'your partner').slice(0, 16));
+  banner.innerHTML = '<span>' + name + ' dropped off — waiting to reconnect…</span>' +
+    '<button id="discEndBtn" style="background:var(--coral);color:#1a1a28;border:none;' +
+    'border-radius:8px;padding:6px 10px;font:inherit;font-weight:600;cursor:pointer;">end game</button>';
+  const btn = document.getElementById('discEndBtn');
+  if (btn) btn.onclick = async () => {
+    const g = state.activeGame;
+    if (g) await sb.from('game_sessions')
+      .update({ ended_at: new Date().toISOString(), phase: 'abandoned' })
+      .eq('id', g.id);
+    teardownFS();
+    state.activeGame = null;
+    banner.remove();
+    renderRoom();
+  };
 }
 
 function subscribeRoom() {
@@ -3900,21 +3982,50 @@ function subscribeRoom() {
         return;
       }
       const row = payload.new;
+      const cur = state.activeGame;
       if (row.ended_at) {
-        if (state.activeGame && state.activeGame.id === row.id) {
+        if (cur && cur.id === row.id) {
           state.activeGame = row;
           renderRoom();
         }
         return;
       }
-      // active
-      if (!state.activeGame || state.activeGame.version <= row.version) {
-        state.activeGame = row;
-        renderRoom();
+      // active game update
+      const sameGame = cur && cur.id === row.id;
+      if (sameGame) {
+        // same game: version is monotonic (DB trigger), apply newer only
+        if (row.version >= cur.version) { state.activeGame = row; renderRoom(); }
+      } else {
+        // a DIFFERENT, non-ended row = a new game superseding the old one.
+        // version is per-row, so never compare versions across games here.
+        // accept if we have no game, ours already ended, or this one is newer.
+        if (!cur || cur.ended_at || new Date(row.created_at) >= new Date(cur.created_at)) {
+          state.activeGame = row;
+          renderRoom();
+        }
       }
     })
-    .subscribe();
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        setConnStatus(true);
+        // We just (re)connected — pull current truth in case we missed events.
+        reconcileActiveGame();
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        setConnStatus(false);
+        reconcileActiveGame();
+      }
+    });
   state.channels.push(gameCh);
+
+  // Heartbeat: poll the active game while one is in progress and the tab is
+  // visible, as a backstop for any realtime event that never arrives.
+  if (state.heartbeat) clearInterval(state.heartbeat);
+  state.heartbeat = setInterval(() => {
+    if (state.room && state.activeGame && !state.activeGame.ended_at &&
+        document.visibilityState === 'visible') {
+      reconcileActiveGame();
+    }
+  }, 4000);
 
   // wyr moves changes
   const wyrCh = sb.channel(`room:${roomId}:wyr`)
@@ -4039,6 +4150,7 @@ function renderRoom() {
       renderSpin();
     }
   }
+  updateDisconnectBanner();
 }
 
 // ─── Avatar Row + Tether (Change 3) ───────────────────
@@ -4233,6 +4345,15 @@ async function startGame(type, rounds) {
   const me = selfOf(state.room.members);
   const partner = partnerOf(state.room.members);
   if (!partner) return;
+
+  // DB enforces one active game per room (unique_active_game_per_room index).
+  // End any still-active game BEFORE inserting the new one, awaited so it
+  // commits first — otherwise the insert can collide and fail. This protects
+  // every rematch / new-game path centrally.
+  await sb.from('game_sessions')
+    .update({ ended_at: new Date().toISOString() })
+    .eq('room_id', state.room.id)
+    .is('ended_at', null);
 
   let initialState;
   let initialPhase;
@@ -4850,8 +4971,8 @@ function renderTODEnd(gs, iAmCurrentTurn, iAmChooser, myId, partnerName, myName)
     '</div>';
 
   document.getElementById('tod2PlayAgain').addEventListener('click', function() {
-    const g = state.activeGame;
-    if (g) sb.from('game_sessions').update({ ended_at: new Date().toISOString() }).eq('id', g.id);
+    // startGame now ends any active game itself (awaited), so no manual
+    // ended_at update here — that race was what tripped the unique index.
     startGame('tod', gs.totalRounds);
   });
   document.getElementById('tod2BackLobby').addEventListener('click', async function() {
